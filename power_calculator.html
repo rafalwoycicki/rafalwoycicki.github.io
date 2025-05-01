@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Statistical Power & RNA-Seq Calculator</title>
+  <title>StatPowerLab – Power Calculator</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 20px; max-width: 1000px; margin: auto; }
@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h1>Statistical Power Calculator</h1>
+  <h1>StatPowerLab – Power Calculator</h1>
 
   <div class="section">
     <label for="mode">Select calculator:</label>
@@ -99,41 +99,18 @@ function updateGeneral() {
   const delta = parseFloat(document.getElementById('delta').value);
   const sigma = parseFloat(document.getElementById('sigma').value);
   const n = parseFloat(document.getElementById('n').value);
-
   const se = sigma / Math.sqrt(n);
   const z_alpha = normInv(1 - alpha);
   const x_crit = z_alpha * se;
   const z_power = (x_crit - delta) / se;
   const power = 1 - normCdf(z_power);
   const beta = 1 - power;
-
-  const result = `Power: ${(power * 100).toFixed(1)}%, Type II error (β): ${(beta * 100).toFixed(1)}%`;
-  document.getElementById('generalResult').innerText = result;
-
-  const warn = power >= 0.8
+  document.getElementById('generalResult').innerText =
+    `Power: ${(power * 100).toFixed(1)}%, Type II error (β): ${(beta * 100).toFixed(1)}%`;
+  document.getElementById('generalDetectability').innerHTML =
+    power >= 0.8
     ? `<span class='alert-ok'>Sufficient power to detect effect.</span>`
     : `<span class='alert-bad'>Insufficient power. Consider increasing sample size.</span>`;
-  document.getElementById('generalDetectability').innerHTML = warn;
-
-  const x = [], h0 = [], h1 = [];
-  for (let i = -4 * se; i <= delta + 4 * se; i += 0.1) {
-    x.push(i);
-    h0.push(gauss(i, 0, se));
-    h1.push(gauss(i, delta, se));
-  }
-
-  Plotly.newPlot('generalPlot', [
-    { x, y: h0, type: 'scatter', name: 'H₀', line: { color: 'blue' } },
-    { x, y: h1, type: 'scatter', name: 'H₁', line: { color: 'green' } }
-  ], {
-    title: 'Power Analysis – General',
-    xaxis: { title: 'Test statistic value' },
-    yaxis: { title: 'Density' }
-  });
-}
-
-function gauss(x, mu, sigma) {
-  return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
 }
 
 function estimateRNASeq() {
@@ -142,28 +119,13 @@ function estimateRNASeq() {
   const fdr = parseFloat(document.getElementById(\"fdr\").value);
   const genes = parseInt(document.getElementById(\"genes\").value);
   const power = parseFloat(document.getElementById(\"power\").value);
-
   const z_power = inverseErf(2 * power - 1) * Math.sqrt(2);
   const effectSize = lfc / Math.sqrt(disp);
   let n = Math.ceil((Math.pow((z_power + 1.96), 2)) / Math.pow(effectSize, 2));
   n = Math.ceil(n * (1 + Math.log(genes) / Math.log(1 / fdr)) * 0.1);
   if (n < 3) n = 3;
-
   document.getElementById(\"rnaResult\").innerText =
     `Estimated samples per group (target power ${power}): ${n}`;
-
-  const x = [], y = [];
-  for (let i = 2; i <= 30; i++) {
-    const z = Math.sqrt(i) * effectSize;
-    y.push(normCdf(z - 1.96));
-    x.push(i);
-  }
-
-  Plotly.newPlot('rnaPlot', [{ x, y, type: 'scatter', name: 'Power' }], {
-    title: 'Power vs Sample Size',
-    xaxis: { title: 'Samples per group' },
-    yaxis: { title: 'Power', range: [0, 1] }
-  });
 }
 
 function simulateDetectability() {
@@ -171,11 +133,9 @@ function simulateDetectability() {
   const disp = parseFloat(document.getElementById(\"dispersion\").value);
   const reads = parseInt(document.getElementById(\"readsPerIsoform\").value);
   const powerTarget = parseFloat(document.getElementById(\"power\").value);
-
   const effectSize = lfc / Math.sqrt(disp);
   const z = Math.sqrt(3) * effectSize;
   const power = reads < 30 ? 0 : normCdf(z - 1.96);
-
   const div = document.getElementById(\"rnaDetectability\");
   if (reads < 30) {
     div.innerHTML = `<span class='alert-bad'>Too few reads per isoform for reliable detection.</span>`;
@@ -184,37 +144,8 @@ function simulateDetectability() {
   } else {
     div.innerHTML = `<span class='alert-bad'>Power too low (${(power*100).toFixed(1)}%). Increase reads or samples.</span>`;
   }
-
-  const x = [], y = [];
-  for (let r = 10; r <= 200; r += 5) {
-    const p = r < 30 ? 0 : normCdf(Math.sqrt(3) * effectSize - 1.96);
-    x.push(r); y.push(p);
-  }
-
-  Plotly.newPlot('readPlot', [{ x, y, type: 'scatter', name: 'Power' }], {
-    title: 'Power vs Reads per Isoform',
-    xaxis: { title: 'Reads per isoform' },
-    yaxis: { title: 'Power', range: [0, 1] },
-    shapes: [
-      { type: 'line', x0: 30, x1: 30, y0: 0, y1: 1, line: { dash: 'dot', color: 'red' } },
-      { type: 'line', x0: 0, x1: 200, y0: powerTarget, y1: powerTarget, line: { dash: 'dot', color: 'gray' } }
-    ]
-  });
 }
 </script>
-
-<div class=\"legend-box\">
-  <h2>Legend – Explanation of Variables</h2>
-  <ul>
-    <li><strong>α (alpha):</strong> significance level – probability of false positive (e.g. 0.05)</li>
-    <li><strong>β (beta):</strong> type II error rate – probability of false negative</li>
-    <li><strong>Power:</strong> 1 − β – probability of correctly detecting a true difference</li>
-    <li><strong>log2FC (Δ):</strong> log2 fold change in expression between groups</li>
-    <li><strong>Dispersion:</strong> variability in expression between biological replicates</li>
-    <li><strong>Reads per isoform:</strong> sequencing depth for each isoform/transcript</li>
-    <li><strong>FDR:</strong> false discovery rate after multiple testing correction</li>
-  </ul>
-</div>
 <script>switchMode();</script>
 </body>
 </html>
