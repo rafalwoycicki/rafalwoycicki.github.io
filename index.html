@@ -1,36 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome – Power Calculators</title>
+  <title>StatPowerLab – RNA-Seq & Statistical Power Tools</title>
   <style>
     body { font-family: sans-serif; padding: 40px; max-width: 800px; margin: auto; }
-    h1 { font-size: 1.8em; }
+    h1 { font-size: 2em; margin-bottom: 0.2em; }
     p { line-height: 1.6; }
     a.button {
       display: inline-block;
       margin-top: 20px;
-      padding: 10px 20px;
+      padding: 12px 24px;
       background: #007acc;
       color: white;
       text-decoration: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-weight: bold;
     }
     a.button:hover { background: #005fa3; }
+    .icons { font-size: 1.5em; margin-top: 10px; }
   </style>
 </head>
-<body>
-
-  <h1>Welcome to the Statistical Power Toolbox</h1>
-
-  <p>This site provides two useful tools for estimating statistical power:</p>
-
+<body>  <h1>Welcome to <strong>StatPowerLab</strong></h1>
+  <p>
+    StatPowerLab is a lightweight, browser-based toolkit for designing experiments and estimating statistical power.
+    Whether you're comparing two means with a t-test or analyzing gene and isoform expression with RNA-Seq technologies,
+    this tool helps you understand how many samples and reads you really need.
+  </p>  <p><strong>Included tools:</strong></p>
   <ul>
-    <li><strong>General Power Calculator</strong>: Estimate the power of a t-test based on significance level, sample size, mean difference, and standard deviation.</li>
-    <li><strong>RNA-Seq Sample Size Estimator</strong>: Advanced tool to determine the required number of biological replicates in gene expression studies using short- or long-read RNA-Seq technologies (Illumina, PacBio, ONT). Supports isoform-level analysis and visualizes power vs sample size and read depth.</li>
-  </ul>
+    <li>t-test Power Calculator with visual error distributions</li>
+    <li>RNA-Seq Sample Size Estimator for Illumina, ONT & PacBio</li>
+    <li>Detectability Simulation: estimate if your read depth can detect the effect</li>
+    <li>Interactive graphs, real-time alerts, and variable legend</li>
+  </ul>  <p class="icons">🧬 🔬 🔎 🔥 ✅ ⚠️</p><a class="button" href="combined_power_rnaseq_general.html">Launch StatPowerLab</a>
 
-  <a class="button" href="power_calculator.html">Launch Calculator</a>
-
-</body>
+  <p style="margin-top: 40px; font-size: 0.9em;">
+    Open-source. Works offline. Ready to deploy in your browser or on GitHub Pages.<br>
+    <strong>Edit this link to your GitHub hosting:</strong> <em>[your-link-here]</em>
+  </p></body>
 </html>
