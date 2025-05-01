@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Moc testu statystycznego</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <h2>Moc testu statystycznego – interaktywny kalkulator</h2><label>Poziom istotności (α): <input type="number" id="alpha" value="0.05" step="0.01" min="0.001" max="0.2"></label><br> <label>Różnica średnich (efekt): <input type="number" id="delta" value="1" step="0.1"></label><br> <label>Odchylenie standardowe (σ): <input type="number" id="sigma" value="1" step="0.1"></label><br> <label>Liczba prób na grupę (n): <input type="number" id="n" value="10" min="1"></label><br><br>
+
+<button onclick="updatePlot()">Oblicz moc testu</button>
+
+  <p id="results"></p>  <div id="plot"></div>  <script>
+    function updatePlot() {
+      const alpha = parseFloat(document.getElementById('alpha').value);
+      const delta = parseFloat(document.getElementById('delta').value);
+      const sigma = parseFloat(document.getElementById('sigma').value);
+      const n = parseFloat(document.getElementById('n').value);
+
+      const se = sigma / Math.sqrt(n);
+      const z_alpha = normInv(1 - alpha);
+      const x_crit = z_alpha * se;
+
+      const z_power = (delta - x_crit) / se;
+      const power = 1 - normCdf(z_power);
+      const beta = 1 - power;
+
+      document.getElementById('results').innerText =
+        `Próg istotności: ${x_crit.toFixed(2)}, Moc testu: ${(power * 100).toFixed(1)}%, Błąd II rodzaju (β): ${(beta * 100).toFixed(1)}%`;
+
+      const x = [];
+      const h0 = [], h1 = [];
+      for (let i = -4; i <= 6; i += 0.1) {
+        x.push(i);
+        h0.push(gauss(i, 0, se));
+        h1.push(gauss(i, delta, se));
+      }
+
+      const layout = {
+        title: 'Rozkłady H₀ i H₁ oraz moc testu',
+        xaxis: { title: 'Wartość statystyki testowej' },
+        yaxis: { title: 'Gęstość' },
+        shapes: [
+          {
+            type: 'line', x0: x_crit, x1: x_crit, y0: 0, y1: 0.5,
+            line: { dash: 'dot', color: 'black' }
+          }
+        ]
+      };
+
+      Plotly.newPlot('plot', [
+        { x, y: h0, type: 'scatter', name: 'H₀: μ=0', line: { color: 'blue' } },
+        { x, y: h1, type: 'scatter', name: 'H₁: μ=Δ', line: { color: 'green' } }
+      ], layout);
+    }
+
+    function gauss(x, mu, sigma) {
+      return (1 / (sigma * Math.sqrt(2 * Math.PI))) *
+             Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+    }
+
+    function normCdf(z) {
+      return 0.5 * (1 + erf(z / Math.sqrt(2)));
+    }
+
+    function normInv(p) {
+      // Approximation by Peter John Acklam
+      const a1 = -39.696830, a2 = 220.946098, a3 = -275.928510;
+      const b1 = -54.476098, b2 = 161.585836, b3 = -155.698979;
+      const c1 = 2.506628, d1 = 1.0;
+      const q = p - 0.5;
+      if (Math.abs(q) <= .425) {
+        const r = 0.180625 - q * q;
+        return q * (((c1 * r + b3) * r + b2) * r + b1) / ((((r + d1) * r + a3) * r + a2) * r + a1);
+      }
+      const r = p < 0.5 ? Math.sqrt(-2 * Math.log(p)) : Math.sqrt(-2 * Math.log(1 - p));
+      const z = (((c1 * r + b3) * r + b2) * r + b1) / ((((r + d1) * r + a3) * r + a2) * r + a1);
+      return p < 0.5 ? -z : z;
+    }
+
+    function erf(x) {
+      // Approximation of the error function
+      const sign = x >= 0 ? 1 : -1;
+      x = Math.abs(x);
+      const t = 1 / (1 + 0.5 * x);
+      const y = 1 - t * Math.exp(-x*x - 1.26551223 +
+        t * (1.00002368 + t * (0.37409196 + t * (0.09678418 +
+        t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 +
+        t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+      return sign * y;
+    }
+
+    updatePlot(); // Initialize plot on load
+  </script></body>
+</html>
