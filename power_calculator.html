@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistical Power Calculator – RNA-Seq & General</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 1000px; }
+    input, select, button { margin: 5px; }
+    .section { margin-top: 20px; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; }
+    .output { margin-top: 15px; font-weight: bold; }
+    .plot-section { margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h2>Statistical Power Calculator</h2>
+
+  <div class="section">
+    <h3>Select Mode</h3>
+    <select id="mode" onchange="switchMode()">
+      <option value="general">General Power Calculator (t-test)</option>
+      <option value="rnaseq">RNA-Seq Sample Size Estimator</option>
+    </select>
+  </div>
+
+<div id="generalSection" class="section">
+    <h3>General Power Calculator</h3>
+    <label>Significance level (α): <input type="number" id="alpha" value="0.05" step="0.01" min="0.001" max="0.2"></label><br>
+    <label>Mean difference (effect): <input type="number" id="delta" value="1" step="0.1"></label><br>
+    <label>Standard deviation (σ): <input type="number" id="sigma" value="1" step="0.1"></label><br>
+    <label>Sample size per group (n): <input type="number" id="n" value="10" min="1"></label><br><br>
+    <button onclick="updateGeneralPlot()">Calculate Power</button>
+    <div class="output" id="generalResult"></div>
+    <div id="generalPlot"></div>
+  </div>
+
+  <div id="rnaseqSection" class="section" style="display:none">
+    <h3>RNA-Seq Sample Size Estimator</h3>
+    <label>Data type:
+      <select id="dataType" onchange="toggleLongReadFields()">
+        <option value="short" selected>Short-read (Illumina)</option>
+        <option value="long">Long-read (PacBio/ONT)</option>
+      </select>
+    </label><br>
+    <div id="longReadField" style="display:none">
+      <label>Reads per isoform:
+        <input type="number" id="readsPerIsoform" value="50" min="1">
+      </label><br>
+    </div>
+    <label>log2 fold change (Δ): <input type="number" id="lfc" step="0.1" value="1"></label><br>
+    <label>Dispersion: 
+      <select id="dispersion">
+        <option value="0.05">low (0.05)</option>
+        <option value="0.1" selected>medium (0.1)</option>
+        <option value="0.2">high (0.2)</option>
+      </select>
+    </label><br>
+    <label>FDR: <input type="number" id="fdr" step="0.01" value="0.05"></label><br>
+    <label>Number of genes/isoforms: <input type="number" id="genes" step="1000" value="20000"></label><br>
+    <label>Target power (e.g., 0.8): <input type="number" id="power" step="0.05" min="0.5" max="0.99" value="0.8"></label><br>
+    <button onclick="estimateSamples()">Estimate Samples</button>
+    <div class="output" id="rnaResult"></div>
+    <div class="plot-section">
+      <div id="plot"></div>
+      <div id="readplot"></div>
+    </div>
+  </div>
+
+<script>
+    function switchMode() {
+      const mode = document.getElementById("mode").value;
+      document.getElementById("generalSection").style.display = mode === "general" ? "block" : "none";
+      document.getElementById("rnaseqSection").style.display = mode === "rnaseq" ? "block" : "none";
+    }
+
+    function toggleLongReadFields() {
+      const type = document.getElementById("dataType").value;
+      document.getElementById("longReadField").style.display = type === "long" ? "block" : "none";
+    }
+
+    function updateGeneralPlot() {
+      const alpha = parseFloat(document.getElementById('alpha').value);
+      const delta = parseFloat(document.getElementById('delta').value);
+      const sigma = parseFloat(document.getElementById('sigma').value);
+      const n = parseFloat(document.getElementById('n').value);
+
+      const se = sigma / Math.sqrt(n);
+      const z_alpha = normInv(1 - alpha);
+      const x_crit = z_alpha * se;
+      const z_power = (x_crit - delta) / se;
+      const power = 1 - normCdf(z_power);
+      const beta = 1 - power;
+
+      document.getElementById('generalResult').innerText =
+        `Critical value: ${x_crit.toFixed(2)}, Power: ${(power * 100).toFixed(1)}%, Type II error (β): ${(beta * 100).toFixed(1)}%`;
+
+      const x = [], h0 = [], h1 = [], alpha_area = [], beta_area = [];
+      for (let i = -4 * se; i <= (delta + 4) * se; i += 0.1) {
+        x.push(i);
+        h0.push(gauss(i, 0, se));
+        h1.push(gauss(i, delta, se));
+        alpha_area.push(i >= x_crit ? gauss(i, 0, se) : NaN);
+        beta_area.push(i < x_crit ? gauss(i, delta, se) : NaN);
+      }
+
+      Plotly.newPlot('generalPlot', [
+        { x, y: h0, type: 'scatter', name: 'H₀: μ=0', line: { color: 'blue' } },
+        { x, y: h1, type: 'scatter', name: 'H₁: μ=Δ', line: { color: 'green' } },
+        { x, y: alpha_area, type: 'scatter', name: 'Type I error (α)', fill: 'tozeroy', mode: 'none', fillcolor: 'rgba(255,0,0,0.3)' },
+        { x, y: beta_area, type: 'scatter', name: 'Type II error (β)', fill: 'tozeroy', mode: 'none', fillcolor: 'rgba(255,165,0,0.3)' }
+      ], {
+        title: 'Power Analysis – General Case',
+        xaxis: { title: 'Test statistic value' },
+        yaxis: { title: 'Probability density' },
+        shapes: [
+          { type: 'line', x0: x_crit, x1: x_crit, y0: 0, y1: 0.5, line: { dash: 'dot', color: 'black' } }
+        ]
+      });
+    }
+
+    function gauss(x, mu, sigma) {
+      return (1 / (sigma * Math.sqrt(2 * Math.PI))) *
+             Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+    }
+
+    function normCdf(z) {
+      return 0.5 * (1 + erf(z / Math.sqrt(2)));
+    }
+
+    function normInv(p) {
+      return -Math.sqrt(2) * inverseErf(1 - 2 * p);
+    }
+
+function erf(x) {
+      const sign = x >= 0 ? 1 : -1;
+      x = Math.abs(x);
+      const t = 1 / (1 + 0.5 * x);
+      const y = 1 - t * Math.exp(-x*x - 1.26551223 +
+        t * (1.00002368 + t * (0.37409196 + t * (0.09678418 +
+        t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 +
+        t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+      return sign * y;
+    }
+
+    function inverseErf(x) {
+      const a = 0.147;
+      const ln = Math.log(1 - x * x);
+      const term1 = (2 / (Math.PI * a)) + (ln / 2);
+      const term2 = ln / a;
+      return Math.sign(x) * Math.sqrt(Math.sqrt(term1 * term1 - term2) - term1);
+    }
+
+    function estimateSamples() {
+      const lfc = parseFloat(document.getElementById("lfc").value);
+      const disp = parseFloat(document.getElementById("dispersion").value);
+      const fdr = parseFloat(document.getElementById("fdr").value);
+      const genes = parseInt(document.getElementById("genes").value);
+      const power = parseFloat(document.getElementById("power").value);
+      const dataType = document.getElementById("dataType").value;
+
+      if (dataType === "long") {
+        const reads = parseInt(document.getElementById("readsPerIsoform").value);
+        if (reads < 30) {
+          document.getElementById("rnaResult").innerHTML =
+            `<span style='color:red'>Warning: Less than 30 reads per isoform – low power expected.</span>`;
+          return;
+        }
+        drawReadDepthCurve(lfc, disp, genes, fdr);
+      }
+
+      const z_power = inverseErf(2 * power - 1) * Math.sqrt(2);
+      const effectSize = lfc / Math.sqrt(disp);
+      let n = Math.ceil((Math.pow((z_power + 1.96), 2)) / Math.pow(effectSize, 2));
+      n = Math.ceil(n * (1 + Math.log(genes) / Math.log(1 / fdr)) * 0.1);
+      if (n < 3) n = 3;
+
+      document.getElementById("rnaResult").innerText =
+        `Estimated number of biological replicates per group (target power ${power}): ${n}`;
+      drawPowerCurve(lfc, disp, fdr, genes);
+    }
+
+    function drawPowerCurve(lfc, disp, fdr, genes) {
+      const n_values = [], power_values = [];
+      const effectSize = lfc / Math.sqrt(disp);
+      for (let n = 2; n <= 30; n++) {
+        const z = Math.sqrt(n) * effectSize;
+        const power = normCdf(z - 1.96);
+        power_values.push(power);
+        n_values.push(n);
+      }
+      Plotly.newPlot('plot', [{
+        x: n_values, y: power_values, type: 'scatter', name: 'Power vs samples'
+      }], {
+        title: 'Power vs Sample Size',
+        xaxis: { title: 'Samples per group' },
+        yaxis: { title: 'Power', range: [0, 1] }
+      });
+    }
+
+    function drawReadDepthCurve(lfc, disp, genes, fdr) {
+      const read_values = [], power_values = [];
+      const effectSize = lfc / Math.sqrt(disp);
+      for (let r = 10; r <= 200; r += 10) {
+        const z = Math.sqrt(3) * effectSize;
+        const power = r < 30 ? 0 : normCdf(z - 1.96);
+        power_values.push(power);
+        read_values.push(r);
+      }
+      Plotly.newPlot('readplot', [{
+        x: read_values, y: power_values, type: 'scatter', name: 'Power vs reads/isoform'
+      }], {
+        title: 'Power vs Reads per Isoform',
+        xaxis: { title: 'Reads/isoform' },
+        yaxis: { title: 'Power', range: [0, 1] }
+      });
+    }
+  </script>
+</body>
+</html>
