@@ -1,76 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>StatPowerLab – Power Calculator</title>
+  <meta charset="UTF-8">
+  <title>RNA-Seq Power Calculator – DESeq2 Extended</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 1000px; margin: auto; }
-    input, select, button { margin: 5px; }
-    .section { border: 1px solid #ccc; background: #f9f9f9; padding: 15px; margin-top: 20px; }
-    .output { margin-top: 10px; font-weight: bold; }
-    .plot-section { margin-top: 25px; }
-    .legend-box { margin-top: 40px; padding: 15px; background: #eee; border: 1px solid #bbb; }
-    .alert-ok { color: green; font-weight: bold; }
-    .alert-bad { color: red; font-weight: bold; }
+    body { background: #111; color: #eee; font-family: sans-serif; padding: 20px; }
+    input, select, button {
+      margin: 5px; padding: 5px; border-radius: 4px;
+      background-color: #222; color: #fff; border: 1px solid #555;
+    }
+    .output { margin-top: 20px; font-weight: bold; }
+    .legend-box, .var-desc { margin-top: 30px; padding: 1em; background: #1b1b1b; border: 1px solid #333; }
+    pre { white-space: pre-wrap; color: #90caf9; }
   </style>
 </head>
 <body>
-  <h1>StatPowerLab – Power Calculator</h1>
+<h2>RNA-Seq Power Calculator – DESeq2 Extended</h2><label>CPM: <input type="number" id="cpm" value="10"></label> <label>Library size (millions): <input type="number" id="libsize" value="20"></label> <button onclick="convertCPM()">Convert CPM → Mean expression (μ)</button><br>
 
-  <div class="section">
-    <label for="mode">Select calculator:</label>
-    <select id="mode" onchange="switchMode()">
-      <option value="general">General Power (t-test)</option>
-      <option value="rnaseq">RNA-Seq Sample Size</option>
-    </select>
-  </div>
+<label>Mean expression (μ): <input type="number" id="mu" value="100"></label><br> <label>Dispersion (α): <input type="number" id="dispersion" value="0.1" step="0.01"></label><br> <label>log2 fold change (Δ): <input type="number" id="lfc" value="1" step="0.1"></label><br> <label>Replicates per group: <input type="number" id="n" value="3" min="3"></label><br> <label>Significance level (α): <input type="number" id="alpha" value="0.05" step="0.01"></label><br>
 
-<div id="generalSection" class="section">
-    <h2>General Power Calculator (t-test)</h2>
-    <label>Significance level (α): <input type="number" id="alpha" value="0.05" step="0.01"></label><br>
-    <label>Effect size (mean difference): <input type="number" id="delta" value="1" step="0.1"></label><br>
-    <label>Standard deviation (σ): <input type="number" id="sigma" value="1" step="0.1"></label><br>
-    <label>Sample size per group (n): <input type="number" id="n" value="10" min="1"></label><br>
-    <button onclick="updateGeneral()">Calculate Power</button>
-    <div class="output" id="generalResult"></div>
-    <div class="output" id="generalDetectability"></div>
-    <div class="plot-section" id="generalPlot"></div>
-  </div>
+<button onclick="calculatePower()">Calculate Power</button>
 
-  <div id="rnaseqSection" class="section" style="display:none;">
-    <h2>RNA-Seq Sample Size Estimator</h2>
-    <label>Reads per isoform: <input type="number" id="readsPerIsoform" value="50" min="1"></label><br>
-    <label>log2 fold change (Δ): <input type="number" id="lfc" step="0.1" value="1"></label><br>
-    <label>Dispersion: 
-      <select id="dispersion">
-        <option value="0.05">Low (0.05)</option>
-        <option value="0.1" selected>Medium (0.1)</option>
-        <option value="0.2">High (0.2)</option>
-      </select>
-    </label><br>
-    <label>FDR: <input type="number" id="fdr" step="0.01" value="0.05"></label><br>
-    <label>Number of isoforms: <input type="number" id="genes" step="1000" value="20000"></label><br>
-    <label>Target power: <input type="number" id="power" step="0.05" min="0.5" max="0.99" value="0.8"></label><br>
-    <button onclick="estimateRNASeq()">Estimate Samples</button>
-    <button onclick="simulateDetectability()">Simulate Detectability</button>
-    <div class="output" id="rnaResult"></div>
-    <div class="output" id="rnaDetectability"></div>
-    <div class="plot-section" id="rnaPlot"></div>
-    <div class="plot-section" id="readPlot"></div>
-  </div>
-
-<script>
-function switchMode() {
-  const mode = document.getElementById("mode").value;
-  document.getElementById("generalSection").style.display = (mode === "general") ? "block" : "none";
-  document.getElementById("rnaseqSection").style.display = (mode === "rnaseq") ? "block" : "none";
-}
-
+<div class="output" id="result"></div>
+<div id="muplot" style="margin-top:30px;"></div>
+<div id="dispplot"></div>
+<div id="nplot"></div><div class="var-desc">
+  <h3>Explanation of Parameters</h3>
+  <ul>
+    <li><strong>μ (mu):</strong> Mean count for an isoform/gene.</li>
+    <li><strong>CPM:</strong> Counts per million reads (expression unit).</li>
+    <li><strong>Library size:</strong> Number of total reads in millions (e.g. 20M).</li>
+    <li><strong>Dispersion (α):</strong> Biological variation parameter.</li>
+    <li><strong>log2 fold change:</strong> Effect size between two conditions.</li>
+    <li><strong>n:</strong> Number of replicates per group.</li>
+    <li><strong>α (significance):</strong> Type I error threshold (e.g. 0.05).</li>
+  </ul>
+</div><script>
 function normCdf(z) {
   return 0.5 * (1 + erf(z / Math.sqrt(2)));
 }
-
 function erf(x) {
   const sign = x >= 0 ? 1 : -1;
   x = Math.abs(x);
@@ -81,7 +50,6 @@ function erf(x) {
     t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
   return sign * y;
 }
-
 function inverseErf(x) {
   const a = 0.147;
   const ln = Math.log(1 - x * x);
@@ -89,63 +57,75 @@ function inverseErf(x) {
   const term2 = ln / a;
   return Math.sign(x) * Math.sqrt(Math.sqrt(term1 * term1 - term2) - term1);
 }
-
-function normInv(p) {
-  return -Math.sqrt(2) * inverseErf(1 - 2 * p);
+function convertCPM() {
+  const cpm = parseFloat(document.getElementById("cpm").value);
+  const lib = parseFloat(document.getElementById("libsize").value);
+  const mu = cpm * lib / 1e6 * 1e6; // back to raw count
+  document.getElementById("mu").value = mu.toFixed(0);
 }
+function calculatePower() {
+  const mu = parseFloat(document.getElementById("mu").value);
+  const alpha = parseFloat(document.getElementById("dispersion").value);
+  const lfc = parseFloat(document.getElementById("lfc").value);
+  const n = parseInt(document.getElementById("n").value);
+  const alphaTest = parseFloat(document.getElementById("alpha").value);
 
-function updateGeneral() {
-  const alpha = parseFloat(document.getElementById('alpha').value);
-  const delta = parseFloat(document.getElementById('delta').value);
-  const sigma = parseFloat(document.getElementById('sigma').value);
-  const n = parseFloat(document.getElementById('n').value);
-  const se = sigma / Math.sqrt(n);
-  const z_alpha = normInv(1 - alpha);
-  const x_crit = z_alpha * se;
-  const z_power = (x_crit - delta) / se;
-  const power = 1 - normCdf(z_power);
-  const beta = 1 - power;
-  document.getElementById('generalResult').innerText =
-    `Power: ${(power * 100).toFixed(1)}%, Type II error (β): ${(beta * 100).toFixed(1)}%`;
-  document.getElementById('generalDetectability').innerHTML =
-    power >= 0.8
-    ? `<span class='alert-ok'>Sufficient power to detect effect.</span>`
-    : `<span class='alert-bad'>Insufficient power. Consider increasing sample size.</span>`;
+  const var_nb = mu + alpha * mu * mu;
+  const se = Math.sqrt((2 / n) * var_nb / (mu * mu));
+  const z = Math.abs(lfc) / se;
+  const z_crit = inverseErf(1 - alphaTest) * Math.sqrt(2);
+  const power = 1 - normCdf(z_crit - z);
+
+  document.getElementById("result").innerText = `Estimated power: ${(power * 100).toFixed(1)}%`;
+  drawSensitivity(mu, alpha, lfc, alphaTest);
 }
+function drawSensitivity(mu, alpha, lfc, alphaTest) {
+  const z_crit = inverseErf(1 - alphaTest) * Math.sqrt(2);
 
-function estimateRNASeq() {
-  const lfc = parseFloat(document.getElementById(\"lfc\").value);
-  const disp = parseFloat(document.getElementById(\"dispersion\").value);
-  const fdr = parseFloat(document.getElementById(\"fdr\").value);
-  const genes = parseInt(document.getElementById(\"genes\").value);
-  const power = parseFloat(document.getElementById(\"power\").value);
-  const z_power = inverseErf(2 * power - 1) * Math.sqrt(2);
-  const effectSize = lfc / Math.sqrt(disp);
-  let n = Math.ceil((Math.pow((z_power + 1.96), 2)) / Math.pow(effectSize, 2));
-  n = Math.ceil(n * (1 + Math.log(genes) / Math.log(1 / fdr)) * 0.1);
-  if (n < 3) n = 3;
-  document.getElementById(\"rnaResult\").innerText =
-    `Estimated samples per group (target power ${power}): ${n}`;
-}
-
-function simulateDetectability() {
-  const lfc = parseFloat(document.getElementById(\"lfc\").value);
-  const disp = parseFloat(document.getElementById(\"dispersion\").value);
-  const reads = parseInt(document.getElementById(\"readsPerIsoform\").value);
-  const powerTarget = parseFloat(document.getElementById(\"power\").value);
-  const effectSize = lfc / Math.sqrt(disp);
-  const z = Math.sqrt(3) * effectSize;
-  const power = reads < 30 ? 0 : normCdf(z - 1.96);
-  const div = document.getElementById(\"rnaDetectability\");
-  if (reads < 30) {
-    div.innerHTML = `<span class='alert-bad'>Too few reads per isoform for reliable detection.</span>`;
-  } else if (power >= powerTarget) {
-    div.innerHTML = `<span class='alert-ok'>Sufficient power (${(power*100).toFixed(1)}%) to detect log2FC = ${lfc}</span>`;
-  } else {
-    div.innerHTML = `<span class='alert-bad'>Power too low (${(power*100).toFixed(1)}%). Increase reads or samples.</span>`;
+  // μ plot
+  const muvals = [], p_mu = [];
+  for (let m = 5; m <= 500; m += 10) {
+    const v = m + alpha * m * m;
+    const se = Math.sqrt((2/3) * v / (m * m));
+    const z = Math.abs(lfc) / se;
+    p_mu.push(1 - normCdf(z_crit - z));
+    muvals.push(m);
   }
+  Plotly.newPlot("muplot", [{x: muvals, y: p_mu, type: 'scatter'}], {
+    title: 'Power vs Mean Expression (μ)',
+    xaxis: { title: 'μ' }, yaxis: { title: 'Power', range: [0, 1] },
+    paper_bgcolor: '#111', plot_bgcolor: '#111', font: { color: '#eee' }
+  });
+
+  // Dispersion plot
+  const dvals = [], p_d = [];
+  for (let d = 0.01; d <= 0.3; d += 0.01) {
+    const v = mu + d * mu * mu;
+    const se = Math.sqrt((2/3) * v / (mu * mu));
+    const z = Math.abs(lfc) / se;
+    p_d.push(1 - normCdf(z_crit - z));
+    dvals.push(d);
+  }
+  Plotly.newPlot("dispplot", [{x: dvals, y: p_d, type: 'scatter'}], {
+    title: 'Power vs Dispersion (α)',
+    xaxis: { title: 'Dispersion (α)' }, yaxis: { title: 'Power', range: [0, 1] },
+    paper_bgcolor: '#111', plot_bgcolor: '#111', font: { color: '#eee' }
+  });
+
+  // n plot
+  const nvals = [], p_n = [];
+  for (let rep = 2; rep <= 30; rep++) {
+    const v = mu + alpha * mu * mu;
+    const se = Math.sqrt((2 / rep) * v / (mu * mu));
+    const z = Math.abs(lfc) / se;
+    p_n.push(1 - normCdf(z_crit - z));
+    nvals.push(rep);
+  }
+  Plotly.newPlot("nplot", [{x: nvals, y: p_n, type: 'scatter'}], {
+    title: 'Power vs Replicates (n)',
+    xaxis: { title: 'Replicates per group (n)' }, yaxis: { title: 'Power', range: [0, 1] },
+    paper_bgcolor: '#111', plot_bgcolor: '#111', font: { color: '#eee' }
+  });
 }
-</script>
-<script>switchMode();</script>
-</body>
+</script></body>
 </html>
