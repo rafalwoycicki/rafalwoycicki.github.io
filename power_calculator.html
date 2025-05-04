@@ -144,6 +144,8 @@
 
       document.getElementById("result").innerText = resultText;
       document.getElementById("fdrEstimation").innerText = `Effective per-test α: ${(alphaTest * 100).toExponential(2)}%`;
+
+      drawAllPlots();
     }
 
     function estimateRequiredSamples() {
@@ -172,6 +174,72 @@
 
       document.getElementById("requiredSamples").innerText =
         `Estimated replicates per group needed for ${(targetPower * 100).toFixed(0)}% power: ${n_est}`;
+    }
+
+    function drawAllPlots() {
+      const mu = parseFloat(document.getElementById("mu").value);
+      const alpha = parseFloat(document.getElementById("dispersion").value);
+      const lfc = parseFloat(document.getElementById("lfc").value);
+      const fdr = parseFloat(document.getElementById("fdr").value);
+      const m = parseInt(document.getElementById("m").value);
+      const rank = parseInt(document.getElementById("rank").value);
+      const n = parseInt(document.getElementById("n").value);
+
+      const alphaTest = (fdr * rank) / m;
+      const z_alpha = inverseErf(1 - alphaTest) * Math.sqrt(2);
+
+      function plot(id, x, y, title, xlabel) {
+        Plotly.newPlot(id, [{
+          x: x, y: y, type: 'scatter', mode: 'lines+markers'
+        }], {
+          title: title,
+          xaxis: { title: xlabel, color: '#eee' },
+          yaxis: { title: 'Power', range: [0, 1], color: '#eee' },
+          paper_bgcolor: '#111',
+          plot_bgcolor: '#111',
+          font: { color: '#eee' }
+        });
+      }
+
+      const xN = [], yN = [];
+      for (let i = 3; i <= 30; i++) {
+        const v = mu + alpha * mu * mu;
+        const se = Math.sqrt((2 / i) * v / (mu * mu));
+        const z = Math.abs(lfc) / se;
+        xN.push(i);
+        yN.push(normCdf(z - z_alpha));
+      }
+      plot("powerVsN", xN, yN, "Power vs Replicates", "Replicates");
+
+      const xMu = [], yMu = [];
+      for (let i = 10; i <= 500; i += 10) {
+        const v = i + alpha * i * i;
+        const se = Math.sqrt((2 / n) * v / (i * i));
+        const z = Math.abs(lfc) / se;
+        xMu.push(i);
+        yMu.push(normCdf(z - z_alpha));
+      }
+      plot("powerVsMu", xMu, yMu, "Power vs Expression (μ)", "Mean Expression");
+
+      const xLFC = [], yLFC = [];
+      for (let i = 0.1; i <= 3; i += 0.1) {
+        const v = mu + alpha * mu * mu;
+        const se = Math.sqrt((2 / n) * v / (mu * mu));
+        const z = Math.abs(i) / se;
+        xLFC.push(i);
+        yLFC.push(normCdf(z - z_alpha));
+      }
+      plot("powerVsLFC", xLFC, yLFC, "Power vs log2FC", "log2 Fold Change");
+
+      const xDisp = [], yDisp = [];
+      for (let i = 0.01; i <= 0.4; i += 0.01) {
+        const v = mu + i * mu * mu;
+        const se = Math.sqrt((2 / n) * v / (mu * mu));
+        const z = Math.abs(lfc) / se;
+        xDisp.push(i);
+        yDisp.push(normCdf(z - z_alpha));
+      }
+      plot("powerVsDisp", xDisp, yDisp, "Power vs Dispersion", "Dispersion (α)");
     }
   </script>
 </body>
