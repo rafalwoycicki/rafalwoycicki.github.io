@@ -1,45 +1,43 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RNA-Seq Power Tools</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RNA-Seq Power Analysis Tools</title>
   <style>
     body {
       background-color: #111;
       color: #eee;
       font-family: sans-serif;
       padding: 20px;
-      max-width: 900px;
-      margin: auto;
+      text-align: center;
     }
     a {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 10px;
+      background: #2196f3;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+    }
+    a:hover {
+      background: #42a5f5;
+    }
+    h1 {
       color: #90caf9;
-      font-weight: bold;
     }
-    .box {
-      background-color: #1b1b1b;
-      border: 1px solid #333;
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 8px;
+    p {
+      max-width: 700px;
+      margin: auto;
+      font-size: 1.1em;
+      line-height: 1.6;
     }
-    h1, h2 { color: #90caf9; }
   </style>
 </head>
 <body>
-  <h1>RNA-Seq Power Tools</h1>  <p>This site hosts interactive tools to help you design robust RNA-Seq experiments. Version 2.4 introduces even more realistic planning capabilities based on isoform-level read depth and DESeq2's statistical model.</p>  <div class="box">
-    <h2><a href="power_calculator.html">Launch RNA-Seq Power Calculator v2.4</a></h2>
-    <p>
-      <strong>New in v2.4:</strong>
-      <ul>
-        <li>Automatically estimate expression (μ) using total reads and number of isoforms</li>
-        <li>Built on DESeq2's Negative Binomial model for count data</li>
-        <li>Plan experiments based on log2FC, dispersion, FDR, and BH rank</li>
-        <li>Evaluate statistical power and estimate minimal replicates per condition</li>
-        <li>Live plots of power vs μ, dispersion, log2FC, and replicates</li>
-        <li>Mobile-friendly, dark-themed interface with legend and formulas included</li>
-      </ul>
-    </p>
-  </div>
+  <h1>RNA-Seq Power Calculator</h1>
+  <p>This tool helps estimate the required number of replicates and statistical power for RNA-Seq experiments using a DESeq2-based model.</p><a href="power_calculator.html">Launch Calculator</a> <a href="manual_power_calculator.html">Read User Manual</a>
+
 </body>
 </html>
