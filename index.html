@@ -1,37 +1,45 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>StatPowerLab – RNA-Seq & Statistical Power Tools</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RNA-Seq Power Tools</title>
   <style>
-    body { font-family: sans-serif; padding: 40px; max-width: 800px; margin: auto; }
-    h1 { font-size: 2em; margin-bottom: 0.2em; }
-    p { line-height: 1.6; }
-    a.button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
-      background: #007acc;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    a {
+      color: #90caf9;
       font-weight: bold;
     }
-    a.button:hover { background: #005fa3; }
-    .icons { font-size: 1.5em; margin-top: 10px; }
+    .box {
+      background-color: #1b1b1b;
+      border: 1px solid #333;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 8px;
+    }
+    h1, h2 { color: #90caf9; }
   </style>
 </head>
-<body>  <h1>Welcome to <strong>StatPowerLab</strong></h1>
-  <p>
-    StatPowerLab is a lightweight, browser-based toolkit for designing experiments and estimating statistical power.
-    Whether you're analyzing gene and isoform expression with RNA-Seq technologies,
-    this tool helps you understand how many samples and reads you really need.
-  </p>  <p><strong>Included tools:</strong></p>
-  <ul>
-    <li>RNA-Seq Sample Size Estimator</li>
-    <li>Interactive graphs, real-time alerts, and variable legend</li>
-  </ul>  <p class="icons">🧬 🔬 🔎 🔥 ✅ ⚠️</p><a class="button" href="power_calculator.html">Launch StatPowerLab</a>
-
-  <p style="margin-top: 40px; font-size: 0.9em;">
-    Open-source. Works offline.<br>
-  </p></body>
+<body>
+  <h1>RNA-Seq Power Tools</h1>  <p>This site hosts interactive tools to help you design robust RNA-Seq experiments. Version 2.4 introduces even more realistic planning capabilities based on isoform-level read depth and DESeq2's statistical model.</p>  <div class="box">
+    <h2><a href="power_calculator.html">Launch RNA-Seq Power Calculator v2.4</a></h2>
+    <p>
+      <strong>New in v2.4:</strong>
+      <ul>
+        <li>Automatically estimate expression (μ) using total reads and number of isoforms</li>
+        <li>Built on DESeq2's Negative Binomial model for count data</li>
+        <li>Plan experiments based on log2FC, dispersion, FDR, and BH rank</li>
+        <li>Evaluate statistical power and estimate minimal replicates per condition</li>
+        <li>Live plots of power vs μ, dispersion, log2FC, and replicates</li>
+        <li>Mobile-friendly, dark-themed interface with legend and formulas included</li>
+      </ul>
+    </p>
+  </div>
+</body>
 </html>
