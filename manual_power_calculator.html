@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RNA-Seq Power Calculator – User Guide</title>
+  <style>
+    body {
+      background: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1, h2 { color: #90caf9; }
+    code { background: #222; padding: 2px 4px; border-radius: 3px; }
+    ul { line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>RNA-Seq Power Calculator v2.4 – Full User Manual</h1>  <h2>Purpose</h2>
+  <p>This tool estimates the statistical power or required number of replicates for RNA-Seq experiments using the DESeq2 model.</p>  <h2>Input Parameters</h2>
+  <ul>
+    <li><strong>μ (mean expression):</strong> Mean read count per isoform/gene. Can be auto-calculated if total reads and number of isoforms are provided.</li>
+    <li><strong>Total reads:</strong> Optional. If filled together with the number of isoforms, overrides manual μ.</li>
+    <li><strong>Number of isoforms:</strong> Required to auto-calculate μ from total reads.</li>
+    <li><strong>Dispersion (α):</strong> Biological variability. Typically between 0.05 and 0.2 for most genes.</li>
+    <li><strong>log2 fold change (Δ):</strong> Expected expression difference between conditions. Δ = 1 implies a 2-fold change.</li>
+    <li><strong>Replicates per group:</strong> Number of biological replicates in each group. Minimum of 3 required.</li>
+    <li><strong>FDR:</strong> Desired false discovery rate. Used to adjust the per-test significance level.</li>
+    <li><strong>Number of isoforms (m):</strong> Total number of genes/transcripts tested.</li>
+    <li><strong>Target rank (i):</strong> Defines how many top hits you want to discover. Lower rank = stricter test.</li>
+    <li><strong>Target power:</strong> Desired power (e.g. 0.8 = 80%) for planning sample size.</li>
+  </ul>  <h2>Buttons</h2>
+  <ul>
+    <li><strong>Estimate Power:</strong> Calculates the power based on current input values.</li>
+    <li><strong>Estimate Samples for Target Power:</strong> Estimates how many replicates per group are needed to reach the desired power.</li>
+  </ul>  <h2>Statistical Methodology</h2>
+  <p>Based on the DESeq2 model using a Negative Binomial distribution:</p>
+  <ul>
+    <li><code>Var(Y) = μ + α·μ²</code></li>
+    <li><code>SE = sqrt((2 / n) × Var / μ²)</code> – Standard error of log2 fold change</li>
+    <li><code>Z = |Δ| / SE</code> – Test statistic</li>
+    <li><code>αᵢ = (FDR × i) / m</code> – Per-test significance level (Benjamini-Hochberg correction)</li>
+    <li><code>Zᵅ = Φ⁻¹(1 − αᵢ)</code> – Critical Z value</li>
+    <li><code>Power = Φ(Z − Zᵅ)</code> – Probability of detecting the effect</li>
+  </ul>  <h2>Tips</h2>
+  <ul>
+    <li>Use real estimates for μ from pilot data when possible.</li>
+    <li>Target power of 0.8 is standard; use 0.9 for more confident results.</li>
+    <li>Lower rank (i.e., top 100 discoveries) makes the test stricter.</li>
+  </ul>
+</body>
+</html>
