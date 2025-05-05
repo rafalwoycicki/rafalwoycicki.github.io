@@ -6,7 +6,7 @@ A collection of interactive web tools for RNA-Seq experiment design and gene str
 
 ## Available Tools
 
-### [RNA-Seq Power Calculator](https://rafalwoycicki.github.io/power_calculator/power_calculator.html)
+### [RNA-Seq Power Calculator](https://rafalwoycicki.github.io/power_calculator/index.html)
 
 Plan RNA-Seq experiments using the DESeq2 model.  
 Key features:
