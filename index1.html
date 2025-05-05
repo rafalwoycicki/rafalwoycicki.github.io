@@ -2,56 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rafał Woycicki – Bioinformatics Tools</title>
+  <title>Bioinformatics Tools by Rafał Woycicki</title>
   <style>
     body {
-      background-color: #f9f9f9;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 2rem;
-      color: #333;
+      font-family: Arial, sans-serif;
+      background-color: #1c1c1c;
+      color: #f0f0f0;
+      text-align: center;
+      padding: 40px;
     }
     h1 {
-      font-size: 2rem;
-      color: #2c3e50;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    p.subtitle {
+      font-size: 1.1em;
+      color: #bbbbbb;
+      margin-bottom: 40px;
     }
     .tool {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      margin: 1rem 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin: 30px auto;
+      max-width: 600px;
+      background-color: #2c2c2c;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     .tool h2 {
-      margin: 0 0 0.5rem;
-      color: #2980b9;
+      font-size: 1.6em;
+      color: #4ecdc4;
+    }
+    .tool p {
+      font-size: 1em;
+      line-height: 1.5;
+      margin: 10px 0 15px;
     }
     .tool a {
-      color: #2980b9;
+      color: #ffffff;
+      background-color: #4ecdc4;
+      padding: 10px 20px;
       text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
     }
     .tool a:hover {
-      text-decoration: underline;
+      background-color: #38a9a0;
     }
   </style>
 </head>
 <body>
-  <h1>Rafał Woycicki – Bioinformatics Tools</h1>
+  <h1>Bioinformatics Tools</h1>
+  <p class="subtitle">Interactive web tools for RNA-Seq design and gene visualization</p>
 
   <div class="tool">
-    <h2><a href="exons_painter/exons.html">🧬 Exon Viewer – Ccdc33</a></h2>
-    <p>Interactive tool for visualizing exons and transcripts on the genomic sequence. Designed for the Ccdc33 gene, but supports custom input.</p>
-    <p><a href="exons_painter/README.md">View usage instructions (README)</a></p>
+    <h2>RNA-Seq Power Calculator</h2>
+    <p>
+      Plan RNA-Seq experiments using DESeq2 statistics. Estimate statistical power, required sample size, 
+      and optimize detection of differential expression with intuitive controls and mathematical transparency.
+    </p>
+    <a href="https://rafalwoycicki.github.io/power_calculator" target="_blank">Open Power Calculator</a>
   </div>
 
   <div class="tool">
-    <h2><a href="calculator/index.html">📊 RNA-Seq Power Calculator</a></h2>
-    <p>Estimates statistical power for RNA-seq experiments based on sample size, read depth, dispersion and other parameters. Supports Illumina and long-read technologies.</p>
+    <h2>Exons Painter</h2>
+    <p>
+      Visualize gene sequences and transcript structures interactively. 
+      Choose a transcript, highlight exons, and explore alternative splicing in a clean, browser-based interface.
+    </p>
+    <a href="https://rafalwoycicki.github.io/exons_painter" target="_blank">Open Exons Painter</a>
   </div>
-
-  <!-- Add more tools here as needed -->
-
 </body>
 </html>
