@@ -15,7 +15,6 @@ Key features:
 - Adjust for FDR and desired discovery rank
 - Ideal for pilot studies and grant planning
 
----
 
 ### [Exons Painter](https://rafalwoycicki.github.io/exons_painter/exons.html)
 
