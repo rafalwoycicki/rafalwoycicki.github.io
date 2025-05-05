@@ -6,15 +6,6 @@ A collection of interactive web tools for RNA-Seq experiment design and gene str
 
 ## Available Tools
 
-### [Exons Painter](https://rafalwoycicki.github.io/exons_painter/exons.html)
-
-Visualize gene sequences and transcript structures interactively.  
-Key features:
-- Highlight exons corresponding to selected transcripts
-- Explore alternative splicing
-- Clean, browser-based interface
-- Supports any gene data you provide
-
 ### [RNA-Seq Power Calculator](https://rafalwoycicki.github.io/power_calculator/power_calculator.html)
 
 Plan RNA-Seq experiments using the DESeq2 model.  
@@ -23,6 +14,15 @@ Key features:
 - Based on Negative Binomial distribution
 - Adjust for FDR and desired discovery rank
 - Ideal for pilot studies and grant planning
+
+### [Exons Painter](https://rafalwoycicki.github.io/exons_painter/exons.html)
+
+Visualize gene sequences and transcript structures interactively.  
+Key features:
+- Highlight exons corresponding to selected transcripts
+- Explore alternative splicing
+- Clean, browser-based interface
+- Supports any gene data you provide
 
 ---
 
