@@ -1,7 +1,7 @@
 
 # Gene Exon Painter
 
-An interactive exon viewer for the **Ccdc33** gene in mouse — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.
+An interactive exon viewer — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.
 
 ## 🧬 What this tool does
 
