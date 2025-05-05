@@ -1,7 +1,7 @@
 
 # Gene Exon Painter
 
-An interactive exon viewer — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.
+An interactive exon painter — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.
 
 ## 🧬 What this tool does
 
