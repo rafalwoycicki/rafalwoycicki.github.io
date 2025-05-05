@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCDC33 Gene Exon Viewer</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      color: #90caf9;
+    }
+    select, button, input[type="file"] {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background: #1e1e1e;
+      color: white;
+      border: 1px solid #333;
+    }
+    .sequence {
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #1e1e1e;
+      padding: 1rem;
+      border: 1px solid #333;
+      margin-top: 1rem;
+    }
+    .highlight {
+      background-color: #ff9800;
+      color: black;
+    }
+    .controls {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gene Exon Viewer</h1>
+  <div class="controls">
+    <label>Upload genomic sequence (.txt or .fasta):</label>
+    <input type="file" id="genomicFile" />
+    <br />
+    <label>Upload exons FASTA file:</label>
+    <input type="file" id="fastaFile" />
+    <br />
+    <label for="transcript">Transcript:</label>
+    <select id="transcript"></select>
+    <label for="exon">Exon:</label>
+    <select id="exon"></select>
+  </div>
+  <div id="sequence" class="sequence">Load files to begin...</div>
+
+  <script>
+    let genomicSequence = "";
+    const exonData = {};
+
+    document.getElementById("genomicFile").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const text = event.target.result;
+        genomicSequence = text.replace(/\n|>/g, "").toUpperCase();
+        document.getElementById("sequence").textContent = genomicSequence;
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById("fastaFile").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        parseFasta(event.target.result);
+        populateTranscripts();
+      };
+      reader.readAsText(file);
+    });
+
+    function parseFasta(fasta) {
+      const lines = fasta.split(/\r?\n/);
+      let currentHeader = "";
+      let currentSeq = "";
+      lines.forEach(line => {
+        if (line.startsWith(">")) {
+          if (currentHeader && currentSeq) processFastaEntry(currentHeader, currentSeq);
+          currentHeader = line.slice(1);
+          currentSeq = "";
+        } else {
+          currentSeq += line.trim();
+        }
+      });
+      if (currentHeader && currentSeq) processFastaEntry(currentHeader, currentSeq);
+    }
+
+    function processFastaEntry(header, seq) {
+      const [transcript, name, label] = header.split(":");
+      const position = genomicSequence.indexOf(seq.toUpperCase());
+      if (position === -1) return;
+      if (!exonData[transcript]) exonData[transcript] = [];
+      exonData[transcript].push({ label, start: position, end: position + seq.length });
+    }
+
+    function populateTranscripts() {
+      const transcriptSelect = document.getElementById("transcript");
+      transcriptSelect.innerHTML = "";
+      Object.keys(exonData).forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        transcriptSelect.appendChild(opt);
+      });
+      updateExons();
+    }
+
+    document.getElementById("transcript").addEventListener("change", updateExons);
+    document.getElementById("exon").addEventListener("change", highlightExon);
+
+    function updateExons() {
+      const exonSelect = document.getElementById("exon");
+      exonSelect.innerHTML = "";
+      const selected = document.getElementById("transcript").value;
+      const exons = exonData[selected];
+      if (!exons) return;
+      exons.forEach((e, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = e.label;
+        exonSelect.appendChild(opt);
+      });
+      highlightExon();
+    }
+
+    function highlightExon() {
+      const selectedTranscript = document.getElementById("transcript").value;
+      const exonIndex = parseInt(document.getElementById("exon").value);
+      const exon = exonData[selectedTranscript][exonIndex];
+      const highlighted = genomicSequence.slice(0, exon.start) +
+        '<span class="highlight">' + genomicSequence.slice(exon.start, exon.end) + '</span>' +
+        genomicSequence.slice(exon.end);
+      document.getElementById("sequence").innerHTML = highlighted;
+    }
+  </script>
+</body>
+</html>
