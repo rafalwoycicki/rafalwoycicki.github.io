@@ -10,14 +10,33 @@
       color: #e0e0e0;
       font-family: sans-serif;
       margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      background-color: #1e1e1e;
       padding: 1rem;
+      border-right: 1px solid #333;
+      width: 300px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      position: relative;
     }
     h1 {
       color: #90caf9;
+      font-size: 1.2rem;
     }
-    select, button, input[type="file"] {
+    select, input[type="file"] {
+      width: 100%;
       margin: 0.5rem 0;
-      padding: 0.5rem;
+      padding: 0.4rem;
       background: #1e1e1e;
       color: white;
       border: 1px solid #333;
@@ -29,46 +48,63 @@
       background: #1e1e1e;
       padding: 1rem;
       border: 1px solid #333;
-      margin-top: 1rem;
     }
     .highlight {
       color: black;
+      scroll-margin: 200px;
     }
-    .controls {
-      margin-bottom: 1rem;
+    .highlight[title] {
+      text-decoration: underline dotted;
+      cursor: help;
     }
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.8rem;
       margin-top: 1rem;
     }
-    th, td {
+    td {
       border: 1px solid #333;
-      padding: 0.5rem;
-      text-align: left;
-    }
-    th {
-      background-color: #1f1f1f;
+      padding: 0.25rem;
+      vertical-align: top;
     }
     .exon-link {
       cursor: pointer;
       text-decoration: underline;
       color: #90caf9;
+      margin: 0 0.2rem;
+      display: inline-block;
+    }
+    .exon-link.active {
+      font-weight: bold;
+      color: #ffcc80;
+    }
+    .exon-panel {
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>Gene Exon Viewer</h1>
-  <div class="controls">
-    <label>Upload genomic sequence (.txt or .fasta):</label>
+  <div class="sidebar">
+    <h1>Gene Exon Viewer</h1>
+    <label>Genomic sequence (.txt/.fasta):</label>
     <input type="file" id="genomicFile" />
-    <br />
-    <label>Upload exons FASTA files:</label>
+    <label>Exons FASTA files:</label>
     <input type="file" id="fastaFile" multiple />
+    <label>Transcript:</label>
+    <select id="transcript"></select>
+    <label>Exon:</label>
+    <select id="exon"></select>
+    <div class="exon-panel">
+      <label>Exons of selected transcript:</label>
+      <div id="exonList"></div>
+    </div>
   </div>
 
-  <div id="exonTableContainer"></div>
-  <div id="sequence" class="sequence">Load files to begin...</div>
+  <div class="main">
+    <div id="exonTableContainer"></div>
+    <div id="sequence" class="sequence">Load files to begin...</div>
+  </div>
 
   <script>
     let genomicSequence = "";
@@ -76,6 +112,8 @@
     const exonColors = {};
     const colorPalette = ["#ff9800", "#4caf50", "#03a9f4", "#e91e63", "#9c27b0", "#cddc39", "#00bcd4", "#ff5722"];
     let exonIdCounter = 0;
+    const activeExons = new Set();
+    let activeTranscript = null;
 
     document.getElementById("genomicFile").addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -96,6 +134,7 @@
         reader.onload = function (event) {
           parseFasta(event.target.result);
           updateExonTable();
+          populateTranscriptDropdown();
         };
         reader.readAsText(file);
       });
@@ -127,6 +166,7 @@
       exonColors[exonId] = color;
       exonData[transcript].push({
         id: exonId,
+        transcript,
         label,
         start: position,
         end: position + seq.length,
@@ -138,71 +178,141 @@
       const container = document.getElementById("exonTableContainer");
       container.innerHTML = "";
       const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      thead.innerHTML = "<tr><th>Transcript</th><th>Exon</th><th>Click to highlight</th></tr>";
       const tbody = document.createElement("tbody");
 
       Object.entries(exonData).forEach(([transcript, exons]) => {
-        exons.forEach((exon, i) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${transcript}</td>
-            <td>${exon.label}</td>
-            <td><span class="exon-link" onclick="toggleHighlight('${exon.id}')">highlight</span></td>
-          `;
-          tbody.appendChild(row);
+        const row = document.createElement("tr");
+        const tdTranscript = document.createElement("td");
+        tdTranscript.textContent = transcript;
+        const tdExons = document.createElement("td");
+        exons.forEach((exon) => {
+          const span = document.createElement("span");
+          span.className = "exon-link";
+          span.textContent = exon.label;
+          span.id = `top_${exon.id}`;
+          span.onclick = () => {
+            document.getElementById("transcript").value = transcript;
+            updateExonDropdown();
+            toggleHighlight(exon.id, transcript, exon.start);
+          };
+          tdExons.appendChild(span);
         });
+        row.appendChild(tdTranscript);
+        row.appendChild(tdExons);
+        tbody.appendChild(row);
       });
 
-      table.appendChild(thead);
       table.appendChild(tbody);
       container.appendChild(table);
+    }
+
+    function populateTranscriptDropdown() {
+      const transcriptSelect = document.getElementById("transcript");
+      transcriptSelect.innerHTML = "";
+      Object.keys(exonData).forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        transcriptSelect.appendChild(opt);
+      });
+      transcriptSelect.addEventListener("change", updateExonDropdown);
+      updateExonDropdown();
+    }
+
+    function updateExonDropdown() {
+      const exonSelect = document.getElementById("exon");
+      const exonList = document.getElementById("exonList");
+      exonSelect.innerHTML = "";
+      exonList.innerHTML = "";
+      const selected = document.getElementById("transcript").value;
+
+      if (selected !== activeTranscript) {
+        activeTranscript = selected;
+        activeExons.clear();
+      }
+
+      if (!exonData[selected]) return;
+      exonData[selected].forEach((e, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = e.label;
+        exonSelect.appendChild(opt);
+
+        const span = document.createElement("span");
+        span.className = "exon-link";
+        span.textContent = e.label;
+        span.id = `side_${e.id}`;
+        span.onclick = () => toggleHighlight(e.id, selected, e.start);
+        exonList.appendChild(span);
+      });
+
+      exonSelect.onchange = () => {
+        const index = parseInt(exonSelect.value);
+        const selectedExon = exonData[selected][index];
+        toggleHighlight(selectedExon.id, selected, selectedExon.start);
+      };
+
       updateSequenceDisplay();
     }
 
-    const activeExons = new Set();
+    function toggleHighlight(exonId, transcript, start) {
+      if (transcript !== activeTranscript) {
+        activeExons.clear();
+        activeTranscript = transcript;
+      }
 
-    function toggleHighlight(exonId) {
       if (activeExons.has(exonId)) {
         activeExons.delete(exonId);
       } else {
         activeExons.add(exonId);
       }
-      updateSequenceDisplay();
+
+      updateSequenceDisplay(start);
     }
 
-    function updateSequenceDisplay() {
+    function updateSequenceDisplay(scrollTo = null) {
       if (!genomicSequence) return;
-      let fragments = [];
-      let last = 0;
+      const charArray = genomicSequence.split("").map(c => ({ char: c, colors: [], titles: [] }));
 
-      // Gather all active exon regions
-      const regions = [];
       Object.values(exonData).forEach(exons => {
         exons.forEach(exon => {
           if (activeExons.has(exon.id)) {
-            regions.push({ start: exon.start, end: exon.end, color: exon.color });
+            for (let i = exon.start; i < exon.end; i++) {
+              if (charArray[i]) {
+                charArray[i].colors.push(exon.color);
+                charArray[i].titles.push(`${exon.transcript}:${exon.label}`);
+              }
+            }
           }
         });
       });
 
-      regions.sort((a, b) => a.start - b.start);
-
-      regions.forEach(({ start, end, color }) => {
-        if (last < start) fragments.push(escapeHtml(genomicSequence.slice(last, start)));
-        fragments.push(`<span class="highlight" style="background-color:${color};">${escapeHtml(genomicSequence.slice(start, end))}</span>`);
-        last = end;
+      document.querySelectorAll('.exon-link').forEach(el => el.classList.remove('active'));
+      activeExons.forEach(id => {
+        const top = document.getElementById(`top_${id}`);
+        const side = document.getElementById(`side_${id}`);
+        if (top) top.classList.add('active');
+        if (side) side.classList.add('active');
       });
 
-      if (last < genomicSequence.length) {
-        fragments.push(escapeHtml(genomicSequence.slice(last)));
-      }
+      const html = charArray.map(({ char, colors, titles }, i) => {
+        if (colors.length === 0) return escapeHtml(char);
+        const gradient = colors.length === 1 ? colors[0] : `linear-gradient(to right, ${colors.join(",")})`;
+        const title = [...new Set(titles)].join(", ");
+        const id = scrollTo === i ? 'scrollHere' : '';
+        return `<span id="${id}" class="highlight" style="background:${gradient};" title="${title}">${escapeHtml(char)}</span>`;
+      }).join("");
 
-      document.getElementById("sequence").innerHTML = fragments.join("");
+      const container = document.getElementById("sequence");
+      container.innerHTML = html;
+      if (scrollTo !== null) {
+        const el = document.getElementById("scrollHere");
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     function escapeHtml(text) {
-      return text.replace(/[&<>]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[tag] || tag));
+      return text.replace(/[&<>]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[tag] || tag));
     }
   </script>
 </body>
