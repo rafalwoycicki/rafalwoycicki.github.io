@@ -48,5 +48,6 @@ An interactive exon viewer for the **Ccdc33** gene in mouse — a web tool to vi
 
 By default, no data is loaded automatically.  
 Users must **manually load** the genomic and exon files from disk using the file upload inputs in the left panel.
+The example data are in the folder exons_painter.
 
 ---
