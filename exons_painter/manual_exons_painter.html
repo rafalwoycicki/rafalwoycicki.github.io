@@ -1,1 +1,122 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gene Exon Painter – Manual</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-right: 1px solid #333;
+      width: 300px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    h1 {
+      color: #90caf9;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      color: #ffcc80;
+      font-size: 1.3rem;
+      margin-top: 1.5rem;
+    }
+    p, li {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    code {
+      background-color: #1e1e1e;
+      padding: 2px 4px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h1>Manual</h1>
+    <p>Gene Exon Painter</p>
+  </div>
+  <div class="main">
+    <h1>Gene Exon Painter</h1>
+    <p>An interactive exon painter — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.</p>
+
+    <h2>🧬 What this tool does</h2>
+    <ul>
+      <li>Allows users to <strong>load a genomic sequence file</strong> (<code>.txt</code> or <code>.fasta</code>) and <strong>one or more exon <code>.fasta</code> files</strong>.</li>
+      <li>Displays the genomic sequence with exons <strong>highlighted by color</strong>.</li>
+      <li>Supports overlapping exons using color <strong>gradients</strong>.</li>
+      <li>Automatically scrolls to a selected exon when clicked or chosen from a dropdown.</li>
+      <li>Shows a <strong>tooltip</strong> with transcript and exon name on hover.</li>
+      <li>Clicking multiple exons in the same transcript <strong>adds highlights cumulatively</strong>.</li>
+      <li>Switching to a different transcript <strong>clears previous highlights</strong>.</li>
+      <li>Exons are listed in:
+        <ul>
+          <li>a dropdown menu,</li>
+          <li>a per-transcript side panel,</li>
+          <li>and a compact interactive table at the top.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>📂 How to use it</h2>
+    <ol>
+      <li>Open <code>index.html</code> in your browser.</li>
+      <li>Use the <strong>Genomic sequence</strong> input to upload a <code>.txt</code> or <code>.fasta</code> file containing the gene sequence.</li>
+      <li>Upload one or more <strong><code>.fasta</code> files with exon sequences</strong> (from any number of transcripts).</li>
+      <li>Select a transcript from the dropdown to explore its exons.</li>
+      <li>Click or select exons to highlight them on the genomic sequence.</li>
+    </ol>
+
+    <h2>📄 Input file formats</h2>
+    <h3>Genomic sequence (<code>.txt</code> / <code>.fasta</code>)</h3>
+    <ul>
+      <li>Plain nucleotide string (FASTA headers like <code>></code> are ignored).</li>
+      <li>Must match the coordinate system used in exon <code>.fasta</code> files.</li>
+    </ul>
+
+    <h3>Exons (<code>.fasta</code>)</h3>
+    <ul>
+      <li>Each entry should follow this header format: <code>&gt;ENSMUST00000000000:TranscriptName:Ex.1</code></li>
+      <li>Sequence must match exactly the corresponding genomic region.</li>
+    </ul>
+
+    <h2>✅ Browser compatibility</h2>
+    <ul>
+      <li>Chrome</li>
+      <li>Firefox</li>
+      <li>Edge</li>
+    </ul>
+    <p>This app runs entirely in the browser — no backend or server needed.</p>
+
+    <h2>📌 Default behavior</h2>
+    <p>
+      By default, no data is loaded automatically.
+      Users must <strong>manually load</strong> the genomic and exon files from disk using the file upload inputs in the left panel.
+    </p>
+    <p>The example data are in the folder <code>exons_painter</code>.</p>
+  </div>
+</body>
+</html>
