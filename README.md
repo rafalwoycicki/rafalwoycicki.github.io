@@ -1,6 +1,6 @@
 <a href="https://doi.org/10.5281/zenodo.15337793"><img src="https://zenodo.org/badge/976115941.svg" alt="DOI"></a>
 
-# Bioinformatics Tools by Rafał Woycicki
+# Bioinformatics Tools
 
 A collection of interactive web tools for RNA-Seq experiment design and gene structure visualization.
 
