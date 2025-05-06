@@ -19,11 +19,13 @@ An interactive exon painter — a web tool to visualize exon structures within t
 
 ## 📂 How to use it
 
-1. Open `index.html` in your browser.
-2. Use the **Genomic sequence** input to upload a `.txt` or `.fasta` file containing the gene sequence.
-3. Upload one or more **`.fasta` files with exon sequences** (from any number of transcripts).
-4. Select a transcript from the dropdown to explore its exons.
-5. Click or select exons to highlight them on the genomic sequence.
+1. Ensembl download of *.gtf.gz and *.dna.chromosome.9.fa.gz or *.dna.primary_assembly.fa.gz.
+2. Run code 'create_input_files.bash' to create input files for Painter.
+3. Open `index.html` in your browser.
+4. Use the **Genomic sequence** input to upload a `.txt` or `.fasta` file containing the gene sequence.
+5. Upload one or more **`.fasta` files with exon sequences** (from any number of transcripts).
+6. Select a transcript from the dropdown to explore its exons.
+7. Click or select exons to highlight them on the genomic sequence.
 
 ## 📄 Input file formats
 
