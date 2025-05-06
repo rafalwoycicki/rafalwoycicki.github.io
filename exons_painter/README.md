@@ -19,6 +19,7 @@ An interactive exon painter — a web tool to visualize exon structures within t
 
 ## 📂 How to use it
 
+0. Tool created specifically for gene `Ccds33` in Mouse (`Mus_musculus.GRCm39.113.gtf.gz and Mus_musculus.GRCm39.dna.chromosome.9.fa.gz).`
 1. If other genes needed, so make Ensembl download of `*.gtf.gz` and `*.dna.chromosome.9.fa.gz` or `*.dna.primary_assembly.fa.gz`.
 2. Run code `create_input_files.bash` to create input files for Painter. (need to change filenames inside the script)
 3. Open `index.html` in your browser.
