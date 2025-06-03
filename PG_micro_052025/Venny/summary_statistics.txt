@@ -1,0 +1,7 @@
+Summary Statistics:
+-------------------
+APT significant genes (FDR < 0.05, |logFC| > 0.5): 137
+Oligo significant genes (FDR < 0.05, |logFC| > 0.5): 79
+Overlapping significant genes: 74
+Unique APT significant genes: 63
+Unique Oligo significant genes: 5
