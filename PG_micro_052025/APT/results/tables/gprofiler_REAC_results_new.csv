@@ -1,0 +1,2 @@
+"query","significant","p_value","term_size","query_size","intersection_size","precision","recall","term_id","source","term_name","effective_domain_size","source_order","parents"
+"query_1",TRUE,0.0225004766178717,39,51,4,0.0784313725490196,0.102564102564103,"REAC:R-MMU-196071","REAC","Metabolism of steroid hormones",8429,850,"REAC:R-MMU-8957322"

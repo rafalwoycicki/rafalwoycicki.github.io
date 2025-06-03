@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0030061","mitochondrial crista",14,3,0.16,0.00048
+"GO:0005615","extracellular space",774,17,8.85,0.00692
+"GO:0036024","protein C inhibitor-TMPRSS7 complex",1,1,0.01,0.01143
+"GO:0036025","protein C inhibitor-TMPRSS11E complex",1,1,0.01,0.01143
+"GO:0036026","protein C inhibitor-PLAT complex",1,1,0.01,0.01143
+"GO:0036027","protein C inhibitor-PLAU complex",1,1,0.01,0.01143
+"GO:0036028","protein C inhibitor-thrombin complex",1,1,0.01,0.01143
+"GO:0036029","protein C inhibitor-KLK3 complex",1,1,0.01,0.01143
+"GO:0036030","protein C inhibitor-plasma kallikrein co...",1,1,0.01,0.01143
+"GO:0097181","protein C inhibitor-coagulation factor V...",1,1,0.01,0.01143
+"GO:0097182","protein C inhibitor-coagulation factor X...",1,1,0.01,0.01143
+"GO:0097183","protein C inhibitor-coagulation factor X...",1,1,0.01,0.01143
+"GO:0098839","postsynaptic density membrane",82,4,0.94,0.01436
+"GO:0001669","acrosomal vesicle",130,5,1.49,0.01661
+"GO:0044305","calyx of Held",19,2,0.22,0.01953
+"GO:0030141","secretory granule",297,8,3.4,0.02057
+"GO:0030690","Noc1p-Noc2p complex",2,1,0.02,0.02273
+"GO:0030895","apolipoprotein B mRNA editing enzyme com...",2,1,0.02,0.02273
+"GO:0070721","ISGF3 complex",2,1,0.02,0.02273
+"GO:0099634","postsynaptic specialization membrane",96,4,1.1,0.02416
+"GO:0099503","secretory vesicle",439,10,5.02,0.02881
+"GO:0046691","intracellular canaliculus",3,1,0.03,0.03391
+"GO:0005859","muscle myosin complex",3,1,0.03,0.03391
+"GO:0000172","ribonuclease MRP complex",3,1,0.03,0.03391
+"GO:0031265","CD95 death-inducing signaling complex",3,1,0.03,0.03391
+"GO:0045293","mRNA editing complex",3,1,0.03,0.03391
+"GO:0005683","U7 snRNP",3,1,0.03,0.03391
+"GO:0005793","endoplasmic reticulum-Golgi intermediate...",69,3,0.79,0.04431
+"GO:0031264","death-inducing signaling complex",4,1,0.05,0.04496
+"GO:0046581","intercellular canaliculus",4,1,0.05,0.04496

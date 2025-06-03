@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0006068","ethanol catabolic process",9,3,0.1,0.00011
+"GO:2001199","negative regulation of dendritic cell di...",2,2,0.02,0.00012
+"GO:0006805","xenobiotic metabolic process",47,5,0.53,0.00017
+"GO:0010815","bradykinin catabolic process",5,2,0.06,0.00122
+"GO:0045471","response to ethanol",79,5,0.89,0.0019
+"GO:0061370","testosterone biosynthetic process",7,2,0.08,0.00252
+"GO:0046320","regulation of fatty acid oxidation",26,3,0.29,0.00296
+"GO:0006702","androgen biosynthetic process",8,2,0.09,0.00334
+"GO:0060044","negative regulation of cardiac muscle ce...",9,2,0.1,0.00426
+"GO:0032892","positive regulation of organic acid tran...",30,3,0.34,0.00448
+"GO:0051412","response to corticosterone",10,2,0.11,0.00529
+"GO:1904251","regulation of bile acid metabolic proces...",10,2,0.11,0.00529
+"GO:0055091","phospholipid homeostasis",10,2,0.11,0.00529
+"GO:0009404","toxin metabolic process",10,2,0.11,0.00529
+"GO:0009617","response to bacterium",405,11,4.54,0.00575
+"GO:0060339","negative regulation of type I interferon...",11,2,0.12,0.00642
+"GO:0043171","peptide catabolic process",12,2,0.13,0.00765
+"GO:0015695","organic cation transport",71,4,0.8,0.0082
+"GO:0061367","behavioral response to acetic acid induc...",1,1,0.01,0.01121
+"GO:0006522","alanine metabolic process",1,1,0.01,0.01121
+"GO:0006524","alanine catabolic process",1,1,0.01,0.01121
+"GO:0043056","forward locomotion",1,1,0.01,0.01121
+"GO:0048769","sarcomerogenesis",1,1,0.01,0.01121
+"GO:0042851","L-alanine metabolic process",1,1,0.01,0.01121
+"GO:0042853","L-alanine catabolic process",1,1,0.01,0.01121
+"GO:0036060","slit diaphragm assembly",1,1,0.01,0.01121
+"GO:0046711","GDP biosynthetic process",1,1,0.01,0.01121
+"GO:0106040","regulation of GABA-A receptor activity",1,1,0.01,0.01121
+"GO:0018963","phthalate metabolic process",1,1,0.01,0.01121
+"GO:0051715","cytolysis in another organism",1,1,0.01,0.01121

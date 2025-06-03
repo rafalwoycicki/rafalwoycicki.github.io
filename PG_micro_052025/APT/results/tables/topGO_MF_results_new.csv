@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0045236","CXCR chemokine receptor binding",7,2,0.08,0.0027
+"GO:0030283","testosterone dehydrogenase [NAD(P)+] act...",7,2,0.08,0.0027
+"GO:0004180","carboxypeptidase activity",25,3,0.29,0.0029
+"GO:0004867","serine-type endopeptidase inhibitor acti...",52,4,0.61,0.0031
+"GO:0008656","cysteine-type endopeptidase activator ac...",9,2,0.1,0.0046
+"GO:0005496","steroid binding",63,4,0.73,0.0061
+"GO:0016805","dipeptidase activity",11,2,0.13,0.0069
+"GO:0008483","transaminase activity",12,2,0.14,0.0082
+"GO:0008235","metalloexopeptidase activity",37,3,0.43,0.009
+"GO:0008381","mechanosensitive monoatomic ion channel ...",13,2,0.15,0.0096
+"GO:0004175","endopeptidase activity",210,7,2.45,0.0113
+"GO:0004021","L-alanine:2-oxoglutarate aminotransferas...",1,1,0.01,0.0116
+"GO:0047635","alanine-oxo-acid transaminase activity",1,1,0.01,0.0116
+"GO:0016160","amylase activity",1,1,0.01,0.0116
+"GO:0034899","trimethylamine monooxygenase activity",1,1,0.01,0.0116
+"GO:0047150","betaine-homocysteine S-methyltransferase...",1,1,0.01,0.0116
+"GO:1904492","Ac-Asp-Glu binding",1,1,0.01,0.0116
+"GO:1904493","tetrahydrofolyl-poly(glutamate) polymer ...",1,1,0.01,0.0116
+"GO:0070996","type 1 melanocortin receptor binding",1,1,0.01,0.0116
+"GO:0008453","alanine-glyoxylate transaminase activity",1,1,0.01,0.0116
+"GO:0031780","corticotropin hormone receptor binding",1,1,0.01,0.0116
+"GO:0031783","type 5 melanocortin receptor binding",1,1,0.01,0.0116
+"GO:0008437","thyrotropin-releasing hormone activity",1,1,0.01,0.0116
+"GO:0030108","HLA-A specific activating MHC class I re...",1,1,0.01,0.0116
+"GO:0004556","alpha-amylase activity",1,1,0.01,0.0116
+"GO:0008405","arachidonate 11,12-epoxygenase activity",1,1,0.01,0.0116
+"GO:0047024","5-alpha-androstane-3-beta,17-beta-diol d...",1,1,0.01,0.0116
+"GO:0032397","activating MHC class I receptor activity",1,1,0.01,0.0116
+"GO:0015126","canalicular bile acid transmembrane tran...",1,1,0.01,0.0116
+"GO:0004304","estrone sulfotransferase activity",1,1,0.01,0.0116
