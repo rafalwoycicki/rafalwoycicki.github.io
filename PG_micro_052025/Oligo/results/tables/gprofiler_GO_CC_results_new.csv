@@ -1,0 +1,2 @@
+"query","significant","p_value","term_size","query_size","intersection_size","precision","recall","term_id","source","term_name","effective_domain_size","source_order","parents"
+"query_1",TRUE,0.00120780637999575,16,63,3,0.0476190476190476,0.1875,"GO:0030061","GO:CC","mitochondrial crista",27195,850,"GO:0005743; GO:0110165"

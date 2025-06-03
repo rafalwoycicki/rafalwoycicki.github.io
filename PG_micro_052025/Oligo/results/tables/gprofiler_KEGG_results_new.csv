@@ -1,0 +1,6 @@
+"query","significant","p_value","term_size","query_size","intersection_size","precision","recall","term_id","source","term_name","effective_domain_size","source_order","parents"
+"query_1",TRUE,0.00140853447758929,94,32,5,0.15625,0.0531914893617021,"KEGG:00140","KEGG","Steroid hormone biosynthesis",9330,17,"KEGG:00000"
+"query_1",TRUE,0.00462994677738823,72,32,4,0.125,0.0555555555555556,"KEGG:04927","KEGG","Cortisol synthesis and secretion",9330,384,"KEGG:00000"
+"query_1",TRUE,0.0134168193993313,1616,32,14,0.4375,0.00866336633663366,"KEGG:01100","KEGG","Metabolic pathways",9330,181,"KEGG:00000"
+"query_1",TRUE,0.029427690453941,63,32,3,0.09375,0.0476190476190476,"KEGG:04913","KEGG","Ovarian steroidogenesis",9330,370,"KEGG:00000"
+"query_1",TRUE,0.0400987474251486,162,32,4,0.125,0.0246913580246914,"KEGG:04934","KEGG","Cushing syndrome",9330,391,"KEGG:00000"

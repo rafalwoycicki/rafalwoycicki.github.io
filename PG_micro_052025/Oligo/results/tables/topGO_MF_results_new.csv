@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0005496","steroid binding",34,4,0.34,0.00033
+"GO:0016805","dipeptidase activity",8,2,0.08,0.00261
+"GO:0004181","metallocarboxypeptidase activity",9,2,0.09,0.00334
+"GO:0047024","5-alpha-androstane-3-beta,17-beta-diol d...",1,1,0.01,0.00992
+"GO:0001607","neuromedin U receptor activity",1,1,0.01,0.00992
+"GO:0047045","testosterone 17-beta-dehydrogenase (NADP...",1,1,0.01,0.00992
+"GO:0004304","estrone sulfotransferase activity",1,1,0.01,0.00992
+"GO:0042924","neuromedin U binding",1,1,0.01,0.00992
+"GO:0004556","alpha-amylase activity",1,1,0.01,0.00992
+"GO:0008404","arachidonate 14,15-epoxygenase activity",1,1,0.01,0.00992
+"GO:0008405","arachidonate 11,12-epoxygenase activity",1,1,0.01,0.00992
+"GO:0017064","fatty acid amide hydrolase activity",1,1,0.01,0.00992
+"GO:0004021","L-alanine:2-oxoglutarate aminotransferas...",1,1,0.01,0.00992
+"GO:0047150","betaine-homocysteine S-methyltransferase...",1,1,0.01,0.00992
+"GO:0098782","mechanosensitive potassium channel activ...",1,1,0.01,0.00992
+"GO:1904492","Ac-Asp-Glu binding",1,1,0.01,0.00992
+"GO:1904493","tetrahydrofolyl-poly(glutamate) polymer ...",1,1,0.01,0.00992
+"GO:0015485","cholesterol binding",20,2,0.2,0.01641
+"GO:0005249","voltage-gated potassium channel activity",20,2,0.2,0.01641
+"GO:0015189","L-lysine transmembrane transporter activ...",2,1,0.02,0.01974
+"GO:0000064","L-ornithine transmembrane transporter ac...",2,1,0.02,0.01974
+"GO:0062078","TSC1-TSC2 complex binding",2,1,0.02,0.01974
+"GO:0047035","testosterone dehydrogenase (NAD+) activi...",2,1,0.02,0.01974
+"GO:0044594","17-beta-hydroxysteroid dehydrogenase (NA...",2,1,0.02,0.01974
+"GO:0030250","guanylate cyclase activator activity",2,1,0.02,0.01974
+"GO:0003854","3-beta-hydroxy-Delta5-steroid dehydrogen...",2,1,0.02,0.01974
+"GO:0106373","3-deoxyglucosone dehydrogenase activity",2,1,0.02,0.01974
+"GO:0004062","aryl sulfotransferase activity",2,1,0.02,0.01974
+"GO:0030249","guanylate cyclase regulator activity",2,1,0.02,0.01974
+"GO:0017040","N-acylsphingosine amidohydrolase activit...",2,1,0.02,0.01974

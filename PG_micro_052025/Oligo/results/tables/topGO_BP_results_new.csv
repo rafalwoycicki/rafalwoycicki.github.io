@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0006068","ethanol catabolic process",8,3,0.08,4.9e-05
+"GO:0061370","testosterone biosynthetic process",4,2,0.04,0.00056
+"GO:0006702","androgen biosynthetic process",6,2,0.06,0.00138
+"GO:0120178","steroid hormone biosynthetic process",15,4,0.15,0.00308
+"GO:0008211","glucocorticoid metabolic process",9,2,0.09,0.00326
+"GO:0042445","hormone metabolic process",80,7,0.78,0.00472
+"GO:0018958","phenol-containing compound metabolic pro...",39,3,0.38,0.00639
+"GO:0006575","modified amino acid metabolic process",82,4,0.8,0.00831
+"GO:0036060","slit diaphragm assembly",1,1,0.01,0.0098
+"GO:0006711","estrogen catabolic process",1,1,0.01,0.0098
+"GO:0019373","epoxygenase P450 pathway",1,1,0.01,0.0098
+"GO:0042853","L-alanine catabolic process",1,1,0.01,0.0098
+"GO:0090080","positive regulation of MAPKKK cascade by...",1,1,0.01,0.0098
+"GO:0071266","'de novo' L-methionine biosynthetic proc...",1,1,0.01,0.0098
+"GO:0050976","detection of mechanical stimulus involve...",1,1,0.01,0.0098
+"GO:1904551","cellular response to arachidonate",1,1,0.01,0.0098
+"GO:0018894","dibenzo-p-dioxin metabolic process",1,1,0.01,0.0098
+"GO:0051715","cytolysis in another organism",1,1,0.01,0.0098
+"GO:0018879","biphenyl metabolic process",1,1,0.01,0.0098
+"GO:0018963","phthalate metabolic process",1,1,0.01,0.0098
+"GO:0017143","insecticide metabolic process",1,1,0.01,0.0098
+"GO:1904211","membrane protein proteolysis involved in...",1,1,0.01,0.0098
+"GO:0098934","retrograde dendritic transport",1,1,0.01,0.0098
+"GO:0002537","nitric oxide production involved in infl...",1,1,0.01,0.0098
+"GO:0008207","C21-steroid hormone metabolic process",16,2,0.16,0.01039
+"GO:0042446","hormone biosynthetic process",23,4,0.23,0.01106
+"GO:0048168","regulation of neuronal synaptic plastici...",17,2,0.17,0.0117
+"GO:0016101","diterpenoid metabolic process",18,2,0.18,0.01308
+"GO:0007610","behavior",265,7,2.6,0.01452
+"GO:0032365","intracellular lipid transport",19,2,0.19,0.01452

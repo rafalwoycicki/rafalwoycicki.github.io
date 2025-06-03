@@ -1,0 +1,31 @@
+"GO.ID","Term","Annotated","Significant","Expected","Fisher.elim"
+"GO:0030061","mitochondrial crista",9,3,0.09,7.1e-05
+"GO:0005615","extracellular space",395,12,3.84,0.00037
+"GO:0098839","postsynaptic density membrane",45,3,0.44,0.00935
+"GO:0033596","TSC1-TSC2 complex",1,1,0.01,0.00973
+"GO:0044304","main axon",19,2,0.18,0.01435
+"GO:0070721","ISGF3 complex",2,1,0.02,0.01937
+"GO:0008076","voltage-gated potassium channel complex",27,2,0.26,0.02802
+"GO:0008290","F-actin capping protein complex",3,1,0.03,0.02892
+"GO:0000172","ribonuclease MRP complex",3,1,0.03,0.02892
+"GO:0005683","U7 snRNP",3,1,0.03,0.02892
+"GO:0034705","potassium channel complex",31,2,0.3,0.03621
+"GO:0002189","ribose phosphate diphosphokinase complex",4,1,0.04,0.03838
+"GO:0030681","multimeric ribonuclease P complex",4,1,0.04,0.03838
+"GO:0033268","node of Ranvier",4,1,0.04,0.03838
+"GO:0071203","WASH complex",5,1,0.05,0.04774
+"GO:0034715","pICln-Sm protein complex",5,1,0.05,0.04774
+"GO:0001669","acrosomal vesicle",89,3,0.87,0.0554
+"GO:0043194","axon initial segment",6,1,0.06,0.05702
+"GO:0005687","U4 snRNP",6,1,0.06,0.05702
+"GO:0005758","mitochondrial intermembrane space",42,2,0.41,0.06265
+"GO:0030677","ribonuclease P complex",7,1,0.07,0.06621
+"GO:0044305","calyx of Held",7,1,0.07,0.06621
+"GO:0031970","organelle envelope lumen",46,2,0.45,0.07348
+"GO:0044322","endoplasmic reticulum quality control co...",8,1,0.08,0.0753
+"GO:0034719","SMN-Sm protein complex",8,1,0.08,0.0753
+"GO:0005697","telomerase holoenzyme complex",9,1,0.09,0.08432
+"GO:0034709","methylosome",10,1,0.1,0.09324
+"GO:0005682","U5 snRNP",10,1,0.1,0.09324
+"GO:0097449","astrocyte projection",11,1,0.11,0.10208
+"GO:0030141","secretory granule",183,4,1.78,0.10217
