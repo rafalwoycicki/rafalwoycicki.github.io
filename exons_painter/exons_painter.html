@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -86,7 +86,7 @@
       font-size: 0.85rem; 
       line-height: 1.4;
     }
-    .sequence span { /* For tooltips on non-highlighted characters */
+    .sequence span { 
         cursor: default;
     }
     .highlight {
@@ -94,7 +94,7 @@
       scroll-margin: 200px; 
       border-radius: 2px; 
     }
-    .highlight[title], .sequence span[title] { /* Ensure all spans with titles show help cursor */
+    .highlight[title], .sequence span[title] { 
       text-decoration: underline dotted #777; 
       cursor: help;
     }
@@ -165,29 +165,29 @@
 <body>
   <div class="sidebar">
     <h1>Gene Exon Painter</h1>
-    <label for="genomicFile">Sekwencja genomowa (.txt/.fasta):</label>
+    <label for="genomicFile">Genomic sequence (.txt/.fasta):</label>
     <input type="file" id="genomicFile" accept=".txt,.fasta,.fa" />
-    <label for="fastaFile">Pliki FASTA eksonów (wiele):</label>
+    <label for="fastaFile">Exon FASTA files (multiple):</label>
     <input type="file" id="fastaFile" multiple accept=".txt,.fasta,.fa" />
     
     <div class="exon-panel">
-        <label for="transcript">Transkrypt:</label>
+        <label for="transcript">Transcript:</label>
         <select id="transcript"></select>
-        <label for="exon">Ekson (z wybranego transkryptu):</label>
+        <label for="exon">Exon (from selected transcript):</label>
         <select id="exon"></select>
-        <label style="margin-top:0.8rem;">Eksony wybranego transkryptu:</label>
+        <label style="margin-top:0.8rem;">Exons of selected transcript:</label>
         <div id="exonList" style="margin-top:0.3rem;"></div>
     </div>
 
     <div id="exonDetailsPanel" class="exon-panel">
-      <h2>Szczegóły Eksonu</h2>
-      <div id="detailsContent">Wybierz ekson, aby zobaczyć szczegóły.</div>
+      <h2>Exon Details</h2>
+      <div id="detailsContent">Select an exon to see details.</div>
     </div>
   </div>
 
   <div class="main">
     <div id="exonTableContainer"></div>
-    <div id="sequence" class="sequence">Wczytaj pliki, aby rozpocząć...</div>
+    <div id="sequence" class="sequence">Load files to begin...</div>
   </div>
 
   <script>
@@ -349,12 +349,10 @@
     function assignSequentialDisplayLabels() {
         for (const transcriptId in exonData) {
             const exonsInTranscript = exonData[transcriptId];
-            // Sort exons by their start position to ensure correct sequential numbering
             exonsInTranscript.sort((a, b) => a.start - b.start);
             
             exonsInTranscript.forEach((exon, index) => {
                 exon.sequentialNumber = index + 1;
-                // Create the display label, e.g., "1. OriginalLabel"
                 exon.displayLabel = `${exon.sequentialNumber}. ${exon.originalLabel}`;
                 
                 if (allExonsMap[exon.id]) {
@@ -396,7 +394,7 @@
       const container = document.getElementById("exonTableContainer");
       container.innerHTML = ""; 
       if (Object.keys(exonData).length === 0) {
-        container.innerHTML = "<p>Nie wczytano danych o eksonach lub nie znaleziono pasujących eksonów.</p>";
+        container.innerHTML = "<p>No exon data loaded or no matching exons found.</p>";
         return;
       }
       const table = document.createElement("table");
@@ -404,16 +402,15 @@
       const tbody = document.createElement("tbody");
       const headerRow = document.createElement("tr");
       const thTranscript = document.createElement("th");
-      thTranscript.textContent = "Transkrypt";
+      thTranscript.textContent = "Transcript";
       const thExons = document.createElement("th");
-      thExons.textContent = "Eksony (kliknij, aby podświetlić)";
+      thExons.textContent = "Exons (click to highlight)";
       headerRow.appendChild(thTranscript);
       headerRow.appendChild(thExons);
       thead.appendChild(headerRow);
       table.appendChild(thead);
       const sortedTranscriptNames = Object.keys(exonData).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
       sortedTranscriptNames.forEach(transcript => {
-        // Exons are already sorted by start position in assignSequentialDisplayLabels
         const exons = exonData[transcript]; 
         if (exons.length === 0) return; 
         const row = document.createElement("tr");
@@ -466,9 +463,6 @@
         const selectedTranscript = document.getElementById("transcript").value;
         if (selectedTranscript !== activeTranscript) {
             activeTranscript = selectedTranscript;
-            // When changing transcript, we might want to clear highlights NOT related to the new active context
-            // For now, allow highlights to persist if they are identical/overlapping with something potentially still relevant
-            // updateExonDetailsPanel(null); // Clear details only if no exon is actively selected
         }
         updateExonDropdown();
     }
@@ -484,7 +478,6 @@
           updateSequenceDisplay(); 
           return;
       }
-      // Exons are already sorted by start position in assignSequentialDisplayLabels
       const sortedExons = exonData[selectedTranscript];
       sortedExons.forEach(e => {
         const opt = document.createElement("option");
@@ -520,15 +513,13 @@
         if (!mainExon) return;
 
         const turnOn = !activeExons.has(mainExon.id);
-        const affectedExonIds = new Set(); // IDs of exons to change state (main, identicals, overlappers)
+        const affectedExonIds = new Set(); 
 
-        // Add main exon and its identicals
         (sequenceToExonsMap[mainExon.sequence] || []).forEach(info => {
             affectedExonIds.add(info.id);
         });
-        affectedExonIds.add(mainExon.id); // Ensure main one is included
+        affectedExonIds.add(mainExon.id); 
 
-        // Add direct overlappers of the main exon and its identicals
         affectedExonIds.forEach(id => {
             const exon = allExonsMap[id];
             if (exon && exon.overlappingExons) {
@@ -541,18 +532,15 @@
             if (mainExon.transcript !== activeTranscript) {
                 activeTranscript = mainExon.transcript;
                 document.getElementById("transcript").value = activeTranscript;
-                updateExonDropdown(); // This calls updateSequenceDisplay
+                updateExonDropdown(); 
             }
             document.getElementById("exon").value = mainExon.id;
             updateExonDetailsPanel(mainExon.id);
         } else {
-            // When turning off, we need to be more careful with overlappers
             const idsToTurnOff = new Set();
-            // Initially, mark the main exon and its identicals for turning off
             (sequenceToExonsMap[mainExon.sequence] || []).forEach(info => idsToTurnOff.add(info.id));
             idsToTurnOff.add(mainExon.id);
 
-            // For overlappers, turn them off only if they don't overlap with any *other* exon that will remain active
             const potentialOverlappersToTurnOff = new Set();
             idsToTurnOff.forEach(idTurnedOff => {
                 const exon = allExonsMap[idTurnedOff];
@@ -562,19 +550,17 @@
             });
 
             potentialOverlappersToTurnOff.forEach(overlapperId => {
-                if (idsToTurnOff.has(overlapperId)) return; // Already being turned off as an identical
+                if (idsToTurnOff.has(overlapperId)) return; 
 
                 const overlapperExon = allExonsMap[overlapperId];
                 if (!overlapperExon) return;
 
                 let stillHasActiveOverlap = false;
-                // Check against exons that will *remain* active (activeExons - idsToTurnOff)
                 for (const currentActiveId of activeExons) {
-                    if (idsToTurnOff.has(currentActiveId)) continue; // This one is being turned off
+                    if (idsToTurnOff.has(currentActiveId)) continue; 
 
                     const currentActiveExon = allExonsMap[currentActiveId];
                     if (currentActiveExon) {
-                        // Direct overlap check
                         if (overlapperExon.start < currentActiveExon.end && currentActiveExon.start < overlapperExon.end) {
                             stillHasActiveOverlap = true;
                             break;
@@ -587,29 +573,23 @@
             });
             
             idsToTurnOff.forEach(id => activeExons.delete(id));
-            updateExonDetailsPanel(activeExons.size > 0 ? mainExon.id : null); // Show details of main if other things still active, else clear
+            updateExonDetailsPanel(activeExons.size > 0 && activeExons.has(mainExon.id) ? mainExon.id : null); 
         }
       
-        // Ensure UI updates correctly based on the new activeTranscript context if it changed
         if (mainExon.transcript === activeTranscript || turnOn) {
-             // If the main exon's transcript is the active one, or we just turned things on,
-             // ensure its dropdown is synced and sequence updates.
             if (document.getElementById("transcript").value !== mainExon.transcript && turnOn) {
                  document.getElementById("transcript").value = mainExon.transcript;
-                 handleTranscriptChange(); // This will call updateExonDropdown -> updateSequenceDisplay
+                 handleTranscriptChange(); 
             } else {
-                 updateExonDropdown(); // Ensure sidebar list for current transcript is correct and calls updateSequenceDisplay
+                 updateExonDropdown(); 
             }
         } else {
-            // If transcript context changed implicitly by highlighting an exon from another transcript
-            // or turning off the last exon of the current active transcript.
             updateSequenceDisplay(mainExon.start);
         }
-         // Fallback to ensure sequence is scrolled correctly if not handled by dropdown updates
-        if (activeExons.has(mainExon.id)) { // If the main exon ended up active
+        if (activeExons.has(mainExon.id)) { 
              updateSequenceDisplay(mainExon.start);
-        } else if (!turnOn) { // If we turned off
-             updateSequenceDisplay(); // Update without specific scroll
+        } else if (!turnOn) { 
+             updateSequenceDisplay(); 
         }
     }
     
@@ -617,40 +597,32 @@
         const detailsContent = document.getElementById("detailsContent");
         let exonToDetail = null;
 
-        if (clickedExonId && activeExons.has(clickedExonId)) { // Prioritize the actually clicked and active exon
+        if (clickedExonId && activeExons.has(clickedExonId)) { 
             exonToDetail = allExonsMap[clickedExonId];
-        } else if (activeExons.size > 0 && clickedExonId) { // If clicked is no longer active, but others are, maybe show first active?
-            // This case is tricky, for now, if clickedExonId is not active, treat as null
-             exonToDetail = null;
         }
-
-
+        
         if (!exonToDetail) {
-            let message = "Wybierz ekson, aby zobaczyć szczegóły.";
+            let message = "Select an exon to see details.";
             if (Object.keys(allExonsMap).length === 0 && genomicSequence) {
-                 message = "Sekwencja genomowa wczytana. Wczytaj pliki FASTA z eksonami.";
+                 message = "Genomic sequence loaded. Load exon FASTA files.";
             } else if (!genomicSequence) {
-                 message = "Wczytaj genomową sekwencję oraz pliki FASTA z eksonami, aby rozpocząć.";
-            } else if (activeExons.size > 0 && !clickedExonId) {
-                // If some exons are active, but no specific one was just clicked for details (e.g. after turning off)
-                // message = "Niektóre eksony są aktywne. Kliknij na konkretny, aby zobaczyć szczegóły.";
-                // For simplicity, let's stick to the default message or clear.
+                 message = "Load genomic sequence and exon FASTA files to begin.";
             }
             detailsContent.innerHTML = message;
             return;
         }
         
-        const exon = exonToDetail; // Use the determined exon for details
-        let html = `<h4>Szczegóły dla: ${escapeHtml(exon.transcript)} - ${escapeHtml(exon.displayLabel)}</h4>`;
-        html += `<p style="font-size:0.75rem; color: #bbb;">(ID: ${escapeHtml(exon.id)}, Pozycja: ${exon.start + 1}-${exon.end})</p>`;
-        html += `<p><strong>Sekwencja (długość ${exon.sequence.length}):</strong></p>
+        const exon = exonToDetail; 
+        let html = `<h4>Details for: ${escapeHtml(exon.transcript)} - ${escapeHtml(exon.displayLabel)}</h4>`;
+        html += `<p style="font-size:0.75rem; color: #bbb;">(Internal ID: ${escapeHtml(exon.id)}, Position: ${exon.start + 1}-${exon.end})</p>`;
+        html += `<p><strong>Sequence (length ${exon.sequence.length}):</strong></p>
                  <div style="font-family:monospace; word-break:break-all; font-size:0.75rem; background-color:#1c1c1c; padding:5px; border-radius:3px; max-height: 60px; overflow-y:auto;">${escapeHtml(exon.sequence)}</div>`;
 
         const identicalExons = (sequenceToExonsMap[exon.sequence] || [])
             .filter(e => e.id !== exon.id); 
 
         if (identicalExons.length > 0) {
-            html += `<p style="margin-top:0.5rem;"><strong>Identyczna sekwencja znaleziona również w:</strong></p><ul>`;
+            html += `<p style="margin-top:0.5rem;"><strong>Identical sequence also found in:</strong></p><ul>`;
             identicalExons.sort((a,b) => { 
                 const exonA = allExonsMap[a.id];
                 const exonB = allExonsMap[b.id];
@@ -666,20 +638,20 @@
             });
             html += `</ul>`;
         } else {
-            html += `<p style="margin-top:0.5rem;">Nie znaleziono innych eksonów o identycznej sekwencji.</p>`;
+            html += `<p style="margin-top:0.5rem;">No other exons with identical sequence found.</p>`;
         }
 
         if (exon.overlappingExons && exon.overlappingExons.length > 0) {
-            html += `<p style="margin-top:0.5rem;"><strong>Nakłada się (na sekwencji genomowej) z:</strong></p><ul>`;
+            html += `<p style="margin-top:0.5rem;"><strong>Overlaps (on genomic sequence) with:</strong></p><ul>`;
             exon.overlappingExons.forEach(oe => { 
                 const overlappingExonEntry = allExonsMap[oe.id];
                 if (overlappingExonEntry) {
-                     html += `<li>${escapeHtml(overlappingExonEntry.transcript)} - ${escapeHtml(overlappingExonEntry.displayLabel)} (na poz. ${oe.start + 1}-${oe.end})</li>`;
+                     html += `<li>${escapeHtml(overlappingExonEntry.transcript)} - ${escapeHtml(overlappingExonEntry.displayLabel)} (at pos. ${oe.start + 1}-${oe.end})</li>`;
                 }
             });
             html += `</ul>`;
         } else {
-            html += `<p style="margin-top:0.5rem;">Nie znaleziono nakładania się z innymi eksonami.</p>`;
+            html += `<p style="margin-top:0.5rem;">No overlaps with other exons found.</p>`;
         }
         detailsContent.innerHTML = html;
     }
@@ -687,11 +659,11 @@
     function updateSequenceDisplay(scrollToPosition = null) {
       const sequenceDiv = document.getElementById("sequence");
       if (!genomicSequence) {
-        sequenceDiv.innerHTML = "Wczytaj pliki, aby rozpocząć...";
+        sequenceDiv.innerHTML = "Load files to begin...";
         return;
       }
       if (genomicSequence.length > 500000) { 
-          sequenceDiv.innerHTML = `Sekwencja genomowa jest bardzo długa (${genomicSequence.length} bp). Wyświetlanie może być ograniczone dla zachowania wydajności.`;
+          sequenceDiv.innerHTML = `Genomic sequence is very long (${genomicSequence.length} bp). Display may be limited for performance.`;
       }
       const charArray = genomicSequence.split("").map(char => ({ 
           char: char, 
@@ -747,7 +719,7 @@
         }
       });
       sequenceDiv.innerHTML = html;
-      if (scrollToPosition !== null && activeExons.size > 0) { // Scroll only if something is active
+      if (scrollToPosition !== null && activeExons.size > 0) { 
         const el = document.getElementById("scrollHere");
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
