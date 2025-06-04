@@ -1,40 +1,43 @@
+<div style="background-color:#121212; color:#e0e0e0; padding:1.5rem; border-radius:6px; font-family:sans-serif;">
+
 <h1>🧬 Gene Exon Painter – visualize exons directly on genomic sequence</h1>
 <p><strong>Gene Exon Painter</strong> is an interactive tool for mapping exons from multiple transcripts onto a genomic sequence. It helps you:</p>
 <ul>
-  <li>Understand alternative splicing,</li>
-  <li>Detect overlapping or shared exons,</li>
-  <li>Visualize transcript structures in context,</li>
-  <li>Teach gene structure in an intuitive way.</li>
+  <li>Understand alternative splicing</li>
+  <li>Detect overlapping or shared exons</li>
+  <li>Visualize transcript structures in context</li>
+  <li>Teach gene structure in an intuitive way</li>
 </ul>
 
-<hr />
+<hr style="border: 1px solid #333;" />
 
 <h2>📘 How to Use Gene Exon Painter</h2>
 
 <h3>1. Prepare your files</h3>
 <ul>
-  <li><strong>Genomic sequence</strong>: file in <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code> format.</li>
-  <li><strong>Exon FASTA files</strong>: one or more <code>.fasta</code> files. Each header should be in the format <code>&gt;TranscriptID:ExonLabel</code>, e.g. <code>&gt;ENST00000619216:exon_1</code>.</li>
+  <li><strong>Genomic sequence:</strong> file in <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code></li>
+  <li><strong>Exon FASTA files:</strong> headers formatted like <code>&gt;TranscriptID:ExonLabel</code></li>
 </ul>
 
 <h3>2. Load the data</h3>
 <ol>
-  <li>Click the <strong>Genomic sequence</strong> input and select your genomic file.</li>
-  <li>Then use the <strong>Exon FASTA files</strong> input to load exon files.</li>
+  <li>Click <strong>Genomic sequence</strong> to load your file</li>
+  <li>Then upload exon files via <strong>Exon FASTA files</strong></li>
 </ol>
 
 <h3>3. Explore the visualization</h3>
 <ul>
-  <li>Select a transcript to list its exons.</li>
-  <li>Click any exon to highlight it on the sequence.</li>
-  <li>You can activate multiple exons – overlapping regions will be shown with gradient colors.</li>
-  <li>Click a highlighted nucleotide to jump to the corresponding exon.</li>
+  <li>Select transcript and exon</li>
+  <li>Click an exon to highlight it on sequence</li>
+  <li>Click multiple to show overlaps (with gradients)</li>
+  <li>Click sequence to view exon details</li>
 </ul>
 
 <h3>4. Exon Details Panel</h3>
-<p>When an exon is selected, you will see:</p>
 <ul>
-  <li>Its sequence and genomic coordinates,</li>
-  <li>Other exons with identical sequence,</li>
-  <li>Overlaps with exons from other transcripts.</li>
+  <li>Shows sequence and genomic position</li>
+  <li>Identical exons in other transcripts</li>
+  <li>Overlapping regions</li>
 </ul>
+
+</div>
