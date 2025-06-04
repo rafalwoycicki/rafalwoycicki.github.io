@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,42 +19,83 @@
       background-color: #1e1e1e;
       padding: 1rem;
       border-right: 1px solid #333;
-      width: 300px;
+      width: 370px; 
       overflow-y: auto;
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
     }
     .main {
       flex-grow: 1;
       padding: 1rem;
       overflow-y: auto;
-      position: relative;
+      position: relative; 
     }
     h1 {
       color: #90caf9;
       font-size: 1.2rem;
+      margin-top: 0;
+    }
+    h2 {
+      color: #90caf9;
+      font-size: 1rem;
+      margin-top: 0.8rem;
+      margin-bottom: 0.4rem;
+    }
+    h4 {
+        color: #a6d8ff;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+    label {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
     }
     select, input[type="file"] {
       width: 100%;
       margin: 0.5rem 0;
-      padding: 0.4rem;
-      background: #1e1e1e;
+      padding: 0.5rem; 
+      background: #2a2a2a;
       color: white;
-      border: 1px solid #333;
+      border: 1px solid #444; 
+      border-radius: 4px; 
+      box-sizing: border-box;
+    }
+    input[type="file"]::file-selector-button {
+        background-color: #03a9f4;
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-right: 0.5rem;
+    }
+    input[type="file"]::file-selector-button:hover {
+        background-color: #0288d1;
     }
     .sequence {
       font-family: monospace;
       white-space: pre-wrap;
-      word-break: break-word;
+      word-break: break-all; 
       background: #1e1e1e;
       padding: 1rem;
       border: 1px solid #333;
+      border-radius: 4px;
+      font-size: 0.85rem; 
+      line-height: 1.4;
+    }
+    .sequence span { /* For tooltips on non-highlighted characters */
+        cursor: default;
     }
     .highlight {
       color: black;
-      scroll-margin: 200px;
+      scroll-margin: 200px; 
+      border-radius: 2px; 
     }
-    .highlight[title] {
-      text-decoration: underline dotted;
+    .highlight[title], .sequence span[title] { /* Ensure all spans with titles show help cursor */
+      text-decoration: underline dotted #777; 
       cursor: help;
     }
     table {
@@ -63,65 +104,140 @@
       font-size: 0.8rem;
       margin-top: 1rem;
     }
-    td {
+    th, td {
       border: 1px solid #333;
-      padding: 0.25rem;
+      padding: 0.35rem; 
       vertical-align: top;
+      text-align: left;
+    }
+    th {
+        background-color: #2a2a2a;
+        color: #90caf9;
     }
     .exon-link {
       cursor: pointer;
-      text-decoration: underline;
+      text-decoration: none; 
       color: #90caf9;
-      margin: 0 0.2rem;
+      margin: 0.1rem 0.2rem; 
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
       display: inline-block;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .exon-link:hover {
+        background-color: #333;
+        color: #b3e5fc;
     }
     .exon-link.active {
       font-weight: bold;
-      color: #ffcc80;
+      color: #121212; 
+      background-color: #ffcc80;
     }
     .exon-panel {
       margin-top: 1rem;
+      padding: 0.75rem; 
+      border: 1px solid #333;
+      background-color: #252525; 
+      border-radius: 4px;
     }
+    #exonDetailsPanel {
+        font-size: 0.8rem;
+    }
+    #exonDetailsPanel ul {
+        padding-left: 20px;
+        margin-top: 0.2rem;
+        list-style-type: square; 
+    }
+    #exonDetailsPanel li {
+        margin-bottom: 0.3rem; 
+    }
+    #detailsContent {
+        max-height: 250px; 
+        overflow-y: auto;
+        padding-right: 5px; 
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #777; }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <h1>Gene Exon Painter</h1>
-    <label>Genomic sequence (.txt/.fasta):</label>
-    <input type="file" id="genomicFile" />
-    <label>Exons FASTA files:</label>
-    <input type="file" id="fastaFile" multiple />
-    <label>Transcript:</label>
-    <select id="transcript"></select>
-    <label>Exon:</label>
-    <select id="exon"></select>
+    <label for="genomicFile">Sekwencja genomowa (.txt/.fasta):</label>
+    <input type="file" id="genomicFile" accept=".txt,.fasta,.fa" />
+    <label for="fastaFile">Pliki FASTA eksonów (wiele):</label>
+    <input type="file" id="fastaFile" multiple accept=".txt,.fasta,.fa" />
+    
     <div class="exon-panel">
-      <label>Exons of selected transcript:</label>
-      <div id="exonList"></div>
+        <label for="transcript">Transkrypt:</label>
+        <select id="transcript"></select>
+        <label for="exon">Ekson (z wybranego transkryptu):</label>
+        <select id="exon"></select>
+        <label style="margin-top:0.8rem;">Eksony wybranego transkryptu:</label>
+        <div id="exonList" style="margin-top:0.3rem;"></div>
+    </div>
+
+    <div id="exonDetailsPanel" class="exon-panel">
+      <h2>Szczegóły Eksonu</h2>
+      <div id="detailsContent">Wybierz ekson, aby zobaczyć szczegóły.</div>
     </div>
   </div>
 
   <div class="main">
     <div id="exonTableContainer"></div>
-    <div id="sequence" class="sequence">Load files to begin...</div>
+    <div id="sequence" class="sequence">Wczytaj pliki, aby rozpocząć...</div>
   </div>
 
   <script>
+    // Global variables
     let genomicSequence = "";
-    const exonData = {};
-    const exonColors = {};
-    const colorPalette = ["#ff9800", "#4caf50", "#03a9f4", "#e91e63", "#9c27b0", "#cddc39", "#00bcd4", "#ff5722"];
-    let exonIdCounter = 0;
-    const activeExons = new Set();
-    let activeTranscript = null;
+    const exonData = {}; 
+    let allExonsMap = {}; 
+    let sequenceToExonsMap = {}; 
 
+    const colorPalette = ["#ff9800", "#4caf50", "#03a9f4", "#e91e63", "#9c27b0", "#cddc39", "#00bcd4", "#ff5722", "#795548", "#607d8b"];
+    let exonIdCounter = 0;
+    const activeExons = new Set(); 
+    let activeTranscript = null; 
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return "";
+      return text.toString().replace(/[&<>]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[tag] || tag));
+    }
+
+    function parseGenomicFasta(text) {
+        const lines = text.split(/\r?\n/);
+        let sequence = "";
+        if (lines.length === 0) return "";
+        const isFasta = lines.some(line => line.startsWith(">"));
+        if (isFasta) {
+            let readingSequence = false;
+            for (const line of lines) {
+                if (line.startsWith(">")) {
+                    if (sequence) break; 
+                    readingSequence = true;
+                } else if (readingSequence) {
+                    sequence += line.trim();
+                }
+            }
+        } else {
+            sequence = lines.join("").trim();
+        }
+        return sequence.replace(/[^A-Z]/ig, "").toUpperCase();
+    }
+    
     document.getElementById("genomicFile").addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function (event) {
-        const text = event.target.result;
-        genomicSequence = text.replace(/\n|>/g, "").toUpperCase();
+        genomicSequence = parseGenomicFasta(event.target.result);
+        resetExonData(); 
+        updateExonTable();
+        populateTranscriptDropdown();
+        updateExonDetailsPanel(null);
         updateSequenceDisplay();
       };
       reader.readAsText(file);
@@ -129,19 +245,37 @@
 
     document.getElementById("fastaFile").addEventListener("change", (e) => {
       const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      resetExonData(); 
+      let filesProcessed = 0;
       files.forEach(file => {
         const reader = new FileReader();
         reader.onload = function (event) {
-          parseFasta(event.target.result);
-          updateExonTable();
-          populateTranscriptDropdown();
+          parseExonFasta(event.target.result);
+          filesProcessed++;
+          if (filesProcessed === files.length) {
+            assignSequentialDisplayLabels(); 
+            calculateAllOverlaps();
+            updateExonTable();
+            populateTranscriptDropdown();
+            updateExonDetailsPanel(null); 
+          }
         };
         reader.readAsText(file);
       });
     });
+    
+    function resetExonData() {
+        Object.keys(exonData).forEach(key => delete exonData[key]);
+        allExonsMap = {};
+        sequenceToExonsMap = {};
+        exonIdCounter = 0;
+        activeExons.clear();
+        activeTranscript = null; 
+    }
 
-    function parseFasta(fasta) {
-      const lines = fasta.split(/\r?\n/);
+    function parseExonFasta(fastaContent) {
+      const lines = fastaContent.split(/\r?\n/);
       let currentHeader = "";
       let currentSeq = "";
       lines.forEach(line => {
@@ -149,7 +283,7 @@
           if (currentHeader && currentSeq) processFastaEntry(currentHeader, currentSeq);
           currentHeader = line.slice(1);
           currentSeq = "";
-        } else {
+        } else if (!line.startsWith(";")) { 
           currentSeq += line.trim();
         }
       });
@@ -157,30 +291,131 @@
     }
 
     function processFastaEntry(header, seq) {
-      const [transcript, name, label] = header.split(":");
-      const position = genomicSequence.indexOf(seq.toUpperCase());
-      if (position === -1) return;
+      const parts = header.split(/[:|]/); 
+      if (parts.length < 2) {
+          console.warn(`Skipping malformed FASTA header (expected transcript:label): ${header}`);
+          return;
+      }
+      const transcript = parts[0].trim();
+      const originalLabel = parts.slice(1).join(':').trim(); 
+
+      const upperSeq = seq.replace(/[^A-Z]/ig, "").toUpperCase();
+      if (!upperSeq) {
+          console.warn(`Skipping empty sequence for: ${header}`);
+          return;
+      }
+      if (!genomicSequence) {
+          console.warn(`Genomic sequence not loaded. Cannot process exon: ${header}`);
+          return;
+      }
+      const position = genomicSequence.indexOf(upperSeq);
+      if (position === -1) {
+          console.warn(`Exon "${originalLabel}" (Transcript: "${transcript}") sequence not found in genomic sequence.`);
+          return;
+      }
+
       if (!exonData[transcript]) exonData[transcript] = [];
-      const exonId = `exon_${exonIdCounter++}`;
+      const exonId = `exon_${exonIdCounter++}`; // Internal unique ID
       const color = colorPalette[exonData[transcript].length % colorPalette.length];
-      exonColors[exonId] = color;
-      exonData[transcript].push({
+      
+      const exonEntry = {
         id: exonId,
         transcript,
-        label,
+        originalLabel: originalLabel, 
+        displayLabel: originalLabel,  // Will be updated later
+        sequence: upperSeq,
         start: position,
-        end: position + seq.length,
-        color
+        end: position + upperSeq.length,
+        color,
+        overlappingExons: [] 
+      };
+
+      exonData[transcript].push(exonEntry);
+      allExonsMap[exonId] = exonEntry;
+
+      const exonSequenceKey = exonEntry.sequence;
+      if (!sequenceToExonsMap[exonSequenceKey]) {
+        sequenceToExonsMap[exonSequenceKey] = [];
+      }
+      sequenceToExonsMap[exonSequenceKey].push({
+        transcript: exonEntry.transcript,
+        label: exonEntry.originalLabel, 
+        id: exonEntry.id,
+        start: exonEntry.start, 
+        end: exonEntry.end
       });
     }
 
+    function assignSequentialDisplayLabels() {
+        for (const transcriptId in exonData) {
+            const exonsInTranscript = exonData[transcriptId];
+            // Sort exons by their start position to ensure correct sequential numbering
+            exonsInTranscript.sort((a, b) => a.start - b.start);
+            
+            exonsInTranscript.forEach((exon, index) => {
+                exon.sequentialNumber = index + 1;
+                // Create the display label, e.g., "1. OriginalLabel"
+                exon.displayLabel = `${exon.sequentialNumber}. ${exon.originalLabel}`;
+                
+                if (allExonsMap[exon.id]) {
+                    allExonsMap[exon.id].sequentialNumber = exon.sequentialNumber;
+                    allExonsMap[exon.id].displayLabel = exon.displayLabel;
+                }
+            });
+        }
+    }
+
+    function calculateAllOverlaps() {
+        const allExonsList = Object.values(allExonsMap);
+        for (let i = 0; i < allExonsList.length; i++) {
+            const exonA = allExonsList[i];
+            exonA.overlappingExons = []; 
+            for (let j = 0; j < allExonsList.length; j++) {
+                if (i === j) continue; 
+                const exonB = allExonsList[j];
+                if (exonA.start < exonB.end && exonB.start < exonA.end) {
+                    exonA.overlappingExons.push({
+                        transcript: exonB.transcript,
+                        label: exonB.originalLabel, 
+                        displayLabel: exonB.displayLabel, 
+                        id: exonB.id,
+                        start: exonB.start,
+                        end: exonB.end
+                    });
+                }
+            }
+            exonA.overlappingExons.sort((x, y) => {
+                if (x.transcript.toLowerCase() < y.transcript.toLowerCase()) return -1;
+                if (x.transcript.toLowerCase() > y.transcript.toLowerCase()) return 1;
+                return (x.displayLabel || x.label).toLowerCase().localeCompare((y.displayLabel || y.label).toLowerCase());
+            });
+        }
+    }
+    
     function updateExonTable() {
       const container = document.getElementById("exonTableContainer");
-      container.innerHTML = "";
+      container.innerHTML = ""; 
+      if (Object.keys(exonData).length === 0) {
+        container.innerHTML = "<p>Nie wczytano danych o eksonach lub nie znaleziono pasujących eksonów.</p>";
+        return;
+      }
       const table = document.createElement("table");
+      const thead = document.createElement("thead");
       const tbody = document.createElement("tbody");
-
-      Object.entries(exonData).forEach(([transcript, exons]) => {
+      const headerRow = document.createElement("tr");
+      const thTranscript = document.createElement("th");
+      thTranscript.textContent = "Transkrypt";
+      const thExons = document.createElement("th");
+      thExons.textContent = "Eksony (kliknij, aby podświetlić)";
+      headerRow.appendChild(thTranscript);
+      headerRow.appendChild(thExons);
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      const sortedTranscriptNames = Object.keys(exonData).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      sortedTranscriptNames.forEach(transcript => {
+        // Exons are already sorted by start position in assignSequentialDisplayLabels
+        const exons = exonData[transcript]; 
+        if (exons.length === 0) return; 
         const row = document.createElement("tr");
         const tdTranscript = document.createElement("td");
         tdTranscript.textContent = transcript;
@@ -188,12 +423,13 @@
         exons.forEach((exon) => {
           const span = document.createElement("span");
           span.className = "exon-link";
-          span.textContent = exon.label;
-          span.id = `top_${exon.id}`;
+          span.textContent = exon.displayLabel; 
+          span.id = `top_${exon.id}`; 
           span.onclick = () => {
             document.getElementById("transcript").value = transcript;
-            updateExonDropdown();
-            toggleHighlight(exon.id, transcript, exon.start);
+            handleTranscriptChange(); 
+            document.getElementById("exon").value = exon.id; 
+            toggleHighlight(exon.id); 
           };
           tdExons.appendChild(span);
         });
@@ -201,119 +437,333 @@
         row.appendChild(tdExons);
         tbody.appendChild(row);
       });
-
       table.appendChild(tbody);
       container.appendChild(table);
     }
 
     function populateTranscriptDropdown() {
       const transcriptSelect = document.getElementById("transcript");
-      transcriptSelect.innerHTML = "";
-      Object.keys(exonData).forEach(t => {
+      const currentTranscriptValue = transcriptSelect.value; 
+      transcriptSelect.innerHTML = ""; 
+      const sortedTranscriptNames = Object.keys(exonData).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      sortedTranscriptNames.forEach(t => {
         const opt = document.createElement("option");
         opt.value = t;
         opt.textContent = t;
         transcriptSelect.appendChild(opt);
       });
-      transcriptSelect.addEventListener("change", updateExonDropdown);
-      updateExonDropdown();
+      if (sortedTranscriptNames.includes(currentTranscriptValue)) {
+          transcriptSelect.value = currentTranscriptValue;
+      } else if (sortedTranscriptNames.length > 0) {
+          transcriptSelect.value = sortedTranscriptNames[0];
+      }
+      transcriptSelect.removeEventListener("change", handleTranscriptChange);
+      transcriptSelect.addEventListener("change", handleTranscriptChange);
+      handleTranscriptChange(); 
+    }
+
+    function handleTranscriptChange() {
+        const selectedTranscript = document.getElementById("transcript").value;
+        if (selectedTranscript !== activeTranscript) {
+            activeTranscript = selectedTranscript;
+            // When changing transcript, we might want to clear highlights NOT related to the new active context
+            // For now, allow highlights to persist if they are identical/overlapping with something potentially still relevant
+            // updateExonDetailsPanel(null); // Clear details only if no exon is actively selected
+        }
+        updateExonDropdown();
     }
 
     function updateExonDropdown() {
       const exonSelect = document.getElementById("exon");
-      const exonList = document.getElementById("exonList");
+      const exonListDiv = document.getElementById("exonList");
+      const currentExonValue = exonSelect.value; 
       exonSelect.innerHTML = "";
-      exonList.innerHTML = "";
-      const selected = document.getElementById("transcript").value;
-
-      if (selected !== activeTranscript) {
-        activeTranscript = selected;
-        activeExons.clear();
+      exonListDiv.innerHTML = "";
+      const selectedTranscript = document.getElementById("transcript").value; 
+      if (!exonData[selectedTranscript] || exonData[selectedTranscript].length === 0) {
+          updateSequenceDisplay(); 
+          return;
       }
-
-      if (!exonData[selected]) return;
-      exonData[selected].forEach((e, i) => {
+      // Exons are already sorted by start position in assignSequentialDisplayLabels
+      const sortedExons = exonData[selectedTranscript];
+      sortedExons.forEach(e => {
         const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = e.label;
+        opt.value = e.id; 
+        opt.textContent = e.displayLabel; 
         exonSelect.appendChild(opt);
-
         const span = document.createElement("span");
         span.className = "exon-link";
-        span.textContent = e.label;
-        span.id = `side_${e.id}`;
-        span.onclick = () => toggleHighlight(e.id, selected, e.start);
-        exonList.appendChild(span);
+        span.textContent = e.displayLabel; 
+        span.id = `side_${e.id}`; 
+        span.onclick = () => {
+            exonSelect.value = e.id; 
+            toggleHighlight(e.id);
+        };
+        exonListDiv.appendChild(span);
       });
-
+      if (sortedExons.find(ex => ex.id === currentExonValue)) {
+          exonSelect.value = currentExonValue;
+      } else if (sortedExons.length > 0) {
+          exonSelect.value = sortedExons[0].id;
+      }
       exonSelect.onchange = () => {
-        const index = parseInt(exonSelect.value);
-        const selectedExon = exonData[selected][index];
-        toggleHighlight(selectedExon.id, selected, selectedExon.start);
+        const selectedExonId = exonSelect.value;
+        if (selectedExonId) {
+            toggleHighlight(selectedExonId);
+        }
       };
-
-      updateSequenceDisplay();
+      updateSequenceDisplay(); 
     }
 
-    function toggleHighlight(exonId, transcript, start) {
-      if (transcript !== activeTranscript) {
-        activeExons.clear();
-        activeTranscript = transcript;
-      }
+    function toggleHighlight(exonIdToToggle) {
+        const mainExon = allExonsMap[exonIdToToggle];
+        if (!mainExon) return;
 
-      if (activeExons.has(exonId)) {
-        activeExons.delete(exonId);
-      } else {
-        activeExons.add(exonId);
-      }
+        const turnOn = !activeExons.has(mainExon.id);
+        const affectedExonIds = new Set(); // IDs of exons to change state (main, identicals, overlappers)
 
-      updateSequenceDisplay(start);
-    }
-
-    function updateSequenceDisplay(scrollTo = null) {
-      if (!genomicSequence) return;
-      const charArray = genomicSequence.split("").map(c => ({ char: c, colors: [], titles: [] }));
-
-      Object.values(exonData).forEach(exons => {
-        exons.forEach(exon => {
-          if (activeExons.has(exon.id)) {
-            for (let i = exon.start; i < exon.end; i++) {
-              if (charArray[i]) {
-                charArray[i].colors.push(exon.color);
-                charArray[i].titles.push(`${exon.transcript}:${exon.label}`);
-              }
-            }
-          }
+        // Add main exon and its identicals
+        (sequenceToExonsMap[mainExon.sequence] || []).forEach(info => {
+            affectedExonIds.add(info.id);
         });
+        affectedExonIds.add(mainExon.id); // Ensure main one is included
+
+        // Add direct overlappers of the main exon and its identicals
+        affectedExonIds.forEach(id => {
+            const exon = allExonsMap[id];
+            if (exon && exon.overlappingExons) {
+                exon.overlappingExons.forEach(overlapInfo => affectedExonIds.add(overlapInfo.id));
+            }
+        });
+        
+        if (turnOn) {
+            affectedExonIds.forEach(id => activeExons.add(id));
+            if (mainExon.transcript !== activeTranscript) {
+                activeTranscript = mainExon.transcript;
+                document.getElementById("transcript").value = activeTranscript;
+                updateExonDropdown(); // This calls updateSequenceDisplay
+            }
+            document.getElementById("exon").value = mainExon.id;
+            updateExonDetailsPanel(mainExon.id);
+        } else {
+            // When turning off, we need to be more careful with overlappers
+            const idsToTurnOff = new Set();
+            // Initially, mark the main exon and its identicals for turning off
+            (sequenceToExonsMap[mainExon.sequence] || []).forEach(info => idsToTurnOff.add(info.id));
+            idsToTurnOff.add(mainExon.id);
+
+            // For overlappers, turn them off only if they don't overlap with any *other* exon that will remain active
+            const potentialOverlappersToTurnOff = new Set();
+            idsToTurnOff.forEach(idTurnedOff => {
+                const exon = allExonsMap[idTurnedOff];
+                if (exon && exon.overlappingExons) {
+                    exon.overlappingExons.forEach(overlapInfo => potentialOverlappersToTurnOff.add(overlapInfo.id));
+                }
+            });
+
+            potentialOverlappersToTurnOff.forEach(overlapperId => {
+                if (idsToTurnOff.has(overlapperId)) return; // Already being turned off as an identical
+
+                const overlapperExon = allExonsMap[overlapperId];
+                if (!overlapperExon) return;
+
+                let stillHasActiveOverlap = false;
+                // Check against exons that will *remain* active (activeExons - idsToTurnOff)
+                for (const currentActiveId of activeExons) {
+                    if (idsToTurnOff.has(currentActiveId)) continue; // This one is being turned off
+
+                    const currentActiveExon = allExonsMap[currentActiveId];
+                    if (currentActiveExon) {
+                        // Direct overlap check
+                        if (overlapperExon.start < currentActiveExon.end && currentActiveExon.start < overlapperExon.end) {
+                            stillHasActiveOverlap = true;
+                            break;
+                        }
+                    }
+                }
+                if (!stillHasActiveOverlap) {
+                    idsToTurnOff.add(overlapperId);
+                }
+            });
+            
+            idsToTurnOff.forEach(id => activeExons.delete(id));
+            updateExonDetailsPanel(activeExons.size > 0 ? mainExon.id : null); // Show details of main if other things still active, else clear
+        }
+      
+        // Ensure UI updates correctly based on the new activeTranscript context if it changed
+        if (mainExon.transcript === activeTranscript || turnOn) {
+             // If the main exon's transcript is the active one, or we just turned things on,
+             // ensure its dropdown is synced and sequence updates.
+            if (document.getElementById("transcript").value !== mainExon.transcript && turnOn) {
+                 document.getElementById("transcript").value = mainExon.transcript;
+                 handleTranscriptChange(); // This will call updateExonDropdown -> updateSequenceDisplay
+            } else {
+                 updateExonDropdown(); // Ensure sidebar list for current transcript is correct and calls updateSequenceDisplay
+            }
+        } else {
+            // If transcript context changed implicitly by highlighting an exon from another transcript
+            // or turning off the last exon of the current active transcript.
+            updateSequenceDisplay(mainExon.start);
+        }
+         // Fallback to ensure sequence is scrolled correctly if not handled by dropdown updates
+        if (activeExons.has(mainExon.id)) { // If the main exon ended up active
+             updateSequenceDisplay(mainExon.start);
+        } else if (!turnOn) { // If we turned off
+             updateSequenceDisplay(); // Update without specific scroll
+        }
+    }
+    
+    function updateExonDetailsPanel(clickedExonId) {
+        const detailsContent = document.getElementById("detailsContent");
+        let exonToDetail = null;
+
+        if (clickedExonId && activeExons.has(clickedExonId)) { // Prioritize the actually clicked and active exon
+            exonToDetail = allExonsMap[clickedExonId];
+        } else if (activeExons.size > 0 && clickedExonId) { // If clicked is no longer active, but others are, maybe show first active?
+            // This case is tricky, for now, if clickedExonId is not active, treat as null
+             exonToDetail = null;
+        }
+
+
+        if (!exonToDetail) {
+            let message = "Wybierz ekson, aby zobaczyć szczegóły.";
+            if (Object.keys(allExonsMap).length === 0 && genomicSequence) {
+                 message = "Sekwencja genomowa wczytana. Wczytaj pliki FASTA z eksonami.";
+            } else if (!genomicSequence) {
+                 message = "Wczytaj genomową sekwencję oraz pliki FASTA z eksonami, aby rozpocząć.";
+            } else if (activeExons.size > 0 && !clickedExonId) {
+                // If some exons are active, but no specific one was just clicked for details (e.g. after turning off)
+                // message = "Niektóre eksony są aktywne. Kliknij na konkretny, aby zobaczyć szczegóły.";
+                // For simplicity, let's stick to the default message or clear.
+            }
+            detailsContent.innerHTML = message;
+            return;
+        }
+        
+        const exon = exonToDetail; // Use the determined exon for details
+        let html = `<h4>Szczegóły dla: ${escapeHtml(exon.transcript)} - ${escapeHtml(exon.displayLabel)}</h4>`;
+        html += `<p style="font-size:0.75rem; color: #bbb;">(ID: ${escapeHtml(exon.id)}, Pozycja: ${exon.start + 1}-${exon.end})</p>`;
+        html += `<p><strong>Sekwencja (długość ${exon.sequence.length}):</strong></p>
+                 <div style="font-family:monospace; word-break:break-all; font-size:0.75rem; background-color:#1c1c1c; padding:5px; border-radius:3px; max-height: 60px; overflow-y:auto;">${escapeHtml(exon.sequence)}</div>`;
+
+        const identicalExons = (sequenceToExonsMap[exon.sequence] || [])
+            .filter(e => e.id !== exon.id); 
+
+        if (identicalExons.length > 0) {
+            html += `<p style="margin-top:0.5rem;"><strong>Identyczna sekwencja znaleziona również w:</strong></p><ul>`;
+            identicalExons.sort((a,b) => { 
+                const exonA = allExonsMap[a.id];
+                const exonB = allExonsMap[b.id];
+                if(!exonA || !exonB) return 0;
+                if(exonA.transcript.toLowerCase() < exonB.transcript.toLowerCase()) return -1;
+                if(exonA.transcript.toLowerCase() > exonB.transcript.toLowerCase()) return 1;
+                return (exonA.displayLabel).toLowerCase().localeCompare((exonB.displayLabel).toLowerCase());
+            }).forEach(ie => {
+                const identicalExonEntry = allExonsMap[ie.id];
+                if (identicalExonEntry) {
+                    html += `<li>${escapeHtml(identicalExonEntry.transcript)} - ${escapeHtml(identicalExonEntry.displayLabel)}</li>`;
+                }
+            });
+            html += `</ul>`;
+        } else {
+            html += `<p style="margin-top:0.5rem;">Nie znaleziono innych eksonów o identycznej sekwencji.</p>`;
+        }
+
+        if (exon.overlappingExons && exon.overlappingExons.length > 0) {
+            html += `<p style="margin-top:0.5rem;"><strong>Nakłada się (na sekwencji genomowej) z:</strong></p><ul>`;
+            exon.overlappingExons.forEach(oe => { 
+                const overlappingExonEntry = allExonsMap[oe.id];
+                if (overlappingExonEntry) {
+                     html += `<li>${escapeHtml(overlappingExonEntry.transcript)} - ${escapeHtml(overlappingExonEntry.displayLabel)} (na poz. ${oe.start + 1}-${oe.end})</li>`;
+                }
+            });
+            html += `</ul>`;
+        } else {
+            html += `<p style="margin-top:0.5rem;">Nie znaleziono nakładania się z innymi eksonami.</p>`;
+        }
+        detailsContent.innerHTML = html;
+    }
+
+    function updateSequenceDisplay(scrollToPosition = null) {
+      const sequenceDiv = document.getElementById("sequence");
+      if (!genomicSequence) {
+        sequenceDiv.innerHTML = "Wczytaj pliki, aby rozpocząć...";
+        return;
+      }
+      if (genomicSequence.length > 500000) { 
+          sequenceDiv.innerHTML = `Sekwencja genomowa jest bardzo długa (${genomicSequence.length} bp). Wyświetlanie może być ograniczone dla zachowania wydajności.`;
+      }
+      const charArray = genomicSequence.split("").map(char => ({ 
+          char: char, 
+          activeColors: [], 
+          allCoveringExonTitles: [], 
+          activeExonIds: []     
+      }));
+
+      Object.values(allExonsMap).forEach(exon => {
+          if (!exon || typeof exon.start === 'undefined' || typeof exon.end === 'undefined') return;
+          for (let i = exon.start; i < exon.end && i < genomicSequence.length; i++) {
+              if (charArray[i]) {
+                  charArray[i].allCoveringExonTitles.push(`${exon.transcript}:${exon.displayLabel}`);
+              }
+          }
       });
 
+      activeExons.forEach(activeExonId => {
+          const exon = allExonsMap[activeExonId];
+          if (exon) { 
+              for (let i = exon.start; i < exon.end && i < genomicSequence.length; i++) {
+                  if (charArray[i]) { 
+                    charArray[i].activeColors.push(exon.color);
+                    charArray[i].activeExonIds.push(exon.id); 
+                  }
+              }
+          }
+      });
+      
       document.querySelectorAll('.exon-link').forEach(el => el.classList.remove('active'));
       activeExons.forEach(id => {
-        const top = document.getElementById(`top_${id}`);
-        const side = document.getElementById(`side_${id}`);
-        if (top) top.classList.add('active');
-        if (side) side.classList.add('active');
+        const topLink = document.getElementById(`top_${id}`);
+        const sideLink = document.getElementById(`side_${id}`);
+        if (topLink) topLink.classList.add('active');
+        if (sideLink) sideLink.classList.add('active');
       });
 
-      const html = charArray.map(({ char, colors, titles }, i) => {
-        if (colors.length === 0) return escapeHtml(char);
-        const gradient = colors.length === 1 ? colors[0] : `linear-gradient(to right, ${colors.join(",")})`;
-        const title = [...new Set(titles)].join(", ");
-        const id = scrollTo === i ? 'scrollHere' : '';
-        return `<span id="${id}" class="highlight" style="background:${gradient};" title="${title}">${escapeHtml(char)}</span>`;
-      }).join("");
+      let html = "";
+      charArray.forEach(({ char, activeColors, allCoveringExonTitles, activeExonIds }, i) => {
+        const uniqueAllCoveringTitles = [...new Set(allCoveringExonTitles)];
+        const titleAttribute = uniqueAllCoveringTitles.length > 0 ? `title="${escapeHtml(uniqueAllCoveringTitles.join(", "))}"` : '';
 
-      const container = document.getElementById("sequence");
-      container.innerHTML = html;
-      if (scrollTo !== null) {
+        if (activeColors.length === 0) { 
+            html += `<span ${titleAttribute}>${escapeHtml(char)}</span>`; 
+        } else { 
+            const uniqueActiveColors = [...new Set(activeColors)]; 
+            const backgroundStyle = uniqueActiveColors.length === 1 
+                ? `background-color:${uniqueActiveColors[0]};` 
+                : `background:linear-gradient(to right, ${uniqueActiveColors.join(",")});`;
+            const spanIdAttribute = (scrollToPosition !== null && i === scrollToPosition) ? 'id="scrollHere"' : '';
+            const clickHandlerAttribute = activeExonIds.length > 0 ? `onclick="handleSequenceCharClick('${activeExonIds[0]}')"` : ""; 
+            html += `<span ${spanIdAttribute} class="highlight" style="${backgroundStyle}" ${titleAttribute} ${clickHandlerAttribute}>${escapeHtml(char)}</span>`;
+        }
+      });
+      sequenceDiv.innerHTML = html;
+      if (scrollToPosition !== null && activeExons.size > 0) { // Scroll only if something is active
         const el = document.getElementById("scrollHere");
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     }
-
-    function escapeHtml(text) {
-      return text.replace(/[&<>]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[tag] || tag));
+    
+    function handleSequenceCharClick(exonIdFromSequence) {
+        const exon = allExonsMap[exonIdFromSequence];
+        if (exon) {
+            toggleHighlight(exon.id);
+        }
     }
+
+    updateExonDetailsPanel(null);
+    updateSequenceDisplay();
   </script>
 </body>
 </html>
