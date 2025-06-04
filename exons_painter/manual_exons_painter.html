@@ -1,125 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gene Exon Painter – Manual</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<h1>🧬 Gene Exon Painter – visualize exons directly on genomic sequence</h1>
+<p><strong>Gene Exon Painter</strong> is an interactive tool for mapping exons from multiple transcripts onto a genomic sequence. It helps you:</p>
+<ul>
+  <li>Understand alternative splicing,</li>
+  <li>Detect overlapping or shared exons,</li>
+  <li>Visualize transcript structures in context,</li>
+  <li>Teach gene structure in an intuitive way.</li>
+</ul>
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      background-color: #121212;
-      color: #e0e0e0;
-      font-family: sans-serif;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
+<hr />
 
-    header {
-      background-color: #1e1e1e;
-      padding: 1rem;
-      border-bottom: 1px solid #333;
-    }
+<h2>📘 How to Use Gene Exon Painter</h2>
 
-    header h1 {
-      margin: 0;
-      color: #90caf9;
-      font-size: 1.4rem;
-    }
+<h3>1. Prepare your files</h3>
+<ul>
+  <li><strong>Genomic sequence</strong>: file in <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code> format.</li>
+  <li><strong>Exon FASTA files</strong>: one or more <code>.fasta</code> files. Each header should be in the format <code>&gt;TranscriptID:ExonLabel</code>, e.g. <code>&gt;ENST00000619216:exon_1</code>.</li>
+</ul>
 
-    main {
-      padding: 1rem;
-    }
+<h3>2. Load the data</h3>
+<ol>
+  <li>Click the <strong>Genomic sequence</strong> input and select your genomic file.</li>
+  <li>Then use the <strong>Exon FASTA files</strong> input to load exon files.</li>
+</ol>
 
-    h2 {
-      color: #ffcc80;
-      font-size: 1.2rem;
-      margin-top: 1.5rem;
-    }
+<h3>3. Explore the visualization</h3>
+<ul>
+  <li>Select a transcript to list its exons.</li>
+  <li>Click any exon to highlight it on the sequence.</li>
+  <li>You can activate multiple exons – overlapping regions will be shown with gradient colors.</li>
+  <li>Click a highlighted nucleotide to jump to the corresponding exon.</li>
+</ul>
 
-    p, li {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-
-    ul, ol {
-      padding-left: 1.2rem;
-    }
-
-    code {
-      background-color: #1e1e1e;
-      padding: 2px 4px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      font-family: monospace;
-      word-break: break-word;
-    }
-
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.2rem;
-      }
-      main {
-        padding: 1rem 0.5rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Gene Exon Painter – Manual</h1>
-  </header>
-  <main>
-    <p>An interactive exon painter — a web tool to visualize exon structures within transcripts and their positions on the genomic sequence.</p>
-
-    <h2>🧬 What this tool does</h2>
-    <ul>
-      <li>Load a genomic sequence file (<code>.txt</code> or <code>.fasta</code>) and one or more exon <code>.fasta</code> files.</li>
-      <li>Display the genomic sequence with exons highlighted by color.</li>
-      <li>Support overlapping exons using gradients.</li>
-      <li>Auto-scroll to selected exon; tooltips on hover.</li>
-      <li>Multiple highlights per transcript; switching transcript clears selection.</li>
-      <li>Exons listed in dropdown, side panel, and compact table.</li>
-    </ul>
-
-    <h2>📂 How to use it</h2>
-    <ol>
-      <li>Tool created specifically for gene <code>Ccds33</code> in Mouse (<code>Mus_musculus.GRCm39.113.gtf.gz and Mus_musculus.GRCm39.dna.chromosome.9.fa.gz</code>).</li>
-      <li>If other genes needed, so make Ensembl download of <code>*.gtf.gz and *.dna.chromosome.9.fa.gz or *.dna.primary_assembly.fa.gz</code>.</li>
-      <li>Run code <code>create_input_files.bash</code> to create input files for Painter. (need to change filenames inside the script)</li>
-      <li>Open <code>index.html</code> in your browser.</li>
-      <li>Upload a genomic sequence file (<code>.txt</code> or <code>.fasta</code>). Here available gene Cdcc33.</li>
-      <li>Upload one or more exon <code>.fasta</code> files. Exon sequence for gene Cdcc33 available here.</li>
-      <li>Select a transcript and highlight its exons.</li>
-    </ol>
-
-    <h2>📄 Input file formats</h2>
-    <h3>Genomic sequence</h3>
-    <ul>
-      <li>Plain string; headers (<code>&gt;</code>) ignored.</li>
-      <li>Must match coordinates used in exon files.</li>
-    </ul>
-
-    <h3>Exons</h3>
-    <ul>
-      <li>Header format: <code>&gt;ENSMUST00000000000:TranscriptName:Ex.1</code></li>
-      <li>Sequences must match exact genomic regions.</li>
-    </ul>
-
-    <h2>✅ Browser compatibility</h2>
-    <ul>
-      <li>Chrome</li>
-      <li>Firefox</li>
-      <li>Edge</li>
-    </ul>
-    <p>This app runs entirely in the browser — no backend or server needed.</p>
-
-    <h2>📌 Default behavior</h2>
-    <p>No data is preloaded. Users must load files manually. Example files are in the <code>exons_painter</code> folder.</p>
-  </main>
-</body>
-</html>
+<h3>4. Exon Details Panel</h3>
+<p>When an exon is selected, you will see:</p>
+<ul>
+  <li>Its sequence and genomic coordinates,</li>
+  <li>Other exons with identical sequence,</li>
+  <li>Overlaps with exons from other transcripts.</li>
+</ul>
