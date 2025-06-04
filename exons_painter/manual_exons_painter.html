@@ -1,43 +1,194 @@
-<div style="background-color:#121212; color:#e0e0e0; padding:1.5rem; border-radius:6px; font-family:sans-serif;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gene Exon Painter – User Manual</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #90caf9;
+    }
+    code {
+      background-color: #1e1e1e;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: monospace;
+      color: #e0e0e0;
+    }
+    ul, ol {
+      padding-left: 1.2rem;
+    }
+    hr {
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
 
-<h1>🧬 Gene Exon Painter – visualize exons directly on genomic sequence</h1>
-<p><strong>Gene Exon Painter</strong> is an interactive tool for mapping exons from multiple transcripts onto a genomic sequence. It helps you:</p>
+<h1>🧬 Gene Exon Painter – User Manual</h1>
+
+<h2>Introduction</h2>
+<p><strong>Gene Exon Painter</strong> is an interactive web-based tool for visualizing exons from multiple transcripts mapped onto a genomic sequence. It helps you:</p>
 <ul>
-  <li>Understand alternative splicing</li>
-  <li>Detect overlapping or shared exons</li>
-  <li>Visualize transcript structures in context</li>
-  <li>Teach gene structure in an intuitive way</li>
+  <li>Understand transcript structure and exon organization</li>
+  <li>Explore alternative splicing</li>
+  <li>Identify shared and overlapping exons</li>
+  <li>Demonstrate gene architecture in teaching</li>
 </ul>
 
-<hr style="border: 1px solid #333;" />
+<hr />
 
-<h2>📘 How to Use Gene Exon Painter</h2>
-
-<h3>1. Prepare your files</h3>
+<h2>Installation & Requirements</h2>
 <ul>
-  <li><strong>Genomic sequence:</strong> file in <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code></li>
-  <li><strong>Exon FASTA files:</strong> headers formatted like <code>&gt;TranscriptID:ExonLabel</code></li>
+  <li><strong>No installation required</strong> – just open the HTML file in your browser</li>
+  <li>Works offline after loading</li>
+  <li>Supported browsers:
+    <ul>
+      <li>Chrome (recommended)</li>
+      <li>Firefox</li>
+      <li>Edge</li>
+      <li>Safari (limited)</li>
+    </ul>
+  </li>
 </ul>
 
-<h3>2. Load the data</h3>
-<ol>
-  <li>Click <strong>Genomic sequence</strong> to load your file</li>
-  <li>Then upload exon files via <strong>Exon FASTA files</strong></li>
-</ol>
+<hr />
 
-<h3>3. Explore the visualization</h3>
+<h2>Input Files</h2>
+
+<h3>Genomic Sequence</h3>
 <ul>
-  <li>Select transcript and exon</li>
-  <li>Click an exon to highlight it on sequence</li>
-  <li>Click multiple to show overlaps (with gradients)</li>
-  <li>Click sequence to view exon details</li>
+  <li>Format: <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code></li>
+  <li>Must contain one continuous sequence (no line breaks within bases)</li>
+</ul>
+<pre><code>&gt;chr9_mouse
+AGTCGATCGATCGTACGTAGCTAGCTAGC...
+</code></pre>
+
+<h3>Exon FASTA Files</h3>
+<ul>
+  <li>Format: <code>.fasta</code>, <code>.fa</code> (can upload multiple)</li>
+  <li>Each entry header should be: <code>&gt;TranscriptID:ExonLabel</code></li>
+  <li>Sequence must match exactly a region in the genomic sequence</li>
+</ul>
+<pre><code>&gt;ENST00000619216:exon_1
+ATGCGTACTGACGTTAG
+</code></pre>
+
+<hr />
+
+<h2>Step-by-Step Usage</h2>
+
+<h3>1. Load Files</h3>
+<ul>
+  <li>Upload your <strong>genomic sequence file</strong> using the left panel</li>
+  <li>Upload <strong>one or more exon FASTA files</strong></li>
 </ul>
 
-<h3>4. Exon Details Panel</h3>
+<h3>2. Select and View Transcripts</h3>
 <ul>
-  <li>Shows sequence and genomic position</li>
-  <li>Identical exons in other transcripts</li>
-  <li>Overlapping regions</li>
+  <li>Choose a transcript from the dropdown</li>
+  <li>Exons for that transcript will appear below</li>
 </ul>
 
-</div>
+<h3>3. Highlight Exons</h3>
+<ul>
+  <li>Click exon names in the list or table to highlight their positions</li>
+  <li>Multiple exons can be selected</li>
+  <li>Overlaps are visualized using color gradients</li>
+</ul>
+
+<h3>4. View Details</h3>
+<ul>
+  <li>Click a base in the sequence to open the related exon</li>
+  <li>The panel shows:
+    <ul>
+      <li>Exon label, position and sequence</li>
+      <li>Exons with identical sequence</li>
+      <li>Exons overlapping the selected one</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2>Features</h2>
+<ul>
+  <li>Color-coded exon visualization</li>
+  <li>Gradients for overlapping regions</li>
+  <li>Clickable base-by-base interaction</li>
+  <li>Dynamic dropdowns and filtering</li>
+  <li>Detection of identical sequences and overlaps</li>
+</ul>
+
+<hr />
+
+<h2>Error Handling</h2>
+<ul>
+  <li>Exons not found in the genome are skipped (warning in console)</li>
+  <li>Genomes over ~500,000 bp may reduce performance</li>
+</ul>
+
+<hr />
+
+<h2>Known Limitations</h2>
+<ul>
+  <li>No export functionality (planned)</li>
+  <li>No strand/directionality support</li>
+  <li>Compressed files (<code>.gz</code>) not supported</li>
+</ul>
+
+<hr />
+
+<h2>Troubleshooting</h2>
+
+<h3>Exons not showing?</h3>
+<ul>
+  <li>Check if the exon sequence matches the genomic region exactly</li>
+  <li>Ensure the genome file was uploaded first</li>
+</ul>
+
+<h3>Colors confusing?</h3>
+<ul>
+  <li>Each transcript is assigned a unique color</li>
+  <li>Overlapping exons show blended gradients</li>
+  <li>Hover over bases to see transcript:exon labels</li>
+</ul>
+
+<h3>Sequence loaded but nothing appears?</h3>
+<ul>
+  <li>Inspect the browser console (F12) for loading errors</li>
+  <li>Check if sequences match exactly (including case and characters)</li>
+</ul>
+
+<hr />
+
+<h2>Citation & Contact</h2>
+<p>If you use this tool, please cite the repository or author.</p>
+<p>For questions or suggestions, open an issue on GitHub or contact the maintainer.</p>
+
+<hr />
+
+<h2>Example Files</h2>
+
+<h3>genomic.txt</h3>
+<pre><code>&gt;GeneXYZ
+ATGCGTACTGACGTTAGCTAGCATCGATCGTACGTAGC
+</code></pre>
+
+<h3>exons.fa</h3>
+<pre><code>&gt;TranscriptA:Exon1
+ATGCGTACTGACGTTAG
+&gt;TranscriptB:Exon2
+CTAGCATCGATCGTACG
+</code></pre>
+
+</body>
+</html>
