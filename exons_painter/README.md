@@ -37,6 +37,8 @@
 
 - Format: `.fasta`, `.fa`, or `.txt`
 - Must contain one continuous sequence (no line breaks within bases)
+- Plain string; headers (>) ignored
+- Must match coordinates used in exon files
 - Example:
   ```
   >chr9_mouse
@@ -48,12 +50,12 @@
 - Format: `.fasta`, `.fa` (can upload multiple)
 - Each entry header should be:
   ```
-  >TranscriptID:ExonLabel
+  >ENSMUST00000000000:TranscriptName:Ex.1
   ```
 - Sequence must match exactly a region in the genomic sequence
 - Example:
   ```
-  >ENST00000619216:exon_1
+  >ENSMUST00000000000:TranscriptName:Ex.1
   ATGCGTACTGACGTTAG
   ```
 
