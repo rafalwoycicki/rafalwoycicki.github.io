@@ -16,11 +16,18 @@
     }
     input, select, button {
       margin: 5px;
-      padding: 6px;
+      padding: 8px; /* Increased padding */
       background-color: #222;
       color: #fff;
       border: 1px solid #444;
       border-radius: 4px;
+    }
+    button {
+        cursor: pointer;
+        background-color: #007bff; /* Brighter button */
+    }
+    button:hover {
+        background-color: #0056b3;
     }
     h2 { color: #90caf9; }
     .output { margin-top: 15px; font-weight: bold; }
@@ -29,30 +36,44 @@
       padding: 1em;
       background: #1b1b1b;
       border: 1px solid #333;
+      border-radius: 5px; /* Rounded corners */
     }
     .plot-section { margin-top: 30px; }
-    .alert-ok { color: #66ff66; font-weight: bold; }
-    .alert-bad { color: #ff6666; font-weight: bold; }
+    .alert-bad {
+        color: #ff6666;
+        font-weight: bold;
+        background-color: #2c1d1d;
+        border: 1px solid #ff6666;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        display: none; /* Hidden by default */
+    }
     .note { font-size: 0.9em; color: #aaa; margin-left: 10px; }
   </style>
 </head>
 <body>
   <h2>RNA-Seq Power Calculator (DESeq2 Model)</h2>
 
-  <label>Mean expression (μ): <input type="number" id="mu" value="100" onchange="clearDerived()"></label><br>
-  <label>Total reads (optional): <input type="number" id="totalReads" onchange="deriveMu()"></label><br>
-  <label>Number of isoforms (optional): <input type="number" id="isoformCount" onchange="deriveMu()"></label>
-  <span class="note">μ = total reads / isoforms (overrides manual μ)</span><br>
+  <div id="errorMessages" class="alert-bad"></div>
 
-  <label>Dispersion (α): <input type="number" id="dispersion" value="0.1" step="0.01"></label><br>
+  <label>Mean expression (μ): <input type="number" id="mu" value="100" onchange="clearDerived()"></label>
+  <span class="note">Must be > 0.</span><br>
+  <label>Total reads (optional): <input type="number" id="totalReads" onchange="deriveMu()"></label><br>
+  <label>Number of isoforms (for μ derivation - optional): <input type="number" id="isoformCountForMu" onchange="deriveMu()"></label> <span class="note">μ = total reads / isoforms (overrides manual μ if both provided)</span><br>
+
+  <label>Dispersion (α): <input type="number" id="dispersion" value="0.1" step="0.01"></label>
+  <span class="note">Must be ≥ 0. Typical: 0.01 (low variance) to >0.5 (high variance). Estimate from pilot data or literature.</span><br>
   <label>log2 fold change (Δ): <input type="number" id="lfc" value="1" step="0.1"></label><br>
-  <label>Replicates per group (≥3): <input type="number" id="n" value="3" min="3"></label><span class="note">Minimum of 3 required</span><br>
-  <label>Target FDR: <input type="number" id="fdr" step="0.01" value="0.05" min="0.001"></label><br>
-  <label>Number of isoforms (m): <input type="number" id="m" value="20000"></label><br>
+  <label>Replicates per group (n): <input type="number" id="n" value="3" min="3"></label>
+  <span class="note">Minimum of 3 required.</span><br>
+  <label>Target FDR: <input type="number" id="fdr" step="0.01" value="0.05" min="0.001" max="0.99"></label> <span class="note">Must be > 0 and < 1.</span><br>
+  <label>Total number of isoforms tested (m): <input type="number" id="m" value="20000" min="1"></label>
+  <span class="note">Must be ≥ 1.</span><br>
   <label>Target rank (i): <input type="number" id="rank" value="1000" min="1"></label>
-  <span class="note">Lower rank = stricter test, lower power</span><br>
-  <label>Target power (optional): <input type="number" id="targetPower" step="0.05" value="0.8" min="0.1" max="1.0"></label>
-  <span class="note">Used to suggest sample size and evaluate power</span><br><br>
+  <span class="note">Rank of p-value for setting significance threshold via FDR (e.g., if expecting 1000 discoveries, rank=1000 checks power at that discovery threshold). Must be ≤ m. Lower rank = stricter.</span><br>
+  <label>Target power (optional for sample size): <input type="number" id="targetPower" step="0.05" value="0.8" min="0.1" max="0.999"></label>
+  <span class="note">Used to suggest sample size (0.1 to 0.999) and evaluate current power.</span><br><br>
 
   <button onclick="calculate()">Estimate Power</button>
   <button onclick="estimateRequiredSamples()">Estimate Samples for Target Power</button>
@@ -74,13 +95,15 @@
       <li><strong>Model:</strong> DESeq2 (Negative Binomial): <code>Var(Y) = μ + α·μ²</code></li>
       <li><strong>SE of log2FC:</strong> <code>SE = sqrt((2 / n) × Var / μ²)</code></li>
       <li><strong>Test statistic:</strong> <code>Z = |Δ| / SE</code></li>
-      <li><strong>Per-test significance level:</strong> <code>α = (FDR × i) / m</code></li>
-      <li><strong>Power:</strong> <code>Φ(Z − Zₐ)</code> where Zₐ = <code>Φ⁻¹(1 − α)</code></li>
-      <li><strong>μ auto-calculation:</strong> If total reads and isoforms provided, μ = totalReads / isoforms</li>
+      <li><strong>Per-test significance level (α<sub>effective</sub>):</strong> <code>α<sub>effective</sub> = (FDR × i) / m</code></li>
+      <li><strong>Power:</strong> <code>Φ(Z − Z<sub>α/2</sub>)</code> where Z<sub>α/2</sub> = <code>Φ⁻¹(1 − α<sub>effective</sub>/2)</code>. (Φ is the standard normal CDF)</li>
+      <li><strong>μ auto-calculation:</strong> If total reads and isoforms for μ derivation provided, μ = totalReads / isoforms</li>
     </ul>
   </div>
 
   <script>
+    var currentCalculatedPower = null; // Store the latest calculated power for plots
+
     function normCdf(z) {
       return 0.5 * (1 + erf(z / Math.sqrt(2)));
     }
@@ -95,152 +118,308 @@
       return sign * y;
     }
     function inverseErf(x) {
+      // Ensure x is within a safe range for Math.log, e.g. not exactly 1 or -1
+      const epsilon = 1e-15;
+      if (x >= 1.0) x = 1.0 - epsilon;
+      if (x <= -1.0) x = -1.0 + epsilon;
+
       const a = 0.147;
       const ln = Math.log(1 - x * x);
       const term1 = (2 / (Math.PI * a)) + (ln / 2);
       const term2 = ln / a;
-      return Math.sign(x) * Math.sqrt(Math.sqrt(term1 * term1 - term2) - term1);
+      let result = Math.sign(x) * Math.sqrt(Math.sqrt(term1 * term1 - term2) - term1);
+      if (isNaN(result)) return Math.sign(x) * Infinity; // Fallback for extreme values
+      return result;
     }
+
+    function normInv(p) { // Inverse of Standard Normal CDF
+        // Ensure p is in (0,1)
+        const epsilon = 1e-15;
+        if (p <= 0) p = epsilon;
+        if (p >= 1) p = 1 - epsilon;
+        return Math.sqrt(2) * inverseErf(2 * p - 1);
+    }
+
 
     function deriveMu() {
       const total = parseFloat(document.getElementById("totalReads").value);
-      const iso = parseFloat(document.getElementById("isoformCount").value);
-      if (!isNaN(total) && !isNaN(iso) && iso > 0) {
+      const iso = parseFloat(document.getElementById("isoformCountForMu").value); // Corrected ID
+      if (!isNaN(total) && !isNaN(iso) && iso > 0 && total >=0) {
         const mu = total / iso;
         document.getElementById("mu").value = mu.toFixed(2);
       }
     }
     function clearDerived() {
       document.getElementById("totalReads").value = "";
-      document.getElementById("isoformCount").value = "";
+      document.getElementById("isoformCountForMu").value = ""; // Corrected ID
+    }
+
+    function displayErrors(errors, primaryOutputElementId) {
+        const errorDiv = document.getElementById("errorMessages");
+        const primaryOutputDiv = document.getElementById(primaryOutputElementId);
+
+        if (errors.length > 0) {
+            errorDiv.innerHTML = errors.join("<br>");
+            errorDiv.style.display = 'block';
+            if (primaryOutputDiv) primaryOutputDiv.innerHTML = "";
+
+            // Clear other outputs when primary calculation fails
+            if (primaryOutputElementId === "result") {
+                 document.getElementById("fdrEstimation").innerText = "";
+                 document.getElementById("requiredSamples").innerText = "";
+                 clearPlots();
+            } else if (primaryOutputElementId === "requiredSamples"){
+                 // Potentially clear other things if needed
+            }
+            return true; // Errors found
+        }
+        errorDiv.innerHTML = "";
+        errorDiv.style.display = 'none';
+        return false; // No errors
+    }
+
+    function clearPlots() {
+        const plotIds = ["powerVsN", "powerVsMu", "powerVsLFC", "powerVsDisp"];
+        plotIds.forEach(id => {
+            const plotDiv = document.getElementById(id);
+            if (plotDiv) {
+                Plotly.purge(id);
+                plotDiv.innerHTML = ''; // Remove any Plotly placeholders
+            }
+        });
+        currentCalculatedPower = null;
     }
 
     function calculate() {
+      document.getElementById("errorMessages").style.display = "none"; // Hide previous errors
+      let errors = [];
+
       const n = parseInt(document.getElementById("n").value);
-      if (n < 3) {
-        document.getElementById("result").innerText = "Error: At least 3 replicates are required.";
-        document.getElementById("fdrEstimation").innerText = "";
-        return;
-      }
       const mu = parseFloat(document.getElementById("mu").value);
-      const alpha = parseFloat(document.getElementById("dispersion").value);
+      const alpha_disp = parseFloat(document.getElementById("dispersion").value); // Renamed to avoid conflict
       const lfc = parseFloat(document.getElementById("lfc").value);
       const fdr = parseFloat(document.getElementById("fdr").value);
       const m = parseInt(document.getElementById("m").value);
       const rank = parseInt(document.getElementById("rank").value);
       const targetPower = parseFloat(document.getElementById("targetPower").value);
 
-      const alphaTest = (fdr * rank) / m;
-      const z_alpha = inverseErf(1 - alphaTest) * Math.sqrt(2);
-      const variance = mu + alpha * mu * mu;
-      const se = Math.sqrt((2 / n) * variance / (mu * mu));
-      const z = Math.abs(lfc) / se;
-      const power = normCdf(z - z_alpha);
+      if (n < 3) errors.push("Replicates per group (n) must be at least 3.");
+      if (isNaN(mu) || mu <= 0) errors.push("Mean expression (μ) must be a positive number.");
+      if (isNaN(alpha_disp) || alpha_disp < 0) errors.push("Dispersion (α) must be a non-negative number.");
+      if (isNaN(lfc)) errors.push("Log2 fold change (Δ) must be a number.");
+      if (isNaN(fdr) || fdr <= 0 || fdr >= 1) errors.push("Target FDR must be between 0 and 1 (exclusive).");
+      if (isNaN(m) || m < 1) errors.push("Number of isoforms (m) must be at least 1.");
+      if (isNaN(rank) || rank < 1) errors.push("Target rank (i) must be at least 1.");
+      if (rank > m) errors.push("Target rank (i) cannot exceed the number of isoforms (m).");
 
-      let resultText = `Estimated power: ${(power * 100).toFixed(1)}%`;
-      if (targetPower && power < targetPower) {
-        resultText += ` — Below target power of ${(targetPower * 100).toFixed(0)}%. Consider increasing replicates, μ or Δ.`;
+      if (displayErrors(errors, "result")) return;
+
+      const alpha_effective = (fdr * rank) / m;
+      if (alpha_effective <= 0 || alpha_effective >= 1) {
+          errors.push(`Calculated per-test α (${alpha_effective.toExponential(2)}) is outside the valid range (0, 1). Check FDR, rank, and m.`);
+          if (displayErrors(errors, "result")) return;
       }
 
-      document.getElementById("result").innerText = resultText;
-      document.getElementById("fdrEstimation").innerText = `Effective per-test α: ${(alphaTest * 100).toExponential(2)}%`;
+      // Z_alpha_half for two-sided test
+      const z_alpha_half = normInv(1 - alpha_effective / 2);
+      const variance = mu + alpha_disp * mu * mu;
+      if (mu === 0) { // Avoid division by zero if mu somehow passed validation but is still effectively zero for variance calc.
+          errors.push("Mean expression (μ) cannot be zero for SE calculation.");
+           if (displayErrors(errors, "result")) return;
+      }
+      const se = Math.sqrt((2 / n) * variance / (mu * mu));
+      if (se === 0) {
+           errors.push("Standard Error of log2FC is zero. Check inputs (e.g., very high μ, n or specific variance characteristics).");
+           if (displayErrors(errors, "result")) return;
+      }
+      const z_stat = Math.abs(lfc) / se;
+      const power = normCdf(z_stat - z_alpha_half);
+      currentCalculatedPower = power; // Store for plots
 
+      if (isNaN(power) || !isFinite(power)) {
+          errors.push("Power calculation resulted in an invalid value (NaN or Infinity). Please check inputs.");
+          currentCalculatedPower = null;
+          if (displayErrors(errors, "result")) return;
+      }
+
+      let resultText = `Estimated power: <strong>${(power * 100).toFixed(1)}%</strong>`;
+      if (!isNaN(targetPower) && targetPower >= 0.1 && targetPower < 1.0 && power < targetPower) {
+        resultText += ` — <span style="color:#ffcc00;">Below target power of ${(targetPower * 100).toFixed(0)}%. Consider increasing replicates, μ or Δ.</span>`;
+      } else if (!isNaN(targetPower) && targetPower >= 0.1 && targetPower < 1.0 && power >= targetPower){
+        resultText += ` — <span style="color:#66ff66;">Meets or exceeds target power of ${(targetPower * 100).toFixed(0)}%.</span>`;
+      }
+
+
+      document.getElementById("result").innerHTML = resultText;
+      document.getElementById("fdrEstimation").innerText = `Effective per-test α (two-sided): ${alpha_effective.toExponential(3)} (critical Z<sub>α/2</sub>: ${z_alpha_half.toFixed(3)})`;
+      document.getElementById("requiredSamples").innerText = ""; // Clear sample estimation
       drawAllPlots();
     }
 
     function estimateRequiredSamples() {
+      document.getElementById("errorMessages").style.display = "none";
+      let errors = [];
+
       const mu = parseFloat(document.getElementById("mu").value);
-      const alpha = parseFloat(document.getElementById("dispersion").value);
+      const alpha_disp = parseFloat(document.getElementById("dispersion").value);
       const lfc = parseFloat(document.getElementById("lfc").value);
       const fdr = parseFloat(document.getElementById("fdr").value);
       const m = parseInt(document.getElementById("m").value);
       const rank = parseInt(document.getElementById("rank").value);
       const targetPower = parseFloat(document.getElementById("targetPower").value);
 
-      if (!targetPower || targetPower < 0.1 || targetPower >= 1.0) {
-        document.getElementById("requiredSamples").innerText = "Please specify a valid target power between 0.1 and 0.99.";
-        return;
+      if (isNaN(mu) || mu <= 0) errors.push("Mean expression (μ) must be a positive number.");
+      if (isNaN(alpha_disp) || alpha_disp < 0) errors.push("Dispersion (α) must be a non-negative number.");
+      if (isNaN(lfc)) errors.push("Log2 fold change (Δ) must be a number.");
+      if (lfc === 0) errors.push("Log2 fold change (Δ) cannot be zero for sample size estimation.");
+      if (isNaN(fdr) || fdr <= 0 || fdr >= 1) errors.push("Target FDR must be between 0 and 1 (exclusive).");
+      if (isNaN(m) || m < 1) errors.push("Number of isoforms (m) must be at least 1.");
+      if (isNaN(rank) || rank < 1) errors.push("Target rank (i) must be at least 1.");
+      if (rank > m) errors.push("Target rank (i) cannot exceed number of isoforms (m).");
+      if (isNaN(targetPower) || targetPower < 0.1 || targetPower >= 1.0) {
+        errors.push("Please specify a valid target power between 0.1 and 0.999 for sample estimation.");
       }
 
-      const alphaTest = (fdr * rank) / m;
-      const z_alpha = inverseErf(1 - alphaTest) * Math.sqrt(2);
-      const z_power = inverseErf(2 * targetPower - 1) * Math.sqrt(2);
-      const variance = mu + alpha * mu * mu;
+      if (displayErrors(errors, "requiredSamples")) return;
+
+      const alpha_effective = (fdr * rank) / m;
+      if (alpha_effective <= 0 || alpha_effective >= 1) {
+          errors.push(`Calculated per-test α (${alpha_effective.toExponential(2)}) is outside the valid range (0,1). Check FDR, rank, m.`);
+          if (displayErrors(errors, "requiredSamples")) return;
+      }
+
+      const z_alpha_half = normInv(1 - alpha_effective / 2);
+      const z_power = normInv(targetPower); // For P(Z > Z_beta) = power, so Z_beta = normInv(1-power), but for Z_stat - Z_alpha > Z_power, it's normInv(power)
+      const variance = mu + alpha_disp * mu * mu;
       const effectSize = Math.abs(lfc);
 
-      let n_est = (2 * variance * Math.pow(z_power + z_alpha, 2)) / (mu * mu * effectSize * effectSize);
+      let n_est = (2 * variance * Math.pow(z_power + z_alpha_half, 2)) / (mu * mu * effectSize * effectSize);
+      if (isNaN(n_est) || !isFinite(n_est) || n_est <=0) {
+          errors.push("Sample size estimation resulted in an invalid or non-positive value. Check inputs (e.g. very small LFC).");
+          if (displayErrors(errors, "requiredSamples")) return;
+      }
+
       n_est = Math.ceil(n_est);
       if (n_est < 3) n_est = 3;
 
-      document.getElementById("requiredSamples").innerText =
-        `Estimated replicates per group needed for ${(targetPower * 100).toFixed(0)}% power: ${n_est}`;
+      const suggestionHtml = `Estimated replicates per group needed for ${(targetPower * 100).toFixed(0)}% power: <strong>${n_est}</strong>. 
+                            <button onclick="updateNAndRecalculate(${n_est})">Use this N & Recalculate Power</button>`;
+      document.getElementById("requiredSamples").innerHTML = suggestionHtml;
+      document.getElementById("result").innerText = ""; // Clear power estimation
+      document.getElementById("fdrEstimation").innerText = "";
+    }
+
+    function updateNAndRecalculate(newN) {
+        document.getElementById("n").value = newN;
+        calculate();
     }
 
     function drawAllPlots() {
       const mu = parseFloat(document.getElementById("mu").value);
-      const alpha = parseFloat(document.getElementById("dispersion").value);
+      const alpha_disp = parseFloat(document.getElementById("dispersion").value);
       const lfc = parseFloat(document.getElementById("lfc").value);
       const fdr = parseFloat(document.getElementById("fdr").value);
       const m = parseInt(document.getElementById("m").value);
       const rank = parseInt(document.getElementById("rank").value);
-      const n = parseInt(document.getElementById("n").value);
+      const n_current = parseInt(document.getElementById("n").value); // Current n from input
 
-      const alphaTest = (fdr * rank) / m;
-      const z_alpha = inverseErf(1 - alphaTest) * Math.sqrt(2);
+      // Check if inputs for plots are valid, otherwise don't draw
+      if (isNaN(mu) || isNaN(alpha_disp) || isNaN(lfc) || isNaN(fdr) || isNaN(m) || isNaN(rank) || isNaN(n_current) || currentCalculatedPower === null) {
+          clearPlots(); // Clear any existing plots if inputs are bad
+          return;
+      }
 
-      function plot(id, x, y, title, xlabel) {
-        Plotly.newPlot(id, [{
-          x: x, y: y, type: 'scatter', mode: 'lines+markers'
-        }], {
+      const alpha_effective = (fdr * rank) / m;
+      if (alpha_effective <= 0 || alpha_effective >= 1) { // Basic check before plotting
+          clearPlots(); return;
+      }
+      const z_alpha_half = normInv(1 - alpha_effective / 2);
+
+      function plot(id, x_values, y_values, title, xlabel, current_x_on_plot_axis, power_at_current_inputs) {
+        const traces = [{
+          x: x_values, y: y_values, type: 'scatter', mode: 'lines+markers', name: 'Power Curve',
+          line: {color: '#64b5f6'}, marker: {color: '#64b5f6', size:6}
+        }];
+
+        if (current_x_on_plot_axis !== undefined && power_at_current_inputs !== null &&
+            power_at_current_inputs >= 0 && power_at_current_inputs <= 1) {
+          traces.push({
+            x: [current_x_on_plot_axis],
+            y: [power_at_current_inputs],
+            type: 'scatter',
+            mode: 'markers',
+            marker: { color: '#ff6666', size: 10, symbol: 'diamond' },
+            name: 'Current Params'
+          });
+        }
+
+        Plotly.newPlot(id, traces, {
           title: title,
-          xaxis: { title: xlabel, color: '#eee' },
-          yaxis: { title: 'Power', range: [0, 1], color: '#eee' },
+          xaxis: { title: xlabel, color: '#eee', gridcolor: '#333' },
+          yaxis: { title: 'Power', range: [0, 1], color: '#eee', gridcolor: '#333' },
           paper_bgcolor: '#111',
           plot_bgcolor: '#111',
-          font: { color: '#eee' }
+          font: { color: '#eee' },
+          showlegend: true,
+          legend: {bgcolor: '#111', bordercolor: '#333', borderwidth:1}
         });
       }
 
       const xN = [], yN = [];
-      for (let i = 3; i <= 30; i++) {
-        const v = mu + alpha * mu * mu;
-        const se = Math.sqrt((2 / i) * v / (mu * mu));
+      for (let i_n = 3; i_n <= 30; i_n++) {
+        const v = mu + alpha_disp * mu * mu;
+        const se = Math.sqrt((2 / i_n) * v / (mu * mu));
+        if (se === 0) { yN.push(0); xN.push(i_n); continue; } // Avoid div by zero
         const z = Math.abs(lfc) / se;
-        xN.push(i);
-        yN.push(normCdf(z - z_alpha));
+        xN.push(i_n);
+        yN.push(normCdf(z - z_alpha_half));
       }
-      plot("powerVsN", xN, yN, "Power vs Replicates", "Replicates");
+      plot("powerVsN", xN, yN, "Power vs Replicates", "Replicates (n)", n_current, currentCalculatedPower);
 
       const xMu = [], yMu = [];
-      for (let i = 10; i <= 500; i += 10) {
-        const v = i + alpha * i * i;
-        const se = Math.sqrt((2 / n) * v / (i * i));
+      for (let i_mu = 10; i_mu <= 500; i_mu += 10) {
+        if (i_mu === 0) continue;
+        const v = i_mu + alpha_disp * i_mu * i_mu;
+        const se = Math.sqrt((2 / n_current) * v / (i_mu * i_mu));
+        if (se === 0) { yMu.push(0); xMu.push(i_mu); continue; }
         const z = Math.abs(lfc) / se;
-        xMu.push(i);
-        yMu.push(normCdf(z - z_alpha));
+        xMu.push(i_mu);
+        yMu.push(normCdf(z - z_alpha_half));
       }
-      plot("powerVsMu", xMu, yMu, "Power vs Expression (μ)", "Mean Expression");
+      plot("powerVsMu", xMu, yMu, "Power vs Mean Expression (μ)", "Mean Expression (μ)", mu, currentCalculatedPower);
 
       const xLFC = [], yLFC = [];
-      for (let i = 0.1; i <= 3; i += 0.1) {
-        const v = mu + alpha * mu * mu;
-        const se = Math.sqrt((2 / n) * v / (mu * mu));
-        const z = Math.abs(i) / se;
-        xLFC.push(i);
-        yLFC.push(normCdf(z - z_alpha));
+      for (let i_lfc = 0.1; i_lfc <= 3; i_lfc += 0.1) {
+        const v = mu + alpha_disp * mu * mu;
+        const se = Math.sqrt((2 / n_current) * v / (mu * mu));
+        if (se === 0) { yLFC.push(0); xLFC.push(i_lfc.toFixed(1)); continue; }
+        const z = Math.abs(i_lfc) / se;
+        xLFC.push(i_lfc.toFixed(1)); // Keep consistent decimal places
+        yLFC.push(normCdf(z - z_alpha_half));
       }
-      plot("powerVsLFC", xLFC, yLFC, "Power vs log2FC", "log2 Fold Change");
+      plot("powerVsLFC", xLFC, yLFC, "Power vs log2 Fold Change (Δ)", "log2 Fold Change (Δ)", parseFloat(lfc.toFixed(1)), currentCalculatedPower);
+
 
       const xDisp = [], yDisp = [];
-      for (let i = 0.01; i <= 0.4; i += 0.01) {
-        const v = mu + i * mu * mu;
-        const se = Math.sqrt((2 / n) * v / (mu * mu));
+      for (let i_disp = 0.01; i_disp <= 0.5; i_disp += 0.01) { // Extended range for dispersion
+        const v = mu + i_disp * mu * mu;
+        const se = Math.sqrt((2 / n_current) * v / (mu * mu));
+        if (se === 0) { yDisp.push(0); xDisp.push(i_disp.toFixed(2)); continue; }
         const z = Math.abs(lfc) / se;
-        xDisp.push(i);
-        yDisp.push(normCdf(z - z_alpha));
+        xDisp.push(i_disp.toFixed(2));
+        yDisp.push(normCdf(z - z_alpha_half));
       }
-      plot("powerVsDisp", xDisp, yDisp, "Power vs Dispersion", "Dispersion (α)");
+      plot("powerVsDisp", xDisp, yDisp, "Power vs Dispersion (α)", "Dispersion (α)", parseFloat(alpha_disp.toFixed(2)), currentCalculatedPower);
     }
+
+    // Initial call to clear plots or draw based on default values if desired (optional)
+    // calculate(); // Or call clearPlots();
+    window.onload = () => {
+        clearPlots(); // Ensure plots are clear on load
+        // Optionally, run calculate() if you want an initial estimation based on defaults
+        // calculate();
+    };
+
   </script>
 </body>
 </html>
