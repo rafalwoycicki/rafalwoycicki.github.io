@@ -46,6 +46,17 @@
 <hr />
 
 <h2>Installation & Requirements</h2>
+
+  <ol>
+      <li>Tool created specifically for gene <code>Ccds33</code> in Mouse (<code>Mus_musculus.GRCm39.113.gtf.gz and Mus_musculus.GRCm39.dna.chromosome.9.fa.gz</code>).</li>
+      <li>If other genes needed, so make Ensembl download of <code>*.gtf.gz and *.dna.chromosome.9.fa.gz or *.dna.primary_assembly.fa.gz</code>.</li>
+      <li>Run code <code>create_input_files.bash</code> to create input files for Painter. (need to change filenames inside the script)</li>
+      <li>Open <code>index.html</code> in your browser.</li>
+      <li>Upload a genomic sequence file (<code>.txt</code> or <code>.fasta</code>). Here available gene Cdcc33.</li>
+      <li>Upload one or more exon <code>.fasta</code> files. Exon sequence for gene Cdcc33 available here.</li>
+      <li>Select a transcript and highlight its exons.</li>
+    </ol>
+  
 <ul>
   <li><strong>No installation required</strong> – just open the HTML file in your browser</li>
   <li>Works offline after loading</li>
@@ -67,6 +78,8 @@
 <ul>
   <li>Format: <code>.fasta</code>, <code>.fa</code>, or <code>.txt</code></li>
   <li>Must contain one continuous sequence (no line breaks within bases)</li>
+  <li>Plain string; headers (<code>&gt;</code>) ignored.</li>
+  <li>Must match coordinates used in exon files.</li>
 </ul>
 <pre><code>&gt;chr9_mouse
 AGTCGATCGATCGTACGTAGCTAGCTAGC...
@@ -75,10 +88,10 @@ AGTCGATCGATCGTACGTAGCTAGCTAGC...
 <h3>Exon FASTA Files</h3>
 <ul>
   <li>Format: <code>.fasta</code>, <code>.fa</code> (can upload multiple)</li>
-  <li>Each entry header should be: <code>&gt;TranscriptID:ExonLabel</code></li>
+  <li>Each entry header should be: <code>&gt;ENSMUST00000000000:TranscriptName:Ex.1</code></li>
   <li>Sequence must match exactly a region in the genomic sequence</li>
 </ul>
-<pre><code>&gt;ENST00000619216:exon_1
+<pre><code>&gt;ENST00000619216:Ex.1
 ATGCGTACTGACGTTAG
 </code></pre>
 
