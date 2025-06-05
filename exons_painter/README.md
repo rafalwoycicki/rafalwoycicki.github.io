@@ -13,6 +13,14 @@
 
 ## Installation & Requirements
 
+1. Tool created specifically for gene Ccds33 in Mouse (Mus_musculus.GRCm39.113.gtf.gz and Mus_musculus.GRCm39.dna.chromosome.9.fa.gz).
+2. If other genes needed, so make Ensembl download of *.gtf.gz and *.dna.chromosome.9.fa.gz or *.dna.primary_assembly.fa.gz.
+3. Run code create_input_files.bash to create input files for Painter. (need to change filenames inside the script)
+4. Open index.html in your browser.
+5. Upload a genomic sequence file (.txt or .fasta). Here available gene Cdcc33.
+6. Upload one or more exon .fasta files. Exon sequence for gene Cdcc33 available here.
+7. Select a transcript and highlight its exons.
+
 - **No installation required** – just open the HTML file in your browser
 - Works offline after loading
 - Supported browsers:
