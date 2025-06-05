@@ -21,6 +21,33 @@
 6. Upload one or more exon .fasta files. Exon sequence for gene Cdcc33 available here.
 7. Select a transcript and highlight its exons.
 
+   ## Example Files for Download
+
+Below are the download links for the example files for the Gene Exon Painter tool:
+
+* **Genomic sequence:**
+    * [Ccdc33_gene_str.txt](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/Ccdc33_gene_str.txt)
+* **Exon FASTA files (please download all):**
+    * [exonsUTRs.ENSMUST00000042205.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000042205.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000098681.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000098681.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000098682.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000098682.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000119665.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000119665.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000123746.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000123746.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000143797.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000143797.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000144887.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000144887.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000146741.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000146741.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000151404.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000151404.renamed.fasta)
+    * [exonsUTRs.ENSMUST00000215944.renamed.fasta](https://raw.githubusercontent.com/rafalwoycicki/rafalwoycicki.github.io/refs/heads/main/exons_painter/exonsUTRs.ENSMUST00000215944.renamed.fasta)
+
+### Instructions for use:
+
+1.  Download the genomic sequence file (`Ccdc33_gene_str.txt`).
+2.  Download all the Exon FASTA files (`exonsUTRs...renamed.fasta`).
+3.  Open the [Gene Exon Painter](https://rafalwoycicki.github.io/exons_painter/exons_painter.html) page.
+4.  Load the files:
+    * Click "Choose File" next to "Genomic sequence (.txt/.fasta):" and select the downloaded `Ccdc33_gene_str.txt` file.
+    * Click "Choose Files" next to "Exon FASTA files (multiple):" and select all the downloaded `exonsUTRs...renamed.fasta` files.
+
 - **No installation required** – just open the HTML file in your browser
 - Works offline after loading
 - Supported browsers:
