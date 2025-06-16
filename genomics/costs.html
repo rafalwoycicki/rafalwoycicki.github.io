@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Financial Blue & Neutral Grays -->
-    <!-- Application Structure Plan: This single-page application is designed for the clear presentation and exploration of sequencing cost data. The architecture features filter buttons for major research areas (Genomics, Transcriptomics, etc.), which control the visibility of table rows. This allows users to dynamically focus on relevant scenarios. The primary data structure is a responsive table, which is optimal for comparing structured financial and technical data across multiple scenarios. This interactive filtering approach is chosen for its usability and clarity over a static, monolithic table. A new column structure has been added to separate library prep costs from sequencing costs for greater detail. -->
+    <!-- Application Structure Plan: A single-page application designed for the clear presentation and exploration of sequencing cost data. The architecture features filter buttons for major research areas (Genomics, Transcriptomics, etc.), which control the visibility of table rows. This allows users to dynamically focus on relevant scenarios. The primary data structure is a responsive table, now with more detailed columns for platform assumptions and itemized costs. This interactive filtering approach is chosen for its usability and clarity over a static, monolithic table. -->
     <!-- Visualization & Content Choices: 
-        - Goal: Compare estimated sequencing and library prep costs for various scientific scenarios in the US market.
-        - Viz/Presentation Method: An interactive HTML table. Each row represents a specific experimental scenario with itemized costs.
+        - Goal: Compare estimated sequencing and library prep costs for various scientific scenarios in the US market, including platform assumptions.
+        - Viz/Presentation Method: An interactive HTML table. Each row represents a specific experimental scenario with itemized costs and technical assumptions.
         - Interaction: Users click filter buttons (e.g., "Genomics", "Transcriptomics") to toggle the visibility of corresponding table sections (tbody elements).
-        - Justification: A filterable table is the most direct and effective way to present and compare this type of structured, multi-variable data. Separating cost components provides the detail requested by the user.
+        - Justification: A filterable table is the most direct and effective way to present and compare this type of structured, multi-variable data. Adding the platform/assumptions column provides the critical context requested by the user.
         - Library/Method: Tailwind CSS for styling, Vanilla JS for interactivity. No charting libraries needed.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -52,7 +52,7 @@
             <div class="mb-6 border-l-4 border-amber-500 pl-4">
                 <h2 class="text-xl font-semibold text-slate-800">Important Disclaimer</h2>
                 <p class="text-sm text-slate-600 mt-1">
-                    The values below are **order-of-magnitude estimates** for the US market and are intended to illustrate cost relationships. Actual prices can vary significantly based on service provider, project scale, negotiated rates, and specific reagents. Costs shown generally **do not include labor, sample acquisition, or bioinformatics analysis**, which represent significant, additional project expenses.
+                    The values below are **order-of-magnitude estimates** for the US market. Actual prices vary significantly based on service provider, project scale, and negotiated rates. Costs are based on **high-throughput platforms** (e.g., NovaSeq X, Revio) assuming high-plex runs, which lowers the per-sample cost. Costs for smaller projects on benchtop sequencers (e.g., MiSeq, MinION) will be different. Estimates **do not include labor, sample acquisition, or bioinformatics analysis**.
                 </p>
             </div>
 
@@ -68,7 +68,7 @@
                     <thead class="bg-slate-100 text-slate-600 uppercase text-xs tracking-wider">
                         <tr>
                             <th scope="col" class="px-4 py-3">Research Goal</th>
-                            <th scope="col" class="px-4 py-3">Method</th>
+                            <th scope="col" class="px-4 py-3">Platform / Run Assumptions</th>
                             <th scope="col" class="px-4 py-3">Coverage / Depth</th>
                             <th scope="col" class="px-4 py-3">Est. Library Prep / Sample (USD)</th>
                             <th scope="col" class="px-4 py-3">Est. Sequencing / Sample (USD)</th>
@@ -81,7 +81,7 @@
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">SNP/INDEL ID (Human, 3Gbp)</td>
-                            <td class="px-4 py-3">WGS Illumina</td>
+                            <td class="px-4 py-3">Illumina NovaSeq X Plus (multiplexing ~48 samples/run)</td>
                             <td class="px-4 py-3">30x</td>
                             <td class="px-4 py-3">$80 - $150</td>
                             <td class="px-4 py-3">$400 - $650</td>
@@ -89,31 +89,31 @@
                         </tr>
                          <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">Population SNP ID (e.g., Plant)</td>
-                            <td class="px-4 py-3">ddRADseq / GBS</td>
+                            <td class="px-4 py-3">Illumina NextSeq/NovaSeq (high-plex GBS/RAD)</td>
                             <td class="px-4 py-3">n/a</td>
                             <td class="px-4 py-3">$30 - $60</td>
                             <td class="px-4 py-3">$20 - $40</td>
                             <td class="px-4 py-3 font-semibold text-blue-700">$50 - $100</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 font-medium">*de novo* Assembly (Human, 3Gbp)</td>
-                            <td class="px-4 py-3">WGS PacBio HiFi</td>
+                            <td class="px-4 py-3 font-medium">*de novo* Assembly T2T (Human, 3Gbp)</td>
+                            <td class="px-4 py-3">PacBio Revio (1-2 SMRT Cells/sample)</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3">$200 - $350</td>
+                            <td class="px-4 py-3">$200 - $350 (HMW DNA)</td>
                             <td class="px-4 py-3">$900 - $1,500</td>
                             <td class="px-4 py-3 font-semibold text-blue-700">$1,100 - $1,850</td>
                         </tr>
                         <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">*de novo* Assembly (Complex)</td>
-                            <td class="px-4 py-3">WGS Oxford Nanopore</td>
+                            <td class="px-4 py-3">ONT PromethION (1-2 Flow Cells/sample)</td>
                             <td class="px-4 py-3">50x</td>
-                            <td class="px-4 py-3">$250 - $400</td>
+                            <td class="px-4 py-3">$250 - $400 (HMW DNA)</td>
                             <td class="px-4 py-3">$800 - $1,300</td>
                             <td class="px-4 py-3 font-semibold text-blue-700">$1,050 - $1,700</td>
                         </tr>
                          <tr>
                             <td class="px-4 py-3 font-medium">Assembly Scaffolding</td>
-                            <td class="px-4 py-3">Hi-C</td>
+                            <td class="px-4 py-3">Hi-C (on Illumina NovaSeq)</td>
                             <td class="px-4 py-3">~500M reads</td>
                             <td class="px-4 py-3">$400 - $600</td>
                             <td class="px-4 py-3">$800 - $1,200</td>
@@ -126,7 +126,7 @@
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">Differential Gene Expression (DGE)</td>
-                            <td class="px-4 py-3">RNA-Seq Illumina</td>
+                            <td class="px-4 py-3">Illumina NextSeq/NovaSeq (multiplexed run)</td>
                             <td class="px-4 py-3">25M reads</td>
                             <td class="px-4 py-3">$100 - $180</td>
                             <td class="px-4 py-3">$150 - $250</td>
@@ -134,7 +134,7 @@
                         </tr>
                         <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">Isoform Discovery & Quantification</td>
-                            <td class="px-4 py-3">PacBio Iso-Seq</td>
+                            <td class="px-4 py-3">PacBio Revio (multiplexed on SMRT Cell)</td>
                             <td class="px-4 py-3">~20M HiFi reads</td>
                             <td class="px-4 py-3">$300 - $500</td>
                             <td class="px-4 py-3">$600 - $1,000</td>
@@ -142,17 +142,17 @@
                         </tr>
                          <tr>
                             <td class="px-4 py-3 font-medium">RNA Modification Detection</td>
-                            <td class="px-4 py-3">ONT Direct RNA-Seq</td>
+                            <td class="px-4 py-3">ONT PromethION/GridION</td>
                             <td class="px-4 py-3">~15M reads</td>
-                            <td class="px-4 py-3">$350 - $550</td>
+                            <td class="px-4 py-3">$350 - $550 (Direct RNA kit)</td>
                             <td class="px-4 py-3">$400 - $700</td>
                             <td class="px-4 py-3 font-semibold text-green-700">$750 - $1,250</td>
                         </tr>
                         <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">Single-Cell Gene Expression (3'/5')</td>
-                            <td class="px-4 py-3">10x Genomics + Illumina</td>
+                            <td class="px-4 py-3">10x Genomics + Illumina NovaSeq</td>
                             <td class="px-4 py-3">~50k reads/cell</td>
-                            <td class="px-4 py-3">$2,000 - $3,500</td>
+                            <td class="px-4 py-3">$2,000 - $3,500 (10k cells, 10x kit)</td>
                             <td class="px-4 py-3">$2,500 - $4,000</td>
                             <td class="px-4 py-3 font-semibold text-green-700">$4,500 - $7,500</td>
                         </tr>
@@ -163,21 +163,21 @@
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">Global DNA Methylation (5mC)</td>
-                            <td class="px-4 py-3">WGBS (Illumina)</td>
+                            <td class="px-4 py-3">WGBS on Illumina NovaSeq</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3">$150 - $250</td>
+                            <td class="px-4 py-3">$150 - $250 (bisulfite kit)</td>
                             <td class="px-4 py-3">$500 - $800</td>
                             <td class="px-4 py-3 font-semibold text-amber-700">$650 - $1,050</td>
                         </tr>
                          <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">Comprehensive DNA Modifications</td>
-                            <td class="px-4 py-3">WGS PacBio / ONT</td>
+                            <td class="px-4 py-3">WGS on PacBio Revio / ONT PromethION</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3" colspan="3">Included in WGS cost (see Genomics).</td>
+                            <td class="px-4 py-3" colspan="3">Cost is included in standard WGS (see Genomics).</td>
                         </tr>
                          <tr>
                             <td class="px-4 py-3 font-medium">Chromatin Accessibility</td>
-                            <td class="px-4 py-3">ATAC-Seq (Illumina)</td>
+                            <td class="px-4 py-3">ATAC-Seq on Illumina NextSeq</td>
                             <td class="px-4 py-3">~50M reads</td>
                             <td class="px-4 py-3">$200 - $350</td>
                             <td class="px-4 py-3">$200 - $300</td>
@@ -185,7 +185,7 @@
                         </tr>
                         <tr class="bg-slate-50">
                             <td class="px-4 py-3 font-medium">Metagenomics (Taxonomic Profile)</td>
-                            <td class="px-4 py-3">16S rRNA Amplicon-Seq</td>
+                            <td class="px-4 py-3">16S rRNA Amplicon-Seq (Illumina MiSeq)</td>
                             <td class="px-4 py-3">~50k reads</td>
                              <td class="px-4 py-3">$25 - $40</td>
                             <td class="px-4 py-3">$30 - $60</td>
@@ -193,7 +193,7 @@
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">Metagenomics (Functional Profile)</td>
-                            <td class="px-4 py-3">Shotgun (Long Read)</td>
+                            <td class="px-4 py-3">Shotgun Metagenomics (Long Read)</td>
                             <td class="px-4 py-3">>20 Gbp</td>
                             <td class="px-4 py-3">$250 - $400</td>
                             <td class="px-4 py-3">$600 - $1,000</td>
@@ -218,10 +218,11 @@
                     const filter = this.dataset.filter;
 
                     tableBodies.forEach(tbody => {
+                        const trs = tbody.querySelectorAll('tr');
                         if (filter === 'all' || tbody.dataset.category === filter) {
-                            tbody.style.display = '';
+                             trs.forEach(tr => tr.style.display = '');
                         } else {
-                            tbody.style.display = 'none';
+                             trs.forEach(tr => tr.style.display = 'none');
                         }
                     });
                 });
