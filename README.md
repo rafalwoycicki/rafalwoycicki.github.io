@@ -25,6 +25,11 @@ Key features:
 - Clean, browser-based interface
 - Supports any gene data you provide
 
+
+### [Sequencing costs](https://rafalwoycicki.github.io/genomics/costs.html)
+
+Example sequencing costs for different genomics, transcriptomics and epigenomics projects taking into consideration USA market and prices in USD up to June 2025.
+
 ---
 
 Both tools are open-source, self-contained, and can be run entirely in the browser without installation.
