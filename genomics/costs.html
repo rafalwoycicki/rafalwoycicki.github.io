@@ -1,15 +1,24 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequencing Cost Analysis (US Market, USD)</title>
+    <title>Comprehensive Cost Analysis for Sequencing Projects (US Market, USD)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Financial Blue & Neutral Grays -->
+    <!-- Application Structure Plan: This single-page application is designed for the clear presentation and exploration of sequencing cost data. The architecture features filter buttons for major research areas (Genomics, Transcriptomics, etc.), which control the visibility of table rows. This allows users to dynamically focus on relevant scenarios. The primary data structure is a responsive table, which is optimal for comparing structured financial and technical data across multiple scenarios. This interactive filtering approach is chosen for its usability and clarity over a static, monolithic table. A new column structure has been added to separate library prep costs from sequencing costs for greater detail. -->
+    <!-- Visualization & Content Choices: 
+        - Goal: Compare estimated sequencing and library prep costs for various scientific scenarios in the US market.
+        - Viz/Presentation Method: An interactive HTML table. Each row represents a specific experimental scenario with itemized costs.
+        - Interaction: Users click filter buttons (e.g., "Genomics", "Transcriptomics") to toggle the visibility of corresponding table sections (tbody elements).
+        - Justification: A filterable table is the most direct and effective way to present and compare this type of structured, multi-variable data. Separating cost components provides the detail requested by the user.
+        - Library/Method: Tailwind CSS for styling, Vanilla JS for interactivity. No charting libraries needed.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -17,6 +26,9 @@
         }
         th {
             background-color: #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         .filter-btn {
             transition: all 0.2s ease-in-out;
@@ -26,24 +38,21 @@
             color: white;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        tr.hidden {
-            display: none;
-        }
     </style>
 </head>
 
 <body class="antialiased text-slate-800">
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">Estimated Sequencing Cost Analysis</h1>
-            <p class="text-lg text-slate-600 mt-2">US Market, Prices in USD (As of 2025)</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">Comprehensive Sequencing Cost Analysis</h1>
+            <p class="text-lg text-slate-600 mt-2">US Market, Estimated Prices in USD (as of 2025)</p>
         </header>
 
         <div class="bg-white p-6 rounded-lg shadow-lg">
-            <div class="mb-6 border-l-4 border-blue-500 pl-4">
+            <div class="mb-6 border-l-4 border-amber-500 pl-4">
                 <h2 class="text-xl font-semibold text-slate-800">Important Disclaimer</h2>
                 <p class="text-sm text-slate-600 mt-1">
-                    The following values are **order-of-magnitude estimates** for the US market and are intended to illustrate the cost relationships between different technologies and scenarios. Actual prices can vary significantly depending on the service provider, project scale, negotiated rates, and the reagents used. The listed costs typically cover **only the generation of sequencing data** and do not include the costs of library preparation, material isolation, or advanced bioinformatics analysis.
+                    The values below are **order-of-magnitude estimates** for the US market and are intended to illustrate cost relationships. Actual prices can vary significantly based on service provider, project scale, negotiated rates, and specific reagents. Costs shown generally **do not include labor, sample acquisition, or bioinformatics analysis**, which represent significant, additional project expenses.
                 </p>
             </div>
 
@@ -61,127 +70,134 @@
                             <th scope="col" class="px-4 py-3">Research Goal</th>
                             <th scope="col" class="px-4 py-3">Method</th>
                             <th scope="col" class="px-4 py-3">Coverage / Depth</th>
-                            <th scope="col" class="px-4 py-3">Estimated Cost per Sample (USD)</th>
-                            <th scope="col" class="px-4 py-3">Notes & Limitations</th>
+                            <th scope="col" class="px-4 py-3">Est. Library Prep / Sample (USD)</th>
+                            <th scope="col" class="px-4 py-3">Est. Sequencing / Sample (USD)</th>
+                            <th scope="col" class="px-4 py-3 font-semibold text-slate-800">Est. Total / Sample (USD)</th>
                         </tr>
                     </thead>
                     <tbody data-category="genomics">
                         <tr class="bg-blue-50">
-                            <td colspan="5" class="px-4 py-2 font-bold text-blue-800">Genomics (DNA) Scenarios</td>
+                            <td colspan="6" class="px-4 py-2 font-bold text-blue-800">Genomics (DNA) Scenarios</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 font-medium">SNP/INDEL Identification (Human, 3Gbp)</td>
+                            <td class="px-4 py-3 font-medium">SNP/INDEL ID (Human, 3Gbp)</td>
                             <td class="px-4 py-3">WGS Illumina</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3">$500 - $800</td>
-                            <td class="px-4 py-3">Standard for GWAS and clinical research. Low sensitivity for SVs.</td>
+                            <td class="px-4 py-3">$80 - $150</td>
+                            <td class="px-4 py-3">$400 - $650</td>
+                            <td class="px-4 py-3 font-semibold text-blue-700">$480 - $800</td>
                         </tr>
                          <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">SNP Identification (Plants, 500Mbp, >500 samples)</td>
-                            <td class="px-4 py-3">ddRADseq / GBS (Illumina)</td>
+                            <td class="px-4 py-3 font-medium">Population SNP ID (e.g., Plant)</td>
+                            <td class="px-4 py-3">ddRADseq / GBS</td>
                             <td class="px-4 py-3">n/a</td>
-                            <td class="px-4 py-3">$40 - $80</td>
-                            <td class="px-4 py-3">Most cost-effective. Risk of missing regions without restriction sites.</td>
+                            <td class="px-4 py-3">$30 - $60</td>
+                            <td class="px-4 py-3">$20 - $40</td>
+                            <td class="px-4 py-3 font-semibold text-blue-700">$50 - $100</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 font-medium">SNP Identification (Plants, 500Mbp, >500 samples)</td>
-                            <td class="px-4 py-3">Low-coverage WGS + Imputation</td>
-                            <td class="px-4 py-3">1x - 2x</td>
-                            <td class="px-4 py-3">$100 - $180</td>
-                            <td class="px-4 py-3">More complete data, requires a good reference.</td>
-                        </tr>
-                        <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">*De novo* T2T Genome Assembly (Human, 3Gbp)</td>
+                            <td class="px-4 py-3 font-medium">*de novo* Assembly (Human, 3Gbp)</td>
                             <td class="px-4 py-3">WGS PacBio HiFi</td>
-                            <td class="px-4 py-3">30x - 40x</td>
-                            <td class="px-4 py-3">$1,000 - $1,800</td>
-                            <td class="px-4 py-3">Gold standard for complete genomes and SVs. Detects DNA modifications.</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-3 font-medium">*De novo* Genome Assembly (Animal, 2Gbp)</td>
-                            <td class="px-4 py-3">WGS Oxford Nanopore (PromethION)</td>
-                            <td class="px-4 py-3">40x - 50x</td>
+                            <td class="px-4 py-3">30x</td>
+                            <td class="px-4 py-3">$200 - $350</td>
                             <td class="px-4 py-3">$900 - $1,500</td>
-                            <td class="px-4 py-3">Ideal for highly complex regions. Lower raw accuracy.</td>
+                            <td class="px-4 py-3 font-semibold text-blue-700">$1,100 - $1,850</td>
                         </tr>
                         <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">Genome Scaffolding Support</td>
+                            <td class="px-4 py-3 font-medium">*de novo* Assembly (Complex)</td>
+                            <td class="px-4 py-3">WGS Oxford Nanopore</td>
+                            <td class="px-4 py-3">50x</td>
+                            <td class="px-4 py-3">$250 - $400</td>
+                            <td class="px-4 py-3">$800 - $1,300</td>
+                            <td class="px-4 py-3 font-semibold text-blue-700">$1,050 - $1,700</td>
+                        </tr>
+                         <tr>
+                            <td class="px-4 py-3 font-medium">Assembly Scaffolding</td>
                             <td class="px-4 py-3">Hi-C</td>
-                            <td class="px-4 py-3">~500M read pairs</td>
-                            <td class="px-4 py-3">$1,000 - $1,500</td>
-                            <td class="px-4 py-3">Additional cost, often necessary to achieve chromosome-level scaffolds.</td>
+                            <td class="px-4 py-3">~500M reads</td>
+                            <td class="px-4 py-3">$400 - $600</td>
+                            <td class="px-4 py-3">$800 - $1,200</td>
+                            <td class="px-4 py-3 font-semibold text-blue-700">$1,200 - $1,800</td>
                         </tr>
                     </tbody>
                     <tbody data-category="transcriptomics">
                          <tr class="bg-green-50">
-                            <td colspan="5" class="px-4 py-2 font-bold text-green-800">Transcriptomics (RNA) Scenarios</td>
+                            <td colspan="6" class="px-4 py-2 font-bold text-green-800">Transcriptomics (RNA) Scenarios</td>
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">Differential Gene Expression (DGE)</td>
                             <td class="px-4 py-3">RNA-Seq Illumina</td>
-                            <td class="px-4 py-3">20 - 30M reads</td>
-                            <td class="px-4 py-3">$200 - $400</td>
-                            <td class="px-4 py-3">Standard for gene-level analysis. Does not distinguish isoforms.</td>
+                            <td class="px-4 py-3">25M reads</td>
+                            <td class="px-4 py-3">$100 - $180</td>
+                            <td class="px-4 py-3">$150 - $250</td>
+                            <td class="px-4 py-3 font-semibold text-green-700">$250 - $430</td>
                         </tr>
                         <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">Isoform Discovery and Quantification</td>
-                            <td class="px-4 py-3">PacBio Iso-Seq (Revio)</td>
-                            <td class="px-4 py-3">15 - 25M HiFi reads</td>
-                            <td class="px-4 py-3">$800 - $1,300</td>
-                            <td class="px-4 py-3">Full-length transcripts. Requires RT-PCR (loss of RNA modifications).</td>
+                            <td class="px-4 py-3 font-medium">Isoform Discovery & Quantification</td>
+                            <td class="px-4 py-3">PacBio Iso-Seq</td>
+                            <td class="px-4 py-3">~20M HiFi reads</td>
+                            <td class="px-4 py-3">$300 - $500</td>
+                            <td class="px-4 py-3">$600 - $1,000</td>
+                            <td class="px-4 py-3 font-semibold text-green-700">$900 - $1,500</td>
                         </tr>
                          <tr>
                             <td class="px-4 py-3 font-medium">RNA Modification Detection</td>
                             <td class="px-4 py-3">ONT Direct RNA-Seq</td>
-                            <td class="px-4 py-3">10 - 20M reads</td>
-                            <td class="px-4 py-3">$600 - $1,100</td>
-                            <td class="px-4 py-3">Unique capability to study RNA modifications. Lower accuracy.</td>
+                            <td class="px-4 py-3">~15M reads</td>
+                            <td class="px-4 py-3">$350 - $550</td>
+                            <td class="px-4 py-3">$400 - $700</td>
+                            <td class="px-4 py-3 font-semibold text-green-700">$750 - $1,250</td>
                         </tr>
                         <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">Single-Cell (3'/5' Tagging)</td>
+                            <td class="px-4 py-3 font-medium">Single-Cell Gene Expression (3'/5')</td>
                             <td class="px-4 py-3">10x Genomics + Illumina</td>
                             <td class="px-4 py-3">~50k reads/cell</td>
-                            <td class="px-4 py-3">$4,000 - $6,500 (for 10k cells)</td>
-                            <td class="px-4 py-3">Standard for single-cell expression profiling.</td>
+                            <td class="px-4 py-3">$2,000 - $3,500</td>
+                            <td class="px-4 py-3">$2,500 - $4,000</td>
+                            <td class="px-4 py-3 font-semibold text-green-700">$4,500 - $7,500</td>
                         </tr>
                     </tbody>
                      <tbody data-category="specialized">
                          <tr class="bg-amber-50">
-                            <td colspan="5" class="px-4 py-2 font-bold text-amber-800">Epigenomics & Other Scenarios</td>
+                            <td colspan="6" class="px-4 py-2 font-bold text-amber-800">Epigenetics & Other Scenarios</td>
                         </tr>
                         <tr>
                             <td class="px-4 py-3 font-medium">Global DNA Methylation (5mC)</td>
                             <td class="px-4 py-3">WGBS (Illumina)</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3">$600 - $1,000</td>
-                            <td class="px-4 py-3">Historical standard. Degrades DNA, primarily detects 5mC.</td>
+                            <td class="px-4 py-3">$150 - $250</td>
+                            <td class="px-4 py-3">$500 - $800</td>
+                            <td class="px-4 py-3 font-semibold text-amber-700">$650 - $1,050</td>
                         </tr>
                          <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">Comprehensive DNA Modification Analysis</td>
-                            <td class="px-4 py-3">WGS PacBio HiFi / ONT</td>
+                            <td class="px-4 py-3 font-medium">Comprehensive DNA Modifications</td>
+                            <td class="px-4 py-3">WGS PacBio / ONT</td>
                             <td class="px-4 py-3">30x</td>
-                            <td class="px-4 py-3" colspan="2">Cost included in standard WGS (see Genomics).</td>
+                            <td class="px-4 py-3" colspan="3">Included in WGS cost (see Genomics).</td>
                         </tr>
                          <tr>
-                            <td class="px-4 py-3 font-medium">Chromatin Accessibility Mapping</td>
+                            <td class="px-4 py-3 font-medium">Chromatin Accessibility</td>
                             <td class="px-4 py-3">ATAC-Seq (Illumina)</td>
                             <td class="px-4 py-3">~50M reads</td>
-                            <td class="px-4 py-3">$300 - $500</td>
-                            <td class="px-4 py-3">Fast and efficient method, requires a small amount of material.</td>
+                            <td class="px-4 py-3">$200 - $350</td>
+                            <td class="px-4 py-3">$200 - $300</td>
+                            <td class="px-4 py-3 font-semibold text-amber-700">$400 - $650</td>
                         </tr>
                         <tr class="bg-slate-50">
-                            <td class="px-4 py-3 font-medium">Metagenomics – Taxonomic Profiling</td>
-                            <td class="px-4 py-3">16S rRNA Amplicon-Seq (Illumina)</td>
+                            <td class="px-4 py-3 font-medium">Metagenomics (Taxonomic Profile)</td>
+                            <td class="px-4 py-3">16S rRNA Amplicon-Seq</td>
                             <td class="px-4 py-3">~50k reads</td>
-                            <td class="px-4 py-3">$60 - $100</td>
-                            <td class="px-4 py-3">Inexpensive, good for general assessment. Low taxonomic resolution.</td>
+                             <td class="px-4 py-3">$25 - $40</td>
+                            <td class="px-4 py-3">$30 - $60</td>
+                            <td class="px-4 py-3 font-semibold text-amber-700">$55 - $100</td>
                         </tr>
                         <tr>
-                            <td class="px-4 py-3 font-medium">Metagenomics – Functional Analysis</td>
-                            <td class="px-4 py-3">Shotgun Metagenomics (long-reads)</td>
+                            <td class="px-4 py-3 font-medium">Metagenomics (Functional Profile)</td>
+                            <td class="px-4 py-3">Shotgun (Long Read)</td>
                             <td class="px-4 py-3">>20 Gbp</td>
-                            <td class="px-4 py-3">$800 - $1,300</td>
-                            <td class="px-4 py-3">De novo assembly of genomes from a mixture. Higher cost.</td>
+                            <td class="px-4 py-3">$250 - $400</td>
+                            <td class="px-4 py-3">$600 - $1,000</td>
+                            <td class="px-4 py-3 font-semibold text-amber-700">$850 - $1,400</td>
                         </tr>
                     </tbody>
                 </table>
@@ -196,7 +212,6 @@
 
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    // Manage button active state
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
 
@@ -204,9 +219,9 @@
 
                     tableBodies.forEach(tbody => {
                         if (filter === 'all' || tbody.dataset.category === filter) {
-                            tbody.classList.remove('hidden');
+                            tbody.style.display = '';
                         } else {
-                            tbody.classList.add('hidden');
+                            tbody.style.display = 'none';
                         }
                     });
                 });
