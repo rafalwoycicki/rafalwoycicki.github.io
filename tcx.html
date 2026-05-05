@@ -6,618 +6,751 @@
   <title>Prosty edytor TCX</title>
   <style>
     :root {
-      --bg: #111827;
-      --panel: #1f2937;
-      --panel2: #263244;
-      --text: #f9fafb;
-      --muted: #9ca3af;
-      --border: #374151;
-      --accent: #60a5fa;
-      --danger: #f87171;
-      --ok: #34d399;
+      --bg:#111827; --panel:#1f2937; --panel2:#263244; --text:#f9fafb;
+      --muted:#9ca3af; --border:#374151; --danger:#f87171; --ok:#34d399;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
-    }
-    header {
-      padding: 22px 28px;
-      border-bottom: 1px solid var(--border);
-      background: #0f172a;
-    }
-    h1 { margin: 0 0 6px; font-size: 24px; }
-    h2 { margin-top: 0; font-size: 18px; }
-    .subtitle { color: var(--muted); font-size: 14px; max-width: 1100px; }
-    main { padding: 20px 28px 40px; display: grid; gap: 18px; }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; align-items: end; }
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
-    input, select, button {
-      width: 100%; border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px 12px; background: #111827; color: var(--text); font-size: 14px;
-    }
-    input[type="file"] { padding: 8px; }
-    button { cursor: pointer; background: #1d4ed8; border-color: #2563eb; font-weight: 600; }
-    button:hover { filter: brightness(1.08); }
-    button.secondary { background: #374151; border-color: #4b5563; }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
-    .status { font-size: 14px; color: var(--muted); margin-top: 10px; white-space: pre-wrap; }
-    .status.ok { color: var(--ok); }
-    .status.error { color: var(--danger); }
-    .small-note { color: var(--muted); font-size: 13px; margin-top: 8px; }
-    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; max-height: 65vh; }
-    table { border-collapse: collapse; width: 100%; min-width: 1150px; background: #111827; }
-    thead { position: sticky; top: 0; z-index: 2; background: var(--panel2); }
-    th, td { border-bottom: 1px solid var(--border); padding: 7px 8px; font-size: 13px; text-align: right; white-space: nowrap; }
-    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
-    td input { width: 110px; padding: 6px 7px; border-radius: 7px; font-size: 13px; text-align: right; background: #0b1220; }
-    td input.time-input { width: 210px; text-align: left; }
-    .pill { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 3px 8px; color: var(--muted); font-size: 12px; margin-right: 6px; margin-top: 6px; }
-    .two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    @media (max-width: 700px) { header, main { padding-left: 14px; padding-right: 14px; } h1 { font-size: 20px; } }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); line-height:1.45; }
+    header { padding:22px 28px; border-bottom:1px solid var(--border); background:#0f172a; }
+    h1 { margin:0 0 6px; font-size:24px; }
+    h2 { margin-top:0; font-size:18px; }
+    .subtitle { color:var(--muted); font-size:14px; max-width:1100px; }
+    main { padding:20px 28px 40px; display:grid; gap:18px; }
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; align-items:end; }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:5px; }
+    input, select, button { width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#111827; color:var(--text); font-size:14px; }
+    input[type="file"] { padding:8px; }
+    button { cursor:pointer; background:#1d4ed8; border-color:#2563eb; font-weight:600; }
+    button.secondary { background:#374151; border-color:#4b5563; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .status { font-size:14px; color:var(--muted); margin-top:10px; white-space:pre-wrap; }
+    .status.ok { color:var(--ok); }
+    .status.error { color:var(--danger); }
+    .small-note { color:var(--muted); font-size:13px; margin-top:8px; }
+    .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:12px; max-height:65vh; }
+    table { border-collapse:collapse; width:100%; min-width:1150px; background:#111827; }
+    thead { position:sticky; top:0; z-index:2; background:var(--panel2); }
+    th, td { border-bottom:1px solid var(--border); padding:7px 8px; font-size:13px; text-align:right; white-space:nowrap; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align:left; }
+    td input { width:110px; padding:6px 7px; border-radius:7px; font-size:13px; text-align:right; background:#0b1220; }
+    td input.time-input { width:210px; text-align:left; }
+    .pill { display:inline-block; border:1px solid var(--border); border-radius:999px; padding:3px 8px; color:var(--muted); font-size:12px; margin-right:6px; margin-top:6px; }
+    .two-buttons { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    @media (max-width:700px) { header, main { padding-left:14px; padding-right:14px; } h1 { font-size:20px; } }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Prosty edytor plików TCX</h1>
-    <div class="subtitle">Wczytaj plik TCX, edytuj punkty w tabeli, zmieniaj zakresy, odwracaj pola, ustawiaj tempo i eksportuj poprawiony plik.</div>
-  </header>
+<header>
+  <h1>Prosty edytor plików TCX</h1>
+  <div class="subtitle">Wczytaj TCX, edytuj punkty, zmieniaj zakresy, odwracaj pola, ustawiaj tempo i eksportuj poprawiony plik.</div>
+</header>
 
-  <main>
-    <section class="card">
-      <div class="grid">
-        <div>
-          <label for="fileInput">Plik TCX</label>
-          <input id="fileInput" type="file" accept=".tcx,.xml,text/xml,application/xml" />
-        </div>
-        <div><label>Liczba punktów</label><input id="pointCount" type="text" value="0" readonly /></div>
-        <div><label>Czas aktywności</label><input id="activityDuration" type="text" value="-" readonly /></div>
-        <div class="two-buttons"><button id="exportBtn" disabled>Eksportuj TCX</button><button id="resetBtn" class="secondary" disabled>Reset</button></div>
-        <div><button id="testFileBtn" class="secondary">Test pliku</button></div>
-      </div>
-      <div id="loadStatus" class="status">Nie wczytano pliku.</div>
-      <div id="debugStatus" class="status">Diagnostyka: skrypt jeszcze nie zgłosił gotowości.</div>
-      <div class="small-note">Prędkość i tempo są wyliczane z różnicy DistanceMeters i Time. Zwykle nie są osobnym polem w TCX.</div>
-    </section>
-
-    <section class="card">
-      <h2>Kontrola spójności TCX</h2>
-      <div class="grid">
-        <div><button id="checkConsistencyBtn" disabled>Sprawdź spójność</button></div>
-        <div><button id="autoFixBtn" class="secondary" disabled>Automatyczna korekta</button></div>
-        <div><button id="checkAndFixBtn" disabled>Sprawdź i popraw</button></div>
-      </div>
-      <div class="small-note">Sprawdza m.in. czasy, dystans, TotalTimeSeconds, DistanceMeters w podsumowaniu, typ Course/Activity, braki HR/GPS/wysokości i nieregularne odstępy.</div>
-      <div id="consistencyStatus" class="status"></div>
-    </section>
-
-    <section class="card">
-      <h2>Modyfikacja zakresu</h2>
-      <div class="grid">
-        <div>
-          <label for="rangeModeSelect">Typ zakresu</label>
-          <select id="rangeModeSelect">
-            <option value="time">Czas treningu / minuty</option>
-            <option value="distance">Dystans / kilometry</option>
-            <option value="altitude">Wysokość / metry</option>
-          </select>
-        </div>
-        <div><label id="fromRangeLabel" for="fromValue">Od minuty</label><input id="fromValue" type="number" step="0.01" value="0" /></div>
-        <div><label id="toRangeLabel" for="toValue">Do minuty</label><input id="toValue" type="number" step="0.01" value="10" /></div>
-        <div>
-          <label for="fieldSelect">Pole</label>
-          <select id="fieldSelect">
-            <option value="heartRate">Tętno</option>
-            <option value="altitude">Wysokość</option>
-            <option value="distance">Dystans</option>
-            <option value="timeShift">Czas - przesunięcie sekund</option>
-            <option value="lat">Szerokość geogr.</option>
-            <option value="lon">Długość geogr.</option>
-          </select>
-        </div>
-        <div>
-          <label for="operationSelect">Operacja</label>
-          <select id="operationSelect">
-            <option value="set">Ustaw stałą wartość</option>
-            <option value="add">Dodaj / odejmij wartość</option>
-            <option value="smooth">Wygładź średnią ruchomą</option>
-          </select>
-        </div>
-        <div><label for="operationValue">Wartość</label><input id="operationValue" type="number" step="0.000001" value="145" /></div>
-        <div><button id="applyRangeBtn" disabled>Zastosuj do zakresu</button></div>
-      </div>
-      <div id="rangeStatus" class="status"></div>
-    </section>
-
-    <section class="card">
-      <h2>Odwracanie kolejności pola</h2>
-      <div class="grid">
-        <div>
-          <label for="reverseFieldSelect">Pole do odwrócenia</label>
-          <select id="reverseFieldSelect">
-            <option value="heartRate">Tętno</option>
-            <option value="altitude">Wysokość</option>
-            <option value="distance">Dystans</option>
-            <option value="lat">Szerokość geogr.</option>
-            <option value="lon">Długość geogr.</option>
-            <option value="position">Pozycja GPS: lat + lon razem</option>
-            <option value="time">Czas</option>
-          </select>
-        </div>
-        <div>
-          <label for="reverseScopeSelect">Zakres</label>
-          <select id="reverseScopeSelect"><option value="all">Cały trening</option><option value="range">Tylko zakres z sekcji powyżej</option></select>
-        </div>
-        <div><button id="reverseFieldBtn" disabled>Odwróć kolejność pola</button></div>
-      </div>
-      <div id="reverseStatus" class="status"></div>
-    </section>
-
-    <section class="card">
-      <h2>Czas punktów i tempo/prędkość</h2>
-      <div class="grid">
-        <div><label for="resampleStepSec">Przepisz punkty co ile sekund</label><input id="resampleStepSec" type="number" step="1" min="1" value="1" /></div>
-        <div><button id="resampleTimeBtn" disabled>Przepisz czasy punktów</button></div>
-        <div><label for="speedValue">Tempo / prędkość</label><input id="speedValue" type="number" step="0.01" min="0" value="5.00" /></div>
-        <div>
-          <label for="speedUnitSelect">Jednostka</label>
-          <select id="speedUnitSelect"><option value="pace">tempo min/km</option><option value="ms">m/s</option><option value="kmh">km/h</option></select>
-        </div>
-        <div>
-          <label for="speedEditModeSelect">Co przeliczyć</label>
-          <select id="speedEditModeSelect"><option value="timeFromDistance">Przelicz czas z dystansu</option><option value="distanceFromTime">Przelicz dystans z czasu</option></select>
-        </div>
-        <div><button id="applySpeedBtn" disabled>Zastosuj tempo / prędkość</button></div>
-      </div>
-      <div class="small-note">Dla Twojego przypadku wybierz zakres „Dystans / kilometry”, np. 0–0.5, tempo 5.00 min/km i tryb „Przelicz czas z dystansu”.</div>
-      <div id="speedStatus" class="status"></div>
-    </section>
-
-    <section class="card">
-      <h2>Tabela punktów Trackpoint</h2>
+<main>
+  <section class="card">
+    <div class="grid">
       <div>
-        <span class="pill">Time</span><span class="pill">Elapsed min</span><span class="pill">Latitude</span><span class="pill">Longitude</span><span class="pill">AltitudeMeters</span><span class="pill">DistanceMeters</span><span class="pill">HeartRateBpm</span><span class="pill">Speed m/s</span><span class="pill">Pace min/km</span>
+        <label for="fileInput">Plik TCX</label>
+        <input id="fileInput" type="file" accept=".tcx,.xml,text/xml,application/xml" />
       </div>
-      <div class="table-wrap" style="margin-top:12px;">
-        <table id="pointsTable">
-          <thead><tr><th>#</th><th>Time</th><th>Elapsed min</th><th>Latitude</th><th>Longitude</th><th>Altitude m</th><th>Distance m</th><th>HR bpm</th><th>Speed m/s</th><th>Pace min/km</th></tr></thead>
-          <tbody></tbody>
-        </table>
+      <div><label>Liczba punktów</label><input id="pointCount" type="text" value="0" readonly /></div>
+      <div><label>Czas aktywności</label><input id="activityDuration" type="text" value="-" readonly /></div>
+      <div class="two-buttons">
+        <button id="exportBtn" disabled>Eksportuj TCX</button>
+        <button id="resetBtn" class="secondary" disabled>Reset</button>
       </div>
-    </section>
-  </main>
+    </div>
+    <div id="loadStatus" class="status">Nie wczytano pliku.</div>
+    <div id="debugStatus" class="status">Diagnostyka: program załadowany.</div>
+    <div class="small-note">Prędkość i tempo są wyliczane z różnicy DistanceMeters i Time.</div>
+  </section>
+
+  <section class="card">
+    <h2>Kontrola spójności TCX</h2>
+    <div class="grid">
+      <div><button id="checkConsistencyBtn" disabled>Sprawdź spójność</button></div>
+      <div><button id="autoFixBtn" class="secondary" disabled>Automatyczna korekta</button></div>
+      <div><button id="checkAndFixBtn" disabled>Sprawdź i popraw</button></div>
+    </div>
+    <div class="small-note">Sprawdza m.in. czasy, dystans, TotalTimeSeconds, DistanceMeters w podsumowaniu, typ Course/Activity, braki HR/GPS/wysokości.</div>
+    <div id="consistencyStatus" class="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Modyfikacja zakresu</h2>
+    <div class="grid">
+      <div>
+        <label for="rangeModeSelect">Typ zakresu</label>
+        <select id="rangeModeSelect">
+          <option value="time">Czas treningu / minuty</option>
+          <option value="distance">Dystans / kilometry</option>
+          <option value="altitude">Wysokość / metry</option>
+        </select>
+      </div>
+      <div><label id="fromRangeLabel" for="fromValue">Od minuty</label><input id="fromValue" type="number" step="0.01" value="0" /></div>
+      <div><label id="toRangeLabel" for="toValue">Do minuty</label><input id="toValue" type="number" step="0.01" value="10" /></div>
+      <div>
+        <label for="fieldSelect">Pole</label>
+        <select id="fieldSelect">
+          <option value="heartRate">Tętno</option>
+          <option value="altitude">Wysokość</option>
+          <option value="distance">Dystans</option>
+          <option value="timeShift">Czas - przesunięcie sekund</option>
+          <option value="lat">Szerokość geogr.</option>
+          <option value="lon">Długość geogr.</option>
+        </select>
+      </div>
+      <div>
+        <label for="operationSelect">Operacja</label>
+        <select id="operationSelect">
+          <option value="set">Ustaw stałą wartość</option>
+          <option value="add">Dodaj / odejmij wartość</option>
+          <option value="smooth">Wygładź średnią ruchomą</option>
+        </select>
+      </div>
+      <div><label for="operationValue">Wartość</label><input id="operationValue" type="number" step="0.000001" value="145" /></div>
+      <div><button id="applyRangeBtn" disabled>Zastosuj do zakresu</button></div>
+    </div>
+    <div id="rangeStatus" class="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Odwracanie kolejności pola</h2>
+    <div class="grid">
+      <div>
+        <label for="reverseFieldSelect">Pole do odwrócenia</label>
+        <select id="reverseFieldSelect">
+          <option value="heartRate">Tętno</option>
+          <option value="altitude">Wysokość</option>
+          <option value="distance">Dystans</option>
+          <option value="lat">Szerokość geogr.</option>
+          <option value="lon">Długość geogr.</option>
+          <option value="position">Pozycja GPS: lat + lon razem</option>
+          <option value="time">Czas</option>
+        </select>
+      </div>
+      <div>
+        <label for="reverseScopeSelect">Zakres</label>
+        <select id="reverseScopeSelect">
+          <option value="all">Cały trening</option>
+          <option value="range">Tylko zakres z sekcji powyżej</option>
+        </select>
+      </div>
+      <div><button id="reverseFieldBtn" disabled>Odwróć kolejność pola</button></div>
+    </div>
+    <div id="reverseStatus" class="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Czas punktów i tempo/prędkość</h2>
+    <div class="grid">
+      <div><label for="resampleStepSec">Przepisz punkty co ile sekund</label><input id="resampleStepSec" type="number" step="1" min="1" value="1" /></div>
+      <div><button id="resampleTimeBtn" disabled>Przepisz czasy punktów</button></div>
+      <div><label for="speedValue">Tempo / prędkość</label><input id="speedValue" type="number" step="0.01" min="0" value="5.00" /></div>
+      <div>
+        <label for="speedUnitSelect">Jednostka</label>
+        <select id="speedUnitSelect">
+          <option value="pace">tempo min/km</option>
+          <option value="ms">m/s</option>
+          <option value="kmh">km/h</option>
+        </select>
+      </div>
+      <div>
+        <label for="speedEditModeSelect">Co przeliczyć</label>
+        <select id="speedEditModeSelect">
+          <option value="timeFromDistance">Przelicz czas z dystansu</option>
+          <option value="distanceFromTime">Przelicz dystans z czasu</option>
+        </select>
+      </div>
+      <div><button id="applySpeedBtn" disabled>Zastosuj tempo / prędkość</button></div>
+    </div>
+    <div class="small-note">Dla zakresu dystansu 0–0.5 km i tempa 5.00 min/km program zmieni Time, a speed/pace przeliczy z danych.</div>
+    <div id="speedStatus" class="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Tabela punktów Trackpoint</h2>
+    <div>
+      <span class="pill">Time</span><span class="pill">Elapsed min</span><span class="pill">Latitude</span><span class="pill">Longitude</span><span class="pill">AltitudeMeters</span><span class="pill">DistanceMeters</span><span class="pill">HeartRateBpm</span><span class="pill">Speed m/s</span><span class="pill">Pace min/km</span>
+    </div>
+    <div class="table-wrap" style="margin-top:12px;">
+      <table id="pointsTable">
+        <thead><tr><th>#</th><th>Time</th><th>Elapsed min</th><th>Latitude</th><th>Longitude</th><th>Altitude m</th><th>Distance m</th><th>HR bpm</th><th>Speed m/s</th><th>Pace min/km</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
 
 <script>
-(() => {
-  let originalText = "";
-  let xmlDoc = null;
-  let trackpoints = [];
-  let fileName = "edited_activity.tcx";
+var originalText = "";
+var xmlDoc = null;
+var trackpoints = [];
+var fileName = "edited_activity.tcx";
 
-  const $ = id => document.getElementById(id);
-  const els = {
-    fileInput: $("fileInput"), pointCount: $("pointCount"), activityDuration: $("activityDuration"),
-    loadStatus: $("loadStatus"), debugStatus: $("debugStatus"), testFileBtn: $("testFileBtn"), exportBtn: $("exportBtn"), resetBtn: $("resetBtn"),
-    checkConsistencyBtn: $("checkConsistencyBtn"), autoFixBtn: $("autoFixBtn"), checkAndFixBtn: $("checkAndFixBtn"), consistencyStatus: $("consistencyStatus"),
-    rangeModeSelect: $("rangeModeSelect"), fromRangeLabel: $("fromRangeLabel"), toRangeLabel: $("toRangeLabel"),
-    fromValue: $("fromValue"), toValue: $("toValue"), fieldSelect: $("fieldSelect"), operationSelect: $("operationSelect"), operationValue: $("operationValue"), applyRangeBtn: $("applyRangeBtn"), rangeStatus: $("rangeStatus"),
-    reverseFieldSelect: $("reverseFieldSelect"), reverseScopeSelect: $("reverseScopeSelect"), reverseFieldBtn: $("reverseFieldBtn"), reverseStatus: $("reverseStatus"),
-    resampleStepSec: $("resampleStepSec"), resampleTimeBtn: $("resampleTimeBtn"), speedValue: $("speedValue"), speedUnitSelect: $("speedUnitSelect"), speedEditModeSelect: $("speedEditModeSelect"), applySpeedBtn: $("applySpeedBtn"), speedStatus: $("speedStatus"),
-    tableBody: document.querySelector("#pointsTable tbody")
-  };
+function byId(id) { return document.getElementById(id); }
 
-  function init() {
-    debug("Skrypt uruchomiony. Jeśli to widzisz, JavaScript działa.");
-    els.fileInput.addEventListener("change", handleFileLoad);
-    els.testFileBtn.addEventListener("click", function () {
-      if (!els.fileInput.files || !els.fileInput.files[0]) {
-        debug("Nie wybrano pliku. Najpierw wybierz plik TCX.");
-        return;
+var fileInput = byId("fileInput");
+var pointCount = byId("pointCount");
+var activityDuration = byId("activityDuration");
+var loadStatus = byId("loadStatus");
+var debugStatus = byId("debugStatus");
+var exportBtn = byId("exportBtn");
+var resetBtn = byId("resetBtn");
+var checkConsistencyBtn = byId("checkConsistencyBtn");
+var autoFixBtn = byId("autoFixBtn");
+var checkAndFixBtn = byId("checkAndFixBtn");
+var consistencyStatus = byId("consistencyStatus");
+var rangeModeSelect = byId("rangeModeSelect");
+var fromRangeLabel = byId("fromRangeLabel");
+var toRangeLabel = byId("toRangeLabel");
+var fromValue = byId("fromValue");
+var toValue = byId("toValue");
+var fieldSelect = byId("fieldSelect");
+var operationSelect = byId("operationSelect");
+var operationValue = byId("operationValue");
+var applyRangeBtn = byId("applyRangeBtn");
+var rangeStatus = byId("rangeStatus");
+var reverseFieldSelect = byId("reverseFieldSelect");
+var reverseScopeSelect = byId("reverseScopeSelect");
+var reverseFieldBtn = byId("reverseFieldBtn");
+var reverseStatus = byId("reverseStatus");
+var resampleStepSec = byId("resampleStepSec");
+var resampleTimeBtn = byId("resampleTimeBtn");
+var speedValue = byId("speedValue");
+var speedUnitSelect = byId("speedUnitSelect");
+var speedEditModeSelect = byId("speedEditModeSelect");
+var applySpeedBtn = byId("applySpeedBtn");
+var speedStatus = byId("speedStatus");
+var tableBody = document.querySelector("#pointsTable tbody");
+
+function debug(msg) {
+  if (debugStatus) debugStatus.textContent += "
+" + msg;
+  console.log(msg);
+}
+
+function init() {
+  debug("JS działa. Inicjalizacja kontrolek OK.");
+  fileInput.addEventListener("change", handleFileLoad);
+  exportBtn.addEventListener("click", exportTCX);
+  resetBtn.addEventListener("click", resetEditor);
+  checkConsistencyBtn.addEventListener("click", function(){ runConsistencyCheck(true); });
+  autoFixBtn.addEventListener("click", function(){ autoFixConsistency(true); });
+  checkAndFixBtn.addEventListener("click", function(){ autoFixConsistency(true); });
+  rangeModeSelect.addEventListener("change", updateRangeLabels);
+  applyRangeBtn.addEventListener("click", applyRangeEdit);
+  reverseFieldBtn.addEventListener("click", reverseSelectedField);
+  resampleTimeBtn.addEventListener("click", resampleTimePoints);
+  applySpeedBtn.addEventListener("click", applySpeedToRange);
+  updateRangeLabels();
+}
+
+function enableButtons(active) {
+  var buttons = [exportBtn, resetBtn, checkConsistencyBtn, autoFixBtn, checkAndFixBtn, applyRangeBtn, reverseFieldBtn, resampleTimeBtn, applySpeedBtn];
+  for (var i = 0; i < buttons.length; i++) buttons[i].disabled = !active;
+}
+
+function handleFileLoad(event) {
+  try {
+    var file = event.target.files[0];
+    if (!file) return;
+    debug("Wybrano plik: " + file.name + ", " + file.size + " bajtów.");
+    fileName = file.name.replace(/\.tcx$/i, "") + "_edited.tcx";
+    var reader = new FileReader();
+    reader.onload = function() {
+      try {
+        originalText = String(reader.result || "");
+        debug("Odczytano znaków: " + originalText.length);
+        parseTCX(originalText);
+      } catch (e) {
+        setStatus(loadStatus, "Błąd po odczycie: " + e.message, "error");
+        debug("Błąd po odczycie: " + e.message);
       }
-      debug("Test pliku uruchomiony ręcznie.");
-      handleFileLoad({ target: els.fileInput });
-    });
-    els.exportBtn.addEventListener("click", exportTCX);
-    els.resetBtn.addEventListener("click", resetEditor);
-    els.checkConsistencyBtn.addEventListener("click", () => runConsistencyCheck(true));
-    els.autoFixBtn.addEventListener("click", () => autoFixConsistency(true));
-    els.checkAndFixBtn.addEventListener("click", () => { autoFixConsistency(true); });
-    els.rangeModeSelect.addEventListener("change", updateRangeLabels);
-    els.applyRangeBtn.addEventListener("click", applyRangeEdit);
-    els.reverseFieldBtn.addEventListener("click", reverseSelectedField);
-    els.resampleTimeBtn.addEventListener("click", resampleTimePoints);
-    els.applySpeedBtn.addEventListener("click", applySpeedToRange);
-    updateRangeLabels();
-  }
-
-  function enableButtons(on) {
-    [els.exportBtn, els.resetBtn, els.checkConsistencyBtn, els.autoFixBtn, els.checkAndFixBtn, els.applyRangeBtn, els.reverseFieldBtn, els.resampleTimeBtn, els.applySpeedBtn].forEach(b => b.disabled = !on);
-  }
-
-  function handleFileLoad(event) {
-    try {
-      debug("handleFileLoad: rozpoczęto.");
-      const file = event.target.files[0];
-      if (!file) {
-        debug("handleFileLoad: brak pliku.");
-        return;
-      }
-      debug("Wybrano plik: " + file.name + ", rozmiar: " + file.size + " bajtów.");
-      fileName = file.name.replace(/\.tcx$/i, "") + "_edited.tcx";
-      const reader = new FileReader();
-      reader.onload = function () {
-        try {
-          originalText = String(reader.result || "");
-          debug("FileReader: odczytano " + originalText.length + " znaków. Pierwsze znaki: " + originalText.slice(0, 40));
-          parseTCX(originalText);
-        } catch (e) {
-          debug("Błąd po odczycie pliku: " + e.message);
-          setStatus(els.loadStatus, "Błąd po odczycie pliku: " + e.message, "error");
-        }
-      };
-      reader.onerror = function () {
-        debug("FileReader error.");
-        setStatus(els.loadStatus, "Nie udało się odczytać pliku.", "error");
-      };
-      reader.readAsText(file);
-    } catch (e) {
-      debug("handleFileLoad error: " + e.message);
-      setStatus(els.loadStatus, "Błąd wczytywania: " + e.message, "error");
-    }
-  }
-
-  function parseTCX(text) {
-    try {
-      debug("parseTCX: start.");
-      const parser = new DOMParser();
-      xmlDoc = parser.parseFromString(text, "application/xml");
-      if (xmlDoc.querySelector("parsererror")) {
-        debug("parseTCX: parsererror.");
-        throw new Error("Błąd parsowania XML/TCX.");
-      }
-      let nodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Trackpoint"));
-      debug("Trackpoint przez namespace: " + nodes.length);
-      if (nodes.length === 0) {
-        nodes = Array.from(xmlDoc.getElementsByTagName("Trackpoint"));
-        debug("Trackpoint bez namespace: " + nodes.length);
-      }
-      if (nodes.length === 0) {
-        const allElements = Array.from(xmlDoc.getElementsByTagName("*")).slice(0, 20).map(function (x) { return x.localName || x.nodeName; }).join(", ");
-        throw new Error("Nie znaleziono elementów Trackpoint. Pierwsze elementy XML: " + allElements);
-      }
-      trackpoints = nodes.map((node, index) => readTrackpoint(node, index));
-      debug("Zbudowano tablicę trackpoints: " + trackpoints.length);
-      updateDerivedValues();
-      renderTable();
-      updateSummary();
-      enableButtons(true);
-      debug("Przyciski aktywowane.");
-      setStatus(els.loadStatus, `Wczytano plik: ${fileName.replace("_edited.tcx", ".tcx")}`, "ok");
-      runConsistencyCheck(true);
-    } catch (e) {
-      enableButtons(false);
-      setStatus(els.loadStatus, `Błąd: ${e.message}`, "error");
-      console.error(e);
-    }
-  }
-
-  function readTrackpoint(node, index) {
-    const timeText = getChildText(node, "Time");
-    return {
-      index, node, time: timeText || "", timeDate: timeText ? new Date(timeText) : null,
-      elapsedMin: 0,
-      lat: parseMaybeNumber(getNestedText(node, ["Position", "LatitudeDegrees"])),
-      lon: parseMaybeNumber(getNestedText(node, ["Position", "LongitudeDegrees"])),
-      altitude: parseMaybeNumber(getChildText(node, "AltitudeMeters")),
-      distance: parseMaybeNumber(getChildText(node, "DistanceMeters")),
-      heartRate: parseMaybeNumber(getNestedText(node, ["HeartRateBpm", "Value"])),
-      speed: null, pace: null
     };
+    reader.onerror = function() { setStatus(loadStatus, "Nie udało się odczytać pliku.", "error"); };
+    reader.readAsText(file);
+  } catch (e) {
+    setStatus(loadStatus, "Błąd wczytywania: " + e.message, "error");
+    debug("Błąd wczytywania: " + e.message);
   }
+}
 
-  function updateDerivedValues() {
-    if (!trackpoints.length) return;
-    const firstValid = trackpoints.find(tp => tp.timeDate instanceof Date && !isNaN(tp.timeDate));
-    const startMs = firstValid ? firstValid.timeDate.getTime() : null;
-    for (let i = 0; i < trackpoints.length; i++) {
-      const tp = trackpoints[i];
-      tp.index = i;
-      tp.elapsedMin = startMs !== null && tp.timeDate instanceof Date && !isNaN(tp.timeDate) ? (tp.timeDate.getTime() - startMs) / 60000 : i / 60;
-      if (i > 0) {
-        const prev = trackpoints[i - 1];
-        const dt = secondsBetween(prev.timeDate, tp.timeDate);
-        const dd = tp.distance !== null && prev.distance !== null ? tp.distance - prev.distance : NaN;
-        tp.speed = dt > 0 && isFinite(dd) ? dd / dt : null;
-        tp.pace = tp.speed > 0 ? 1000 / tp.speed / 60 : null;
-      } else { tp.speed = null; tp.pace = null; }
+function parseTCX(text) {
+  var parser = new DOMParser();
+  xmlDoc = parser.parseFromString(text, "application/xml");
+  if (xmlDoc.getElementsByTagName("parsererror").length > 0) throw new Error("Błąd parsowania XML/TCX.");
+
+  var nodes = Array.prototype.slice.call(xmlDoc.getElementsByTagNameNS("*", "Trackpoint"));
+  if (nodes.length === 0) nodes = Array.prototype.slice.call(xmlDoc.getElementsByTagName("Trackpoint"));
+  debug("Znaleziono Trackpoint: " + nodes.length);
+  if (nodes.length === 0) throw new Error("Nie znaleziono Trackpoint.");
+
+  trackpoints = [];
+  for (var i = 0; i < nodes.length; i++) trackpoints.push(readTrackpoint(nodes[i], i));
+  updateDerivedValues();
+  renderTable();
+  updateSummary();
+  enableButtons(true);
+  setStatus(loadStatus, "Wczytano plik: " + fileName.replace("_edited.tcx", ".tcx"), "ok");
+  runConsistencyCheck(true);
+}
+
+function readTrackpoint(node, index) {
+  var timeText = getChildText(node, "Time");
+  return {
+    index:index, node:node, time:timeText || "", timeDate:timeText ? new Date(timeText) : null,
+    elapsedMin:0,
+    lat:parseMaybeNumber(getNestedText(node, ["Position", "LatitudeDegrees"])),
+    lon:parseMaybeNumber(getNestedText(node, ["Position", "LongitudeDegrees"])),
+    altitude:parseMaybeNumber(getChildText(node, "AltitudeMeters")),
+    distance:parseMaybeNumber(getChildText(node, "DistanceMeters")),
+    heartRate:parseMaybeNumber(getNestedText(node, ["HeartRateBpm", "Value"])),
+    speed:null, pace:null
+  };
+}
+
+function updateDerivedValues() {
+  if (trackpoints.length === 0) return;
+  var startMs = null;
+  for (var s = 0; s < trackpoints.length; s++) {
+    if (trackpoints[s].timeDate instanceof Date && !isNaN(trackpoints[s].timeDate)) { startMs = trackpoints[s].timeDate.getTime(); break; }
+  }
+  for (var i = 0; i < trackpoints.length; i++) {
+    var tp = trackpoints[i];
+    tp.index = i;
+    tp.elapsedMin = startMs !== null && tp.timeDate instanceof Date && !isNaN(tp.timeDate) ? (tp.timeDate.getTime() - startMs) / 60000 : i / 60;
+    if (i > 0) {
+      var prev = trackpoints[i - 1];
+      var dt = secondsBetween(prev.timeDate, tp.timeDate);
+      var dd = isFiniteNumber(tp.distance) && isFiniteNumber(prev.distance) ? tp.distance - prev.distance : NaN;
+      tp.speed = dt > 0 && isFinite(dd) ? dd / dt : null;
+      tp.pace = tp.speed > 0 ? 1000 / tp.speed / 60 : null;
+    } else {
+      tp.speed = null;
+      tp.pace = null;
     }
   }
+}
 
-  function renderTable() {
-    els.tableBody.innerHTML = "";
-    for (const tp of trackpoints) {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${tp.index + 1}</td>
-        <td><input class="time-input" data-index="${tp.index}" data-field="time" value="${escapeHtml(tp.time)}"></td>
-        <td>${formatNumber(tp.elapsedMin, 3)}</td>
-        <td><input data-index="${tp.index}" data-field="lat" value="${formatInput(tp.lat)}"></td>
-        <td><input data-index="${tp.index}" data-field="lon" value="${formatInput(tp.lon)}"></td>
-        <td><input data-index="${tp.index}" data-field="altitude" value="${formatInput(tp.altitude)}"></td>
-        <td><input data-index="${tp.index}" data-field="distance" value="${formatInput(tp.distance)}"></td>
-        <td><input data-index="${tp.index}" data-field="heartRate" value="${formatInput(tp.heartRate)}"></td>
-        <td>${formatNumber(tp.speed, 3)}</td>
-        <td>${formatNumber(tp.pace, 2)}</td>`;
-      els.tableBody.appendChild(row);
-    }
-    els.tableBody.querySelectorAll("input").forEach(input => input.addEventListener("change", handleCellEdit));
+function renderTable() {
+  tableBody.innerHTML = "";
+  for (var i = 0; i < trackpoints.length; i++) {
+    var tp = trackpoints[i];
+    var row = document.createElement("tr");
+    row.innerHTML =
+      "<td>" + (tp.index + 1) + "</td>" +
+      "<td><input class='time-input' data-index='" + tp.index + "' data-field='time' value='" + escapeHtml(tp.time) + "'></td>" +
+      "<td>" + formatNumber(tp.elapsedMin, 3) + "</td>" +
+      "<td><input data-index='" + tp.index + "' data-field='lat' value='" + formatInput(tp.lat) + "'></td>" +
+      "<td><input data-index='" + tp.index + "' data-field='lon' value='" + formatInput(tp.lon) + "'></td>" +
+      "<td><input data-index='" + tp.index + "' data-field='altitude' value='" + formatInput(tp.altitude) + "'></td>" +
+      "<td><input data-index='" + tp.index + "' data-field='distance' value='" + formatInput(tp.distance) + "'></td>" +
+      "<td><input data-index='" + tp.index + "' data-field='heartRate' value='" + formatInput(tp.heartRate) + "'></td>" +
+      "<td>" + formatNumber(tp.speed, 3) + "</td>" +
+      "<td>" + formatNumber(tp.pace, 2) + "</td>";
+    tableBody.appendChild(row);
   }
+  var inputs = tableBody.querySelectorAll("input");
+  for (var j = 0; j < inputs.length; j++) inputs[j].addEventListener("change", handleCellEdit);
+}
 
-  function handleCellEdit(event) {
-    const input = event.target;
-    const tp = trackpoints[Number(input.dataset.index)];
-    const field = input.dataset.field;
-    if (!tp) return;
-    if (field === "time") { tp.time = input.value.trim(); tp.timeDate = new Date(tp.time); }
-    else { tp[field] = parseMaybeNumber(input.value); }
-    writeTrackpointToXml(tp); updateDerivedValues(); renderTable(); updateSummary();
-  }
+function handleCellEdit(event) {
+  var input = event.target;
+  var tp = trackpoints[Number(input.getAttribute("data-index"))];
+  var field = input.getAttribute("data-field");
+  if (!tp) return;
+  if (field === "time") { tp.time = input.value.trim(); tp.timeDate = new Date(tp.time); }
+  else { tp[field] = parseMaybeNumber(input.value); }
+  writeTrackpointToXml(tp);
+  updateDerivedValues(); renderTable(); updateSummary();
+}
 
-  function updateSummary() {
-    els.pointCount.value = String(trackpoints.length);
-    if (trackpoints.length < 2) { els.activityDuration.value = "-"; return; }
-    const durationSec = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
-    els.activityDuration.value = isFinite(durationSec) ? `${formatNumber(durationSec / 60, 2)} min` : "-";
-  }
+function updateSummary() {
+  pointCount.value = String(trackpoints.length);
+  if (trackpoints.length < 2) { activityDuration.value = "-"; return; }
+  var durationSec = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
+  activityDuration.value = isFinite(durationSec) ? formatNumber(durationSec / 60, 2) + " min" : "-";
+}
 
-  function applyRangeEdit() {
-    const rangeMode = els.rangeModeSelect.value;
-    const from = Number(els.fromValue.value), to = Number(els.toValue.value);
-    const field = els.fieldSelect.value, op = els.operationSelect.value, value = Number(els.operationValue.value);
-    if (!isFinite(from) || !isFinite(to) || from > to) return setStatus(els.rangeStatus, "Nieprawidłowy zakres.", "error");
-    const selected = getSelectedTrackpointsByRange(rangeMode, from, to);
-    if (!selected.length) return setStatus(els.rangeStatus, "Brak punktów w wybranym zakresie.", "error");
-    if (op !== "smooth" && !isFinite(value)) return setStatus(els.rangeStatus, "Nieprawidłowa wartość.", "error");
-    if (op === "smooth") smoothField(selected, field, Math.max(3, Math.round(value || 5)));
-    else for (const tp of selected) {
+function applyRangeEdit() {
+  var rangeMode = rangeModeSelect.value;
+  var from = Number(fromValue.value);
+  var to = Number(toValue.value);
+  var field = fieldSelect.value;
+  var op = operationSelect.value;
+  var value = Number(operationValue.value);
+  if (!isFinite(from) || !isFinite(to) || from > to) return setStatus(rangeStatus, "Nieprawidłowy zakres.", "error");
+  var selected = getSelectedTrackpointsByRange(rangeMode, from, to);
+  if (selected.length === 0) return setStatus(rangeStatus, "Brak punktów w wybranym zakresie.", "error");
+  if (op !== "smooth" && !isFinite(value)) return setStatus(rangeStatus, "Nieprawidłowa wartość.", "error");
+
+  if (op === "smooth") smoothField(selected, field, Math.max(3, Math.round(value || 5)));
+  else {
+    for (var i = 0; i < selected.length; i++) {
+      var tp = selected[i];
       if (field === "timeShift") shiftTime(tp, value);
       else tp[field] = op === "set" ? value : safeNumber(tp[field]) + value;
     }
-    updateDerivedValues(); selected.forEach(writeTrackpointToXml); renderTable(); updateSummary();
-    setStatus(els.rangeStatus, `Zmieniono ${selected.length} punktów w zakresie ${formatRangeDescription(rangeMode, from, to)}.`, "ok");
   }
+  updateDerivedValues();
+  for (var k = 0; k < selected.length; k++) writeTrackpointToXml(selected[k]);
+  renderTable(); updateSummary();
+  setStatus(rangeStatus, "Zmieniono " + selected.length + " punktów w zakresie " + formatRangeDescription(rangeMode, from, to) + ".", "ok");
+}
 
-  function reverseSelectedField() {
-    const field = els.reverseFieldSelect.value, scope = els.reverseScopeSelect.value;
-    let selected = trackpoints;
-    if (scope === "range") {
-      const from = Number(els.fromValue.value), to = Number(els.toValue.value);
-      selected = getSelectedTrackpointsByRange(els.rangeModeSelect.value, from, to);
-    }
-    if (selected.length < 2) return setStatus(els.reverseStatus, "Do odwrócenia potrzeba co najmniej dwóch punktów.", "error");
-    if (field === "position") {
-      const vals = selected.map(tp => ({ lat: tp.lat, lon: tp.lon })).reverse();
-      selected.forEach((tp, i) => { tp.lat = vals[i].lat; tp.lon = vals[i].lon; });
-    } else if (field === "time") {
-      const vals = selected.map(tp => ({ time: tp.time, timeDate: tp.timeDate })).reverse();
-      selected.forEach((tp, i) => { tp.time = vals[i].time; tp.timeDate = vals[i].timeDate; });
-    } else {
-      const vals = selected.map(tp => tp[field]).reverse();
-      selected.forEach((tp, i) => { tp[field] = vals[i]; });
-    }
-    updateDerivedValues(); selected.forEach(writeTrackpointToXml); renderTable(); updateSummary();
-    setStatus(els.reverseStatus, "Odwrócono kolejność pola.", "ok");
+function reverseSelectedField() {
+  var field = reverseFieldSelect.value;
+  var selected = trackpoints;
+  if (reverseScopeSelect.value === "range") selected = getSelectedTrackpointsByRange(rangeModeSelect.value, Number(fromValue.value), Number(toValue.value));
+  if (selected.length < 2) return setStatus(reverseStatus, "Do odwrócenia potrzeba co najmniej dwóch punktów.", "error");
+  if (field === "position") {
+    var positions = [];
+    for (var i = selected.length - 1; i >= 0; i--) positions.push({lat:selected[i].lat, lon:selected[i].lon});
+    for (var p = 0; p < selected.length; p++) { selected[p].lat = positions[p].lat; selected[p].lon = positions[p].lon; }
+  } else if (field === "time") {
+    var times = [];
+    for (var t = selected.length - 1; t >= 0; t--) times.push({time:selected[t].time, timeDate:selected[t].timeDate});
+    for (var q = 0; q < selected.length; q++) { selected[q].time = times[q].time; selected[q].timeDate = times[q].timeDate; }
+  } else {
+    var values = [];
+    for (var v = selected.length - 1; v >= 0; v--) values.push(selected[v][field]);
+    for (var x = 0; x < selected.length; x++) selected[x][field] = values[x];
   }
+  updateDerivedValues();
+  for (var w = 0; w < selected.length; w++) writeTrackpointToXml(selected[w]);
+  renderTable(); updateSummary();
+  setStatus(reverseStatus, "Odwrócono kolejność pola.", "ok");
+}
 
-  function resampleTimePoints() {
-    const step = Number(els.resampleStepSec.value);
-    if (!isFinite(step) || step <= 0) return setStatus(els.speedStatus, "Podaj poprawny odstęp w sekundach.", "error");
-    const first = trackpoints[0];
-    if (!first || !(first.timeDate instanceof Date) || isNaN(first.timeDate)) return setStatus(els.speedStatus, "Pierwszy punkt nie ma poprawnego czasu.", "error");
-    const startMs = first.timeDate.getTime();
-    trackpoints.forEach((tp, i) => { const d = new Date(startMs + i * step * 1000); tp.timeDate = d; tp.time = isoNoMillis(d); writeTrackpointToXml(tp); });
-    updateDerivedValues(); renderTable(); updateSummary();
-    setStatus(els.speedStatus, `Przepisano czasy punktów co ${step} s.`, "ok");
+function resampleTimePoints() {
+  var step = Number(resampleStepSec.value);
+  if (!isFinite(step) || step <= 0) return setStatus(speedStatus, "Podaj poprawny odstęp w sekundach.", "error");
+  var first = trackpoints[0];
+  if (!first || !(first.timeDate instanceof Date) || isNaN(first.timeDate)) return setStatus(speedStatus, "Pierwszy punkt nie ma poprawnego czasu.", "error");
+  var startMs = first.timeDate.getTime();
+  for (var i = 0; i < trackpoints.length; i++) {
+    var d = new Date(startMs + i * step * 1000);
+    trackpoints[i].timeDate = d;
+    trackpoints[i].time = isoNoMillis(d);
+    writeTrackpointToXml(trackpoints[i]);
   }
+  updateDerivedValues(); renderTable(); updateSummary();
+  setStatus(speedStatus, "Przepisano czasy punktów co " + step + " s.", "ok");
+}
 
-  function applySpeedToRange() {
-    const rangeMode = els.rangeModeSelect.value;
-    const from = Number(els.fromValue.value), to = Number(els.toValue.value);
-    const speedInput = Number(els.speedValue.value), unit = els.speedUnitSelect.value, editMode = els.speedEditModeSelect.value;
-    if (!isFinite(from) || !isFinite(to) || from > to) return setStatus(els.speedStatus, "Nieprawidłowy zakres.", "error");
-    if (!isFinite(speedInput) || speedInput <= 0) return setStatus(els.speedStatus, "Podaj poprawne tempo/prędkość.", "error");
-    const selected = getSelectedTrackpointsByRange(rangeMode, from, to);
-    if (selected.length < 2) return setStatus(els.speedStatus, "Potrzeba co najmniej dwóch punktów w zakresie.", "error");
-    const speedMs = convertSpeedToMetersPerSecond(speedInput, unit);
-    if (editMode === "timeFromDistance") {
-      if (rangeMode !== "distance") return setStatus(els.speedStatus, "Dla tego trybu wybierz zakres: Dystans / kilometry.", "error");
+function applySpeedToRange() {
+  try {
+    var rangeMode = rangeModeSelect.value;
+    var from = Number(fromValue.value);
+    var to = Number(toValue.value);
+    var speedInput = Number(speedValue.value);
+    var unit = speedUnitSelect.value;
+    var mode = speedEditModeSelect.value;
+    if (!isFinite(from) || !isFinite(to) || from > to) return setStatus(speedStatus, "Nieprawidłowy zakres.", "error");
+    if (!isFinite(speedInput) || speedInput <= 0) return setStatus(speedStatus, "Podaj poprawne tempo/prędkość.", "error");
+    var selected = getSelectedTrackpointsByRange(rangeMode, from, to);
+    if (selected.length < 2) return setStatus(speedStatus, "Potrzeba co najmniej dwóch punktów w zakresie.", "error");
+    var speedMs = convertSpeedToMetersPerSecond(speedInput, unit);
+    if (mode === "timeFromDistance") {
+      if (rangeMode !== "distance") return setStatus(speedStatus, "Dla tego trybu wybierz zakres: Dystans / kilometry.", "error");
       applySpeedByChangingTime(selected, speedMs);
-    } else applySpeedByChangingDistance(selected, speedMs);
-    updateDerivedValues(); trackpoints.forEach(writeTrackpointToXml); renderTable(); updateSummary();
-    setStatus(els.speedStatus, `Zastosowano ${speedInput} ${formatSpeedUnit(unit)}.`, "ok");
-  }
-
-  function applySpeedByChangingTime(selected, speedMs) {
-    const first = selected[0], last = selected[selected.length - 1];
-    if (first.distance === null || !isFinite(first.distance)) throw new Error("Brak dystansu w pierwszym punkcie.");
-    const oldLast = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
-    selected.forEach(tp => {
-      if (tp.distance === null || !isFinite(tp.distance)) return;
-      const newDate = new Date(first.timeDate.getTime() + ((tp.distance - first.distance) / speedMs) * 1000);
-      tp.timeDate = newDate; tp.time = isoNoMillis(newDate);
-    });
-    const newLast = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
-    if (oldLast !== null && newLast !== null) {
-      const offset = newLast - oldLast;
-      for (let i = last.index + 1; i < trackpoints.length; i++) {
-        if (trackpoints[i].timeDate instanceof Date && !isNaN(trackpoints[i].timeDate)) {
-          const d = new Date(trackpoints[i].timeDate.getTime() + offset);
-          trackpoints[i].timeDate = d; trackpoints[i].time = isoNoMillis(d);
-        }
-      }
+    } else {
+      applySpeedByChangingDistance(selected, speedMs);
     }
-  }
-
-  function applySpeedByChangingDistance(selected, speedMs) {
-    const first = selected[0];
-    const firstDistance = first.distance !== null && isFinite(first.distance) ? first.distance : 0;
-    selected.forEach(tp => { const dt = secondsBetween(first.timeDate, tp.timeDate); if (isFinite(dt)) tp.distance = firstDistance + speedMs * dt; });
-    const last = selected[selected.length - 1], next = trackpoints[last.index + 1];
-    if (next && isFinite(next.distance) && isFinite(last.distance)) {
-      const offset = last.distance - next.distance;
-      for (let i = last.index + 1; i < trackpoints.length; i++) if (isFinite(trackpoints[i].distance)) trackpoints[i].distance += offset;
-    }
-  }
-
-  function runConsistencyCheck(show) {
-    const report = checkConsistency();
-    if (show) setStatus(els.consistencyStatus, formatConsistencyReport(report), report.errors.length ? "error" : report.warnings.length ? "" : "ok");
-    return report;
-  }
-
-  function checkConsistency() {
-    const errors = [], warnings = [], info = [];
-    if (!xmlDoc || !trackpoints.length) { errors.push("Brak pliku lub Trackpoint."); return { errors, warnings, info }; }
-    const activities = xmlDoc.getElementsByTagNameNS("*", "Activity").length;
-    const courses = xmlDoc.getElementsByTagNameNS("*", "Course").length;
-    if (activities) info.push(`Typ pliku: Activity (${activities}).`);
-    if (courses) warnings.push(`Typ pliku: Course (${courses}). To może być trasa/kurs, nie pełna aktywność.`);
-    let timeBack = 0, timeSame = 0, distBack = 0, missHr = 0, missGps = 0, missAlt = 0, missDist = 0;
-    const intervals = [];
-    for (let i = 0; i < trackpoints.length; i++) {
-      const tp = trackpoints[i];
-      if (!isFinite(tp.distance)) missDist++;
-      if (!isFinite(tp.altitude)) missAlt++;
-      if (!isFinite(tp.lat) || !isFinite(tp.lon)) missGps++;
-      if (!isFinite(tp.heartRate)) missHr++;
-      if (i > 0) {
-        const prev = trackpoints[i - 1], dt = secondsBetween(prev.timeDate, tp.timeDate);
-        if (isFinite(dt)) { intervals.push(dt); if (dt < 0) timeBack++; if (dt === 0) timeSame++; }
-        if (isFinite(prev.distance) && isFinite(tp.distance) && tp.distance < prev.distance) distBack++;
-      }
-    }
-    if (timeBack) errors.push(`Czas cofa się w ${timeBack} miejscach.`);
-    if (timeSame) warnings.push(`Ten sam czas w ${timeSame} sąsiednich parach.`);
-    if (distBack) warnings.push(`Dystans cofa się w ${distBack} miejscach.`);
-    if (missDist) warnings.push(`Brak DistanceMeters w ${missDist} punktach.`);
-    if (missAlt) warnings.push(`Brak AltitudeMeters w ${missAlt} punktach.`);
-    if (missGps) warnings.push(`Brak pełnej pozycji GPS w ${missGps} punktach.`);
-    if (missHr) warnings.push(`Brak HeartRateBpm w ${missHr} punktach.`);
-    const pos = intervals.filter(x => x > 0);
-    if (pos.length) info.push(`Odstępy czasu: min ${formatNumber(Math.min(...pos), 3)} s, średnio ${formatNumber(average(pos), 3)} s, max ${formatNumber(Math.max(...pos), 3)} s.`);
-    const duration = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
-    const dist = getTotalDistanceFromPoints();
-    if (isFinite(duration)) info.push(`Czas z Trackpoint: ${formatNumber(duration, 3)} s (${formatNumber(duration / 60, 2)} min).`);
-    if (isFinite(dist)) info.push(`Ostatni DistanceMeters: ${formatNumber(dist, 3)} m.`);
-    for (const n of Array.from(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"))) {
-      const v = parseMaybeNumber(n.textContent); if (isFinite(duration) && v !== null && Math.abs(v - duration) > 1) warnings.push(`TotalTimeSeconds (${formatNumber(v, 3)} s) nie zgadza się z Trackpoint (${formatNumber(duration, 3)} s).`);
-    }
-    for (const n of findSummaryDistanceNodes()) {
-      const v = parseMaybeNumber(n.textContent); if (isFinite(dist) && v !== null && Math.abs(v - dist) > 2) warnings.push(`Podsumowanie DistanceMeters (${formatNumber(v, 3)} m) nie zgadza się z Trackpoint (${formatNumber(dist, 3)} m).`);
-    }
-    return { errors, warnings, info };
-  }
-
-  function autoFixConsistency(show) {
-    if (!xmlDoc || !trackpoints.length) return;
-    const actions = [];
-    const duration = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
-    const dist = getTotalDistanceFromPoints();
-    if (isFinite(duration)) for (const n of Array.from(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"))) { if (Math.abs(parseMaybeNumber(n.textContent) - duration) > 0.001) { n.textContent = String(duration); actions.push(`TotalTimeSeconds -> ${formatNumber(duration, 3)} s`); } }
-    if (isFinite(dist)) for (const n of findSummaryDistanceNodes()) { if (Math.abs(parseMaybeNumber(n.textContent) - dist) > 0.001) { n.textContent = String(dist); actions.push(`DistanceMeters w podsumowaniu -> ${formatNumber(dist, 3)} m`); } }
-    const firstTime = trackpoints[0].time;
-    Array.from(xmlDoc.getElementsByTagNameNS("*", "Lap")).forEach(lap => { if (lap.hasAttribute("StartTime") && lap.getAttribute("StartTime") !== firstTime) { lap.setAttribute("StartTime", firstTime); actions.push("Lap StartTime poprawiony"); } });
-    trackpoints.forEach(writeTrackpointToXml);
+    updateDerivedValues();
+    for (var i = 0; i < trackpoints.length; i++) writeTrackpointToXml(trackpoints[i]);
     renderTable(); updateSummary();
-    const report = checkConsistency();
-    if (show) setStatus(els.consistencyStatus, `${actions.length ? "Wykonano:
+    setStatus(speedStatus, "Zastosowano " + speedInput + " " + formatSpeedUnit(unit) + ".", "ok");
+  } catch (e) {
+    setStatus(speedStatus, "Błąd: " + e.message, "error");
+  }
+}
+
+function applySpeedByChangingTime(selected, speedMs) {
+  var first = selected[0];
+  var last = selected[selected.length - 1];
+  if (!isFiniteNumber(first.distance)) throw new Error("Brak dystansu w pierwszym punkcie.");
+  if (!(first.timeDate instanceof Date) || isNaN(first.timeDate)) throw new Error("Brak czasu w pierwszym punkcie.");
+  var oldLastMs = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
+  for (var i = 0; i < selected.length; i++) {
+    var tp = selected[i];
+    if (!isFiniteNumber(tp.distance)) continue;
+    var newDate = new Date(first.timeDate.getTime() + ((tp.distance - first.distance) / speedMs) * 1000);
+    tp.timeDate = newDate;
+    tp.time = isoNoMillis(newDate);
+  }
+  var newLastMs = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
+  if (oldLastMs !== null && newLastMs !== null) {
+    var offset = newLastMs - oldLastMs;
+    for (var j = last.index + 1; j < trackpoints.length; j++) {
+      if (trackpoints[j].timeDate instanceof Date && !isNaN(trackpoints[j].timeDate)) {
+        var d = new Date(trackpoints[j].timeDate.getTime() + offset);
+        trackpoints[j].timeDate = d;
+        trackpoints[j].time = isoNoMillis(d);
+      }
+    }
+  }
+}
+
+function applySpeedByChangingDistance(selected, speedMs) {
+  var first = selected[0];
+  var firstDistance = isFiniteNumber(first.distance) ? first.distance : 0;
+  for (var i = 0; i < selected.length; i++) {
+    var dt = secondsBetween(first.timeDate, selected[i].timeDate);
+    if (isFinite(dt)) selected[i].distance = firstDistance + speedMs * dt;
+  }
+  var last = selected[selected.length - 1];
+  var next = trackpoints[last.index + 1];
+  if (next && isFiniteNumber(next.distance) && isFiniteNumber(last.distance)) {
+    var offset = last.distance - next.distance;
+    for (var j = last.index + 1; j < trackpoints.length; j++) if (isFiniteNumber(trackpoints[j].distance)) trackpoints[j].distance += offset;
+  }
+}
+
+function runConsistencyCheck(show) {
+  var r = checkConsistency();
+  if (show) setStatus(consistencyStatus, formatConsistencyReport(r), r.errors.length ? "error" : r.warnings.length ? "" : "ok");
+  return r;
+}
+
+function checkConsistency() {
+  var errors = [], warnings = [], info = [];
+  if (!xmlDoc || trackpoints.length === 0) { errors.push("Brak pliku lub Trackpoint."); return {errors:errors, warnings:warnings, info:info}; }
+  var activities = xmlDoc.getElementsByTagNameNS("*", "Activity").length;
+  var courses = xmlDoc.getElementsByTagNameNS("*", "Course").length;
+  if (activities) info.push("Typ pliku: Activity (" + activities + ").");
+  if (courses) warnings.push("Typ pliku: Course (" + courses + "). To może być trasa/kurs, nie pełna aktywność.");
+
+  var timeBack = 0, sameTime = 0, distBack = 0, missDist = 0, missAlt = 0, missGps = 0, missHr = 0;
+  var intervals = [];
+  for (var i = 0; i < trackpoints.length; i++) {
+    var tp = trackpoints[i];
+    if (!isFiniteNumber(tp.distance)) missDist++;
+    if (!isFiniteNumber(tp.altitude)) missAlt++;
+    if (!isFiniteNumber(tp.lat) || !isFiniteNumber(tp.lon)) missGps++;
+    if (!isFiniteNumber(tp.heartRate)) missHr++;
+    if (i > 0) {
+      var prev = trackpoints[i - 1];
+      var dt = secondsBetween(prev.timeDate, tp.timeDate);
+      if (isFinite(dt)) { intervals.push(dt); if (dt < 0) timeBack++; if (dt === 0) sameTime++; }
+      if (isFiniteNumber(prev.distance) && isFiniteNumber(tp.distance) && tp.distance < prev.distance) distBack++;
+    }
+  }
+  if (timeBack) errors.push("Czas cofa się w " + timeBack + " miejscach.");
+  if (sameTime) warnings.push("Ten sam czas w " + sameTime + " sąsiednich parach.");
+  if (distBack) warnings.push("Dystans cofa się w " + distBack + " miejscach.");
+  if (missDist) warnings.push("Brak DistanceMeters w " + missDist + " punktach.");
+  if (missAlt) warnings.push("Brak AltitudeMeters w " + missAlt + " punktach.");
+  if (missGps) warnings.push("Brak pełnej pozycji GPS w " + missGps + " punktach.");
+  if (missHr) warnings.push("Brak HeartRateBpm w " + missHr + " punktach.");
+
+  var pos = intervals.filter(function(x){ return x > 0; });
+  if (pos.length) info.push("Odstępy czasu: min " + formatNumber(Math.min.apply(null, pos), 3) + " s, średnio " + formatNumber(average(pos), 3) + " s, max " + formatNumber(Math.max.apply(null, pos), 3) + " s.");
+
+  var duration = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
+  var dist = getTotalDistanceFromPoints();
+  if (isFinite(duration)) info.push("Czas z Trackpoint: " + formatNumber(duration, 3) + " s (" + formatNumber(duration / 60, 2) + " min).");
+  if (isFinite(dist)) info.push("Ostatni DistanceMeters: " + formatNumber(dist, 3) + " m.");
+
+  var timeNodes = Array.prototype.slice.call(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"));
+  for (var a = 0; a < timeNodes.length; a++) {
+    var tv = parseMaybeNumber(timeNodes[a].textContent);
+    if (isFinite(duration) && tv !== null && Math.abs(tv - duration) > 1) warnings.push("TotalTimeSeconds (" + formatNumber(tv, 3) + " s) nie zgadza się z Trackpoint (" + formatNumber(duration, 3) + " s).");
+  }
+  var distNodes = findSummaryDistanceNodes();
+  for (var b = 0; b < distNodes.length; b++) {
+    var dv = parseMaybeNumber(distNodes[b].textContent);
+    if (isFinite(dist) && dv !== null && Math.abs(dv - dist) > 2) warnings.push("Podsumowanie DistanceMeters (" + formatNumber(dv, 3) + " m) nie zgadza się z Trackpoint (" + formatNumber(dist, 3) + " m).");
+  }
+  return {errors:errors, warnings:warnings, info:info};
+}
+
+function autoFixConsistency(show) {
+  if (!xmlDoc || trackpoints.length === 0) return;
+  var actions = [];
+  var duration = secondsBetween(trackpoints[0].timeDate, trackpoints[trackpoints.length - 1].timeDate);
+  var dist = getTotalDistanceFromPoints();
+  var i;
+  if (isFinite(duration)) {
+    var timeNodes = Array.prototype.slice.call(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"));
+    for (i = 0; i < timeNodes.length; i++) {
+      if (Math.abs(parseMaybeNumber(timeNodes[i].textContent) - duration) > 0.001) {
+        timeNodes[i].textContent = String(duration);
+        actions.push("TotalTimeSeconds -> " + formatNumber(duration, 3) + " s");
+      }
+    }
+  }
+  if (isFinite(dist)) {
+    var distNodes = findSummaryDistanceNodes();
+    for (i = 0; i < distNodes.length; i++) {
+      if (Math.abs(parseMaybeNumber(distNodes[i].textContent) - dist) > 0.001) {
+        distNodes[i].textContent = String(dist);
+        actions.push("DistanceMeters w podsumowaniu -> " + formatNumber(dist, 3) + " m");
+      }
+    }
+  }
+  var laps = Array.prototype.slice.call(xmlDoc.getElementsByTagNameNS("*", "Lap"));
+  for (i = 0; i < laps.length; i++) {
+    if (laps[i].hasAttribute("StartTime") && laps[i].getAttribute("StartTime") !== trackpoints[0].time) {
+      laps[i].setAttribute("StartTime", trackpoints[0].time);
+      actions.push("Lap StartTime poprawiony");
+    }
+  }
+  for (i = 0; i < trackpoints.length; i++) writeTrackpointToXml(trackpoints[i]);
+  renderTable(); updateSummary();
+  var r = checkConsistency();
+  if (show) setStatus(consistencyStatus, (actions.length ? "Wykonano:
 - " + actions.join("
 - ") + "
 
 " : "Brak bezpiecznych automatycznych korekt.
 
-"}${formatConsistencyReport(report)}`, report.errors.length ? "error" : report.warnings.length ? "" : "ok");
-  }
+") + formatConsistencyReport(r), r.errors.length ? "error" : r.warnings.length ? "" : "ok");
+}
 
-  function exportTCX() {
-    if (!xmlDoc) return;
-    autoFixConsistency(false);
-    trackpoints.forEach(writeTrackpointToXml);
-    const text = new XMLSerializer().serializeToString(xmlDoc);
-    const blob = new Blob([text], { type: "application/vnd.garmin.tcx+xml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    setStatus(els.loadStatus, `Wyeksportowano plik: ${fileName}`, "ok");
-  }
+function exportTCX() {
+  if (!xmlDoc) return;
+  autoFixConsistency(false);
+  for (var i = 0; i < trackpoints.length; i++) writeTrackpointToXml(trackpoints[i]);
+  var xmlText = new XMLSerializer().serializeToString(xmlDoc);
+  var blob = new Blob([xmlText], {type:"application/vnd.garmin.tcx+xml"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  setStatus(loadStatus, "Wyeksportowano plik: " + fileName, "ok");
+}
 
-  function resetEditor() { if (originalText) parseTCX(originalText); }
+function resetEditor() { if (originalText) parseTCX(originalText); }
 
-  function getSelectedTrackpointsByRange(mode, from, to) {
-    if (mode === "time") return trackpoints.filter(tp => tp.elapsedMin >= from && tp.elapsedMin <= to);
-    if (mode === "distance") return trackpoints.filter(tp => isFinite(tp.distance) && tp.distance / 1000 >= from && tp.distance / 1000 <= to);
-    if (mode === "altitude") return trackpoints.filter(tp => isFinite(tp.altitude) && tp.altitude >= from && tp.altitude <= to);
-    return [];
-  }
-  function updateRangeLabels() {
-    const m = els.rangeModeSelect.value;
-    els.fromRangeLabel.textContent = m === "time" ? "Od minuty" : m === "distance" ? "Od kilometra" : "Od wysokości m";
-    els.toRangeLabel.textContent = m === "time" ? "Do minuty" : m === "distance" ? "Do kilometra" : "Do wysokości m";
-  }
-  function smoothField(points, field, windowSize) {
-    if (!["heartRate", "altitude", "distance", "lat", "lon"].includes(field)) return;
-    const half = Math.floor(windowSize / 2), values = points.map(tp => tp[field]);
-    const out = values.map((v, i) => {
-      const slice = values.slice(Math.max(0, i - half), Math.min(values.length, i + half + 1)).filter(isFinite);
-      return slice.length ? average(slice) : v;
-    });
-    points.forEach((tp, i) => tp[field] = out[i]);
-  }
-  function shiftTime(tp, sec) { if (tp.timeDate instanceof Date && !isNaN(tp.timeDate)) { const d = new Date(tp.timeDate.getTime() + sec * 1000); tp.timeDate = d; tp.time = isoNoMillis(d); } }
-  function findSummaryDistanceNodes() { return Array.from(xmlDoc.getElementsByTagNameNS("*", "DistanceMeters")).filter(n => n.parentNode && ["Lap", "Course"].includes(n.parentNode.localName)); }
-  function getTotalDistanceFromPoints() { const v = trackpoints.map(tp => tp.distance).filter(isFinite); return v.length ? v[v.length - 1] : NaN; }
-  function formatConsistencyReport(r) { const lines = []; if (!r.errors.length && !r.warnings.length) lines.push("Plik wygląda spójnie w podstawowych kontrolach."); if (r.errors.length) { lines.push("BŁĘDY:"); r.errors.forEach(x => lines.push("- " + x)); } if (r.warnings.length) { lines.push("OSTRZEŻENIA:"); r.warnings.forEach(x => lines.push("- " + x)); } if (r.info.length) { lines.push("INFORMACJE:"); r.info.forEach(x => lines.push("- " + x)); } return lines.join("
-"); }
-  function writeTrackpointToXml(tp) { setChildText(tp.node, "Time", tp.time); setNestedText(tp.node, ["Position", "LatitudeDegrees"], tp.lat); setNestedText(tp.node, ["Position", "LongitudeDegrees"], tp.lon); setChildText(tp.node, "AltitudeMeters", tp.altitude); setChildText(tp.node, "DistanceMeters", tp.distance); setNestedText(tp.node, ["HeartRateBpm", "Value"], tp.heartRate); }
-  function getChildText(p, name) { const el = Array.from(p.childNodes).find(n => n.nodeType === 1 && n.localName === name); return el ? el.textContent : null; }
-  function getNestedText(p, path) { let c = p; for (const name of path) { c = Array.from(c.childNodes).find(n => n.nodeType === 1 && n.localName === name); if (!c) return null; } return c.textContent; }
-  function setChildText(p, name, val) { const el = Array.from(p.childNodes).find(n => n.nodeType === 1 && n.localName === name); if (el && val !== null && val !== undefined && val !== "") el.textContent = stringifyValue(val, name); }
-  function setNestedText(p, path, val) { let c = p; for (const name of path) { c = Array.from(c.childNodes).find(n => n.nodeType === 1 && n.localName === name); if (!c) return; } if (val !== null && val !== undefined && val !== "") c.textContent = stringifyValue(val, path[path.length - 1]); }
-  function stringifyValue(v, name) { if (name === "Time") return String(v); if (name === "Value") return String(Math.round(Number(v))); return isFinite(Number(v)) ? String(Number(v)) : String(v); }
-  function parseMaybeNumber(v) { if (v === null || v === undefined || String(v).trim() === "") return null; const n = Number(String(v).replace(",", ".")); return isFinite(n) ? n : null; }
-  function safeNumber(v) { return isFinite(v) ? Number(v) : 0; }
-  function secondsBetween(a, b) { if (!(a instanceof Date) || !(b instanceof Date) || isNaN(a) || isNaN(b)) return NaN; return (b.getTime() - a.getTime()) / 1000; }
-  function average(a) { return a.reduce((x, y) => x + y, 0) / a.length; }
-  function formatNumber(v, d) { return isFinite(v) ? Number(v).toFixed(d) : ""; }
-  function formatInput(v) { return isFinite(v) ? String(v) : ""; }
-  function escapeHtml(v) { return String(v).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
-  function isoNoMillis(d) { return d.toISOString().replace(".000Z", "Z"); }
-  function convertSpeedToMetersPerSecond(v, unit) { if (unit === "ms") return v; if (unit === "kmh") return v / 3.6; if (unit === "pace") return 1000 / (v * 60); return NaN; }
-  function formatSpeedUnit(unit) { return unit === "ms" ? "m/s" : unit === "kmh" ? "km/h" : "min/km"; }
-  function formatRangeDescription(mode, from, to) { return mode === "time" ? `${from}–${to} min` : mode === "distance" ? `${from}–${to} km` : `${from}–${to} m`; }
-  function setStatus(el, text, type) {
-    if (!el) return;
-    el.textContent = text;
-    el.className = "status " + (type || "");
-  }
+function getSelectedTrackpointsByRange(mode, from, to) {
+  if (mode === "time") return trackpoints.filter(function(tp){ return tp.elapsedMin >= from && tp.elapsedMin <= to; });
+  if (mode === "distance") return trackpoints.filter(function(tp){ return isFiniteNumber(tp.distance) && tp.distance / 1000 >= from && tp.distance / 1000 <= to; });
+  if (mode === "altitude") return trackpoints.filter(function(tp){ return isFiniteNumber(tp.altitude) && tp.altitude >= from && tp.altitude <= to; });
+  return [];
+}
 
-  function debug(text) {
-    if (!els || !els.debugStatus) return;
-    const old = els.debugStatus.textContent || "";
-    els.debugStatus.textContent = old + "\n" + text;
-    console.log(text);
+function updateRangeLabels() {
+  var m = rangeModeSelect.value;
+  fromRangeLabel.textContent = m === "time" ? "Od minuty" : m === "distance" ? "Od kilometra" : "Od wysokości m";
+  toRangeLabel.textContent = m === "time" ? "Do minuty" : m === "distance" ? "Do kilometra" : "Do wysokości m";
+}
+
+function smoothField(points, field, windowSize) {
+  if (["heartRate", "altitude", "distance", "lat", "lon"].indexOf(field) === -1) return;
+  var half = Math.floor(windowSize / 2);
+  var original = points.map(function(tp){ return tp[field]; });
+  for (var i = 0; i < points.length; i++) {
+    var vals = [];
+    for (var j = Math.max(0, i - half); j <= Math.min(points.length - 1, i + half); j++) if (isFiniteNumber(original[j])) vals.push(original[j]);
+    if (vals.length) points[i][field] = average(vals);
   }
+}
 
-  window.addEventListener("error", e => {
-    console.error(e.error || e.message);
-    if (els.loadStatus) setStatus(els.loadStatus, "Błąd JavaScript: " + e.message, "error");
-  });
+function shiftTime(tp, sec) {
+  if (tp.timeDate instanceof Date && !isNaN(tp.timeDate)) {
+    var d = new Date(tp.timeDate.getTime() + sec * 1000);
+    tp.timeDate = d; tp.time = isoNoMillis(d);
+  }
+}
 
-  init();
-})();
+function findSummaryDistanceNodes() {
+  var all = Array.prototype.slice.call(xmlDoc.getElementsByTagNameNS("*", "DistanceMeters"));
+  return all.filter(function(n){ return n.parentNode && (n.parentNode.localName === "Lap" || n.parentNode.localName === "Course"); });
+}
+
+function getTotalDistanceFromPoints() {
+  var last = NaN;
+  for (var i = 0; i < trackpoints.length; i++) if (isFiniteNumber(trackpoints[i].distance)) last = trackpoints[i].distance;
+  return last;
+}
+
+function formatConsistencyReport(r) {
+  var lines = [];
+  if (r.errors.length === 0 && r.warnings.length === 0) lines.push("Plik wygląda spójnie w podstawowych kontrolach.");
+  if (r.errors.length) { lines.push("BŁĘDY:"); for (var i = 0; i < r.errors.length; i++) lines.push("- " + r.errors[i]); }
+  if (r.warnings.length) { lines.push("OSTRZEŻENIA:"); for (var j = 0; j < r.warnings.length; j++) lines.push("- " + r.warnings[j]); }
+  if (r.info.length) { lines.push("INFORMACJE:"); for (var k = 0; k < r.info.length; k++) lines.push("- " + r.info[k]); }
+  return lines.join("
+");
+}
+
+function writeTrackpointToXml(tp) {
+  setChildText(tp.node, "Time", tp.time);
+  setNestedText(tp.node, ["Position", "LatitudeDegrees"], tp.lat);
+  setNestedText(tp.node, ["Position", "LongitudeDegrees"], tp.lon);
+  setChildText(tp.node, "AltitudeMeters", tp.altitude);
+  setChildText(tp.node, "DistanceMeters", tp.distance);
+  setNestedText(tp.node, ["HeartRateBpm", "Value"], tp.heartRate);
+}
+
+function getChildText(parent, localName) {
+  var children = parent.childNodes;
+  for (var i = 0; i < children.length; i++) if (children[i].nodeType === 1 && children[i].localName === localName) return children[i].textContent;
+  return null;
+}
+
+function getNestedText(parent, path) {
+  var current = parent;
+  for (var i = 0; i < path.length; i++) {
+    var found = null;
+    var children = current.childNodes;
+    for (var j = 0; j < children.length; j++) if (children[j].nodeType === 1 && children[j].localName === path[i]) { found = children[j]; break; }
+    if (!found) return null;
+    current = found;
+  }
+  return current.textContent;
+}
+
+function setChildText(parent, localName, value) {
+  if (value === null || value === undefined || value === "") return;
+  var children = parent.childNodes;
+  for (var i = 0; i < children.length; i++) if (children[i].nodeType === 1 && children[i].localName === localName) { children[i].textContent = stringifyValue(value, localName); return; }
+}
+
+function setNestedText(parent, path, value) {
+  if (value === null || value === undefined || value === "") return;
+  var current = parent;
+  for (var i = 0; i < path.length; i++) {
+    var found = null;
+    var children = current.childNodes;
+    for (var j = 0; j < children.length; j++) if (children[j].nodeType === 1 && children[j].localName === path[i]) { found = children[j]; break; }
+    if (!found) return;
+    current = found;
+  }
+  current.textContent = stringifyValue(value, path[path.length - 1]);
+}
+
+function stringifyValue(v, name) {
+  if (name === "Time") return String(v);
+  if (name === "Value") return String(Math.round(Number(v)));
+  return isFinite(Number(v)) ? String(Number(v)) : String(v);
+}
+
+function parseMaybeNumber(v) {
+  if (v === null || v === undefined || String(v).trim() === "") return null;
+  var n = Number(String(v).replace(",", "."));
+  return isFinite(n) ? n : null;
+}
+function isFiniteNumber(v) { return typeof v === "number" && isFinite(v); }
+function safeNumber(v) { return isFiniteNumber(v) ? v : 0; }
+function secondsBetween(a, b) { if (!(a instanceof Date) || !(b instanceof Date) || isNaN(a) || isNaN(b)) return NaN; return (b.getTime() - a.getTime()) / 1000; }
+function average(arr) { var s = 0; for (var i = 0; i < arr.length; i++) s += arr[i]; return s / arr.length; }
+function formatNumber(v, d) { return isFinite(v) ? Number(v).toFixed(d) : ""; }
+function formatInput(v) { return isFiniteNumber(v) ? String(v) : ""; }
+function escapeHtml(v) { return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+function isoNoMillis(d) { return d.toISOString().replace(".000Z", "Z"); }
+function convertSpeedToMetersPerSecond(v, unit) { if (unit === "ms") return v; if (unit === "kmh") return v / 3.6; if (unit === "pace") return 1000 / (v * 60); return NaN; }
+function formatSpeedUnit(unit) { return unit === "ms" ? "m/s" : unit === "kmh" ? "km/h" : "min/km"; }
+function formatRangeDescription(mode, from, to) { return mode === "time" ? from + "–" + to + " min" : mode === "distance" ? from + "–" + to + " km" : from + "–" + to + " m"; }
+function setStatus(el, text, type) { if (!el) return; el.textContent = text; el.className = "status " + (type || ""); }
+
+window.addEventListener("error", function(e) {
+  setStatus(loadStatus, "Błąd JavaScript: " + e.message, "error");
+  debug("Błąd JavaScript: " + e.message);
+});
+
+init();
 </script>
 </body>
 </html>
