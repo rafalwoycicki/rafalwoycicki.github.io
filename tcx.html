@@ -233,6 +233,25 @@
     </section>
 
     <section class="card">
+      <h2 style="margin-top:0;font-size:18px;">Kontrola spójności TCX</h2>
+      <div class="grid">
+        <div>
+          <button id="checkConsistencyBtn" disabled>Sprawdź spójność</button>
+        </div>
+        <div>
+          <button id="autoFixBtn" class="secondary" disabled>Automatyczna korekta</button>
+        </div>
+        <div>
+          <button id="checkAndFixBtn" disabled>Sprawdź i popraw</button>
+        </div>
+      </div>
+      <div class="small-note">
+        Sprawdzane są m.in. rosnące czasy, dystans, zgodność TotalTimeSeconds i DistanceMeters z punktami, typ pliku Activity/Course, brakujące HR/GPS/wysokości oraz nieregularne odstępy czasowe. Automatyczna korekta poprawia tylko bezpieczne pola metadanych i oczywiste konflikty po edycji.
+      </div>
+      <div id="consistencyStatus" class="status"></div>
+    </section>
+
+    <section class="card">
       <h2 style="margin-top:0;font-size:18px;">Modyfikacja zakresu</h2>
       <div class="grid">
         <div>
@@ -406,6 +425,10 @@
     const rangeStatus = document.getElementById("rangeStatus");
     const exportBtn = document.getElementById("exportBtn");
     const resetBtn = document.getElementById("resetBtn");
+    const checkConsistencyBtn = document.getElementById("checkConsistencyBtn");
+    const autoFixBtn = document.getElementById("autoFixBtn");
+    const checkAndFixBtn = document.getElementById("checkAndFixBtn");
+    const consistencyStatus = document.getElementById("consistencyStatus");
     const applyRangeBtn = document.getElementById("applyRangeBtn");
     const reverseFieldBtn = document.getElementById("reverseFieldBtn");
     const reverseStatus = document.getElementById("reverseStatus");
@@ -420,6 +443,9 @@
     fileInput.addEventListener("change", handleFileLoad);
     exportBtn.addEventListener("click", exportTCX);
     resetBtn.addEventListener("click", resetEditor);
+    checkConsistencyBtn.addEventListener("click", () => runConsistencyCheck(true));
+    autoFixBtn.addEventListener("click", () => autoFixConsistency(true));
+    checkAndFixBtn.addEventListener("click", () => { runConsistencyCheck(false); autoFixConsistency(true); });
     applyRangeBtn.addEventListener("click", applyRangeEdit);
     reverseFieldBtn.addEventListener("click", reverseSelectedField);
     rangeModeSelect.addEventListener("change", updateRangeLabels);
@@ -468,6 +494,9 @@
 
       exportBtn.disabled = false;
       resetBtn.disabled = false;
+      checkConsistencyBtn.disabled = false;
+      autoFixBtn.disabled = false;
+      checkAndFixBtn.disabled = false;
       applyRangeBtn.disabled = false;
       reverseFieldBtn.disabled = false;
       resampleTimeBtn.disabled = false;
@@ -929,8 +958,239 @@
       return `${fromValue}–${toValue}`;
     }
 
+    function runConsistencyCheck(showOutput = true) {
+      const report = checkConsistency();
+      if (showOutput) {
+        setStatus(consistencyStatus, formatConsistencyReport(report), report.errors.length ? "error" : report.warnings.length ? "" : "ok");
+      }
+      return report;
+    }
+
+    function checkConsistency() {
+      const errors = [];
+      const warnings = [];
+      const info = [];
+
+      if (!xmlDoc || trackpoints.length === 0) {
+        errors.push("Nie wczytano pliku albo brak punktów Trackpoint.");
+        return { errors, warnings, info };
+      }
+
+      const activityNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Activity"));
+      const courseNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Course"));
+      if (activityNodes.length > 0) info.push(`Typ pliku: Activity (${activityNodes.length}).`);
+      if (courseNodes.length > 0) warnings.push(`Typ pliku: Course (${courseNodes.length}). To może być trasa/kurs, nie pełna aktywność treningowa.`);
+      if (activityNodes.length === 0 && courseNodes.length === 0) warnings.push("Nie znaleziono elementu Activity ani Course.");
+
+      const validTimes = trackpoints.filter(tp => tp.timeDate instanceof Date && !isNaN(tp.timeDate));
+      if (validTimes.length !== trackpoints.length) warnings.push(`Brak lub niepoprawny czas w ${trackpoints.length - validTimes.length} punktach.`);
+
+      let timeBackwards = 0;
+      let duplicateTimes = 0;
+      let distanceBackwards = 0;
+      let missingDistance = 0;
+      let missingAltitude = 0;
+      let missingGps = 0;
+      let missingHr = 0;
+      const intervals = [];
+
+      for (let i = 0; i < trackpoints.length; i++) {
+        const tp = trackpoints[i];
+        if (tp.distance === null || !isFinite(tp.distance)) missingDistance++;
+        if (tp.altitude === null || !isFinite(tp.altitude)) missingAltitude++;
+        if (tp.lat === null || tp.lon === null || !isFinite(tp.lat) || !isFinite(tp.lon)) missingGps++;
+        if (tp.heartRate === null || !isFinite(tp.heartRate)) missingHr++;
+
+        if (i > 0) {
+          const prev = trackpoints[i - 1];
+          const dt = secondsBetween(prev.timeDate, tp.timeDate);
+          if (isFinite(dt)) {
+            intervals.push(dt);
+            if (dt < 0) timeBackwards++;
+            if (dt === 0) duplicateTimes++;
+          }
+          if (prev.distance !== null && tp.distance !== null && isFinite(prev.distance) && isFinite(tp.distance)) {
+            if (tp.distance < prev.distance) distanceBackwards++;
+          }
+        }
+      }
+
+      if (timeBackwards > 0) errors.push(`Czas cofa się w ${timeBackwards} miejscach.`);
+      if (duplicateTimes > 0) warnings.push(`Ten sam czas występuje w ${duplicateTimes} sąsiednich parach punktów.`);
+      if (distanceBackwards > 0) warnings.push(`Dystans cofa się w ${distanceBackwards} miejscach.`);
+      if (missingDistance > 0) warnings.push(`Brak DistanceMeters w ${missingDistance} punktach.`);
+      if (missingAltitude > 0) warnings.push(`Brak AltitudeMeters w ${missingAltitude} punktach.`);
+      if (missingGps > 0) warnings.push(`Brak pełnej pozycji GPS w ${missingGps} punktach.`);
+      if (missingHr > 0) warnings.push(`Brak HeartRateBpm w ${missingHr} punktach.`);
+
+      if (intervals.length > 0) {
+        const positiveIntervals = intervals.filter(x => x > 0 && isFinite(x));
+        if (positiveIntervals.length > 0) {
+          const minDt = Math.min(...positiveIntervals);
+          const maxDt = Math.max(...positiveIntervals);
+          const meanDt = average(positiveIntervals);
+          info.push(`Odstępy czasu: min ${formatNumber(minDt, 3)} s, średnio ${formatNumber(meanDt, 3)} s, max ${formatNumber(maxDt, 3)} s.`);
+          if (maxDt / Math.max(minDt, 0.001) > 3) warnings.push("Odstępy czasu między punktami są mocno nieregularne.");
+        }
+      }
+
+      const first = trackpoints[0];
+      const last = trackpoints[trackpoints.length - 1];
+      const durationSec = secondsBetween(first.timeDate, last.timeDate);
+      if (isFinite(durationSec)) info.push(`Czas z Trackpoint: ${formatNumber(durationSec, 3)} s (${formatNumber(durationSec / 60, 2)} min).`);
+      if (last.distance !== null && isFinite(last.distance)) info.push(`Ostatni DistanceMeters z Trackpoint: ${formatNumber(last.distance, 3)} m.`);
+
+      const totalTimeNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"));
+      const lapDistanceNodes = findSummaryDistanceNodes();
+      const totalTimeFromPoints = durationSec;
+      const totalDistanceFromPoints = getTotalDistanceFromPoints();
+
+      for (const node of totalTimeNodes) {
+        const val = parseMaybeNumber(node.textContent);
+        if (isFinite(totalTimeFromPoints) && val !== null && Math.abs(val - totalTimeFromPoints) > 1) {
+          warnings.push(`TotalTimeSeconds (${formatNumber(val, 3)} s) nie zgadza się z Trackpoint (${formatNumber(totalTimeFromPoints, 3)} s).`);
+        }
+      }
+
+      for (const node of lapDistanceNodes) {
+        const val = parseMaybeNumber(node.textContent);
+        if (isFinite(totalDistanceFromPoints) && val !== null && Math.abs(val - totalDistanceFromPoints) > 2) {
+          warnings.push(`Podsumowanie DistanceMeters (${formatNumber(val, 3)} m) nie zgadza się z Trackpoint (${formatNumber(totalDistanceFromPoints, 3)} m).`);
+        }
+      }
+
+      return { errors, warnings, info };
+    }
+
+    function autoFixConsistency(showOutput = true) {
+      if (!xmlDoc || trackpoints.length === 0) return;
+      const actions = [];
+
+      updateDerivedValues();
+
+      const first = trackpoints[0];
+      const last = trackpoints[trackpoints.length - 1];
+      const durationSec = secondsBetween(first.timeDate, last.timeDate);
+      const totalDistance = getTotalDistanceFromPoints();
+
+      if (isFinite(durationSec)) {
+        const totalTimeNodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "TotalTimeSeconds"));
+        for (const node of totalTimeNodes) {
+          const oldVal = parseMaybeNumber(node.textContent);
+          if (oldVal === null || Math.abs(oldVal - durationSec) > 0.001) {
+            node.textContent = String(durationSec);
+            actions.push(`Poprawiono TotalTimeSeconds: ${formatNumber(oldVal, 3)} -> ${formatNumber(durationSec, 3)} s.`);
+          }
+        }
+      }
+
+      if (isFinite(totalDistance)) {
+        const lapDistanceNodes = findSummaryDistanceNodes();
+        for (const node of lapDistanceNodes) {
+          const oldVal = parseMaybeNumber(node.textContent);
+          if (oldVal === null || Math.abs(oldVal - totalDistance) > 0.001) {
+            node.textContent = String(totalDistance);
+            actions.push(`Poprawiono podsumowanie DistanceMeters: ${formatNumber(oldVal, 3)} -> ${formatNumber(totalDistance, 3)} m.`);
+          }
+        }
+      }
+
+      fixLapStartTimes(actions);
+      fixActivityIdIfPresent(actions);
+
+      for (const tp of trackpoints) writeTrackpointToXml(tp);
+      updateDerivedValues();
+      renderTable();
+      updateSummary();
+
+      const report = checkConsistency();
+      if (showOutput) {
+        const text = actions.length
+          ? `Wykonano automatyczną korektę:
+- ${actions.join("
+- ")}
+
+Kontrola po korekcie:
+${formatConsistencyReport(report)}`
+          : `Nie znaleziono bezpiecznych automatycznych korekt do wykonania.
+
+Kontrola:
+${formatConsistencyReport(report)}`;
+        setStatus(consistencyStatus, text, report.errors.length ? "error" : report.warnings.length ? "" : "ok");
+      }
+    }
+
+    function findSummaryDistanceNodes() {
+      const all = Array.from(xmlDoc.getElementsByTagNameNS("*", "DistanceMeters"));
+      return all.filter(node => {
+        const parent = node.parentNode;
+        if (!parent || parent.nodeType !== 1) return false;
+        // Summary DistanceMeters zwykle jest bezpośrednio w Lap albo Course.
+        // Trackpoint DistanceMeters ignorujemy, bo to wartości punktowe.
+        return parent.localName === "Lap" || parent.localName === "Course";
+      });
+    }
+
+    function getTotalDistanceFromPoints() {
+      const valid = trackpoints.map(tp => tp.distance).filter(v => v !== null && isFinite(v));
+      if (valid.length === 0) return NaN;
+      return valid[valid.length - 1];
+    }
+
+    function fixLapStartTimes(actions) {
+      const first = trackpoints[0];
+      if (!first || !first.time) return;
+      const laps = Array.from(xmlDoc.getElementsByTagNameNS("*", "Lap"));
+      for (const lap of laps) {
+        if (lap.hasAttribute("StartTime") && lap.getAttribute("StartTime") !== first.time) {
+          const oldVal = lap.getAttribute("StartTime");
+          lap.setAttribute("StartTime", first.time);
+          actions.push(`Poprawiono Lap StartTime: ${oldVal} -> ${first.time}.`);
+        }
+      }
+    }
+
+    function fixActivityIdIfPresent(actions) {
+      const first = trackpoints[0];
+      if (!first || !first.time) return;
+      const activities = Array.from(xmlDoc.getElementsByTagNameNS("*", "Activity"));
+      for (const activity of activities) {
+        const idNode = Array.from(activity.childNodes).find(n => n.nodeType === 1 && n.localName === "Id");
+        if (idNode && idNode.textContent !== first.time) {
+          const oldVal = idNode.textContent;
+          idNode.textContent = first.time;
+          actions.push(`Poprawiono Activity Id: ${oldVal} -> ${first.time}.`);
+        }
+      }
+    }
+
+    function formatConsistencyReport(report) {
+      const lines = [];
+      if (report.errors.length === 0 && report.warnings.length === 0) {
+        lines.push("Plik wygląda spójnie w podstawowych kontrolach.");
+      }
+      if (report.errors.length) {
+        lines.push("BŁĘDY krytyczne:");
+        report.errors.forEach(x => lines.push(`- ${x}`));
+      }
+      if (report.warnings.length) {
+        lines.push("OSTRZEŻENIA:");
+        report.warnings.forEach(x => lines.push(`- ${x}`));
+      }
+      if (report.info.length) {
+        lines.push("INFORMACJE:");
+        report.info.forEach(x => lines.push(`- ${x}`));
+      }
+      return lines.join("
+");
+    }
+
     function exportTCX() {
       if (!xmlDoc) return;
+
+      // Przed eksportem robimy bezpieczną korektę metadanych, aby plik był spójny
+      // po zmianach czasu, dystansu, wysokości albo kolejności pól.
+      autoFixConsistency(false);
 
       for (const tp of trackpoints) {
         writeTrackpointToXml(tp);
