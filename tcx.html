@@ -317,6 +317,45 @@
     </section>
 
     <section class="card">
+      <h2 style="margin-top:0;font-size:18px;">Czas punktów i prędkość</h2>
+      <div class="grid">
+        <div>
+          <label for="resampleStepSec">Ustaw punkty co ile sekund</label>
+          <input id="resampleStepSec" type="number" step="1" min="1" value="1" />
+        </div>
+        <div>
+          <button id="resampleTimeBtn" disabled>Przepisz czasy punktów</button>
+        </div>
+        <div>
+          <label for="speedValue">Tempo / prędkość w zakresie</label>
+          <input id="speedValue" type="number" step="0.01" min="0" value="5.00" />
+        </div>
+        <div>
+          <label for="speedUnitSelect">Jednostka</label>
+          <select id="speedUnitSelect">
+            <option value="pace">tempo min/km</option>
+            <option value="ms">m/s</option>
+            <option value="kmh">km/h</option>
+          </select>
+        </div>
+        <div>
+          <label for="speedEditModeSelect">Co przeliczyć</label>
+          <select id="speedEditModeSelect">
+            <option value="timeFromDistance">Przelicz czas z dystansu</option>
+            <option value="distanceFromTime">Przelicz dystans z czasu</option>
+          </select>
+        </div>
+        <div>
+          <button id="applySpeedBtn" disabled>Zastosuj tempo / prędkość</button>
+        </div>
+      </div>
+      <div class="small-note">
+        Zakres jest brany z sekcji „Modyfikacja zakresu”: może to być czas, dystans albo wysokość. Najbardziej naturalny tryb to „Przelicz czas z dystansu”: wybierasz zakres dystansu, np. 0–0.5 km, wpisujesz tempo 5.00 min/km, a program przelicza czasy punktów tak, aby ten odcinek miał zadane tempo. Kolumny elapsed time, speed m/s i pace min/km są potem wyliczane automatycznie.
+      </div>
+      <div id="speedStatus" class="status"></div>
+    </section>
+
+    <section class="card">
       <h2 style="margin-top:0;font-size:18px;">Tabela punktów Trackpoint</h2>
       <div>
         <span class="pill">Time</span>
@@ -371,6 +410,9 @@
     const reverseFieldBtn = document.getElementById("reverseFieldBtn");
     const reverseStatus = document.getElementById("reverseStatus");
     const rangeModeSelect = document.getElementById("rangeModeSelect");
+    const resampleTimeBtn = document.getElementById("resampleTimeBtn");
+    const applySpeedBtn = document.getElementById("applySpeedBtn");
+    const speedStatus = document.getElementById("speedStatus");
     const fromRangeLabel = document.getElementById("fromRangeLabel");
     const toRangeLabel = document.getElementById("toRangeLabel");
     const tableBody = document.querySelector("#pointsTable tbody");
@@ -381,6 +423,8 @@
     applyRangeBtn.addEventListener("click", applyRangeEdit);
     reverseFieldBtn.addEventListener("click", reverseSelectedField);
     rangeModeSelect.addEventListener("change", updateRangeLabels);
+    resampleTimeBtn.addEventListener("click", resampleTimePoints);
+    applySpeedBtn.addEventListener("click", applySpeedToRange);
 
     function handleFileLoad(event) {
       const file = event.target.files[0];
@@ -426,6 +470,8 @@
       resetBtn.disabled = false;
       applyRangeBtn.disabled = false;
       reverseFieldBtn.disabled = false;
+      resampleTimeBtn.disabled = false;
+      applySpeedBtn.disabled = false;
       setStatus(loadStatus, `Wczytano plik: ${fileName.replace("_edited.tcx", ".tcx")}`, "ok");
     }
 
@@ -662,6 +708,181 @@
       const label = document.getElementById("reverseFieldSelect").selectedOptions[0].textContent;
       const scopeLabel = scope === "all" ? "całym treningu" : "wybranym zakresie";
       setStatus(reverseStatus, `Odwrócono kolejność pola: ${label} w ${scopeLabel}.`, "ok");
+    }
+
+    function resampleTimePoints() {
+      if (trackpoints.length < 2) {
+        setStatus(speedStatus, "Do przepisania czasu potrzeba co najmniej dwóch punktów.", "error");
+        return;
+      }
+
+      const stepSec = Number(document.getElementById("resampleStepSec").value);
+      if (!isFinite(stepSec) || stepSec <= 0) {
+        setStatus(speedStatus, "Podaj poprawny odstęp czasu w sekundach, np. 1 albo 10.", "error");
+        return;
+      }
+
+      const first = trackpoints[0];
+      if (!(first.timeDate instanceof Date) || isNaN(first.timeDate)) {
+        setStatus(speedStatus, "Pierwszy punkt nie ma poprawnego czasu.", "error");
+        return;
+      }
+
+      const startMs = first.timeDate.getTime();
+      for (let i = 0; i < trackpoints.length; i++) {
+        const newDate = new Date(startMs + i * stepSec * 1000);
+        trackpoints[i].timeDate = newDate;
+        trackpoints[i].time = newDate.toISOString().replace(".000Z", "Z");
+        writeTrackpointToXml(trackpoints[i]);
+      }
+
+      updateDerivedValues();
+      renderTable();
+      updateSummary();
+      setStatus(speedStatus, `Przepisano czasy punktów co ${stepSec} s. Liczba punktów nie została zmieniona.`, "ok");
+    }
+
+    function applySpeedToRange() {
+      const rangeMode = document.getElementById("rangeModeSelect").value;
+      const fromValue = Number(document.getElementById("fromMin").value);
+      const toValue = Number(document.getElementById("toMin").value);
+      const speedInput = Number(document.getElementById("speedValue").value);
+      const unit = document.getElementById("speedUnitSelect").value;
+      const editMode = document.getElementById("speedEditModeSelect").value;
+
+      if (!isFinite(fromValue) || !isFinite(toValue) || fromValue > toValue) {
+        setStatus(speedStatus, "Nieprawidłowy zakres.", "error");
+        return;
+      }
+
+      if (!isFinite(speedInput) || speedInput <= 0) {
+        setStatus(speedStatus, "Podaj poprawną prędkość większą od zera.", "error");
+        return;
+      }
+
+      const selected = getSelectedTrackpointsByRange(rangeMode, fromValue, toValue);
+      if (selected.length < 2) {
+        setStatus(speedStatus, "Do ustawienia prędkości potrzeba co najmniej dwóch punktów w zakresie.", "error");
+        return;
+      }
+
+      const speedMs = convertSpeedToMetersPerSecond(speedInput, unit);
+      if (!isFinite(speedMs) || speedMs <= 0) {
+        setStatus(speedStatus, "Nie udało się przeliczyć prędkości.", "error");
+        return;
+      }
+
+      if (editMode === "timeFromDistance") {
+        if (rangeMode !== "distance") {
+          setStatus(speedStatus, "Dla trybu „Przelicz czas z dystansu” najlepiej wybierz typ zakresu: Dystans / kilometry.", "error");
+          return;
+        }
+        applySpeedByChangingTime(selected, speedMs);
+      } else {
+        applySpeedByChangingDistance(selected, speedMs);
+      }
+
+      updateDerivedValues();
+      for (const tp of trackpoints) writeTrackpointToXml(tp);
+      renderTable();
+      updateSummary();
+
+      const changed = editMode === "timeFromDistance" ? "Time" : "DistanceMeters";
+      setStatus(speedStatus, `Zastosowano ${speedInput} ${formatSpeedUnit(unit)} w zakresie ${formatRangeDescription(rangeMode, fromValue, toValue)}. Zmieniono pole: ${changed}.`, "ok");
+    }
+
+    function applySpeedByChangingTime(selected, speedMs) {
+      const first = selected[0];
+      const last = selected[selected.length - 1];
+
+      if (first.distance === null || !isFinite(first.distance)) {
+        setStatus(speedStatus, "Pierwszy punkt zakresu nie ma poprawnego dystansu.", "error");
+        return;
+      }
+
+      if (!(first.timeDate instanceof Date) || isNaN(first.timeDate)) {
+        setStatus(speedStatus, "Pierwszy punkt zakresu nie ma poprawnego czasu.", "error");
+        return;
+      }
+
+      const oldLastTime = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
+
+      for (const tp of selected) {
+        if (tp.distance === null || !isFinite(tp.distance)) continue;
+        const distanceDelta = tp.distance - first.distance;
+        const newTimeMs = first.timeDate.getTime() + (distanceDelta / speedMs) * 1000;
+        const newDate = new Date(newTimeMs);
+        tp.timeDate = newDate;
+        tp.time = newDate.toISOString().replace(".000Z", "Z");
+      }
+
+      const newLastTime = last.timeDate instanceof Date && !isNaN(last.timeDate) ? last.timeDate.getTime() : null;
+      if (oldLastTime !== null && newLastTime !== null) {
+        const offsetMs = newLastTime - oldLastTime;
+        // Przesuwa dalszą część aktywności o różnicę czasu, żeby nie było nakładania się czasów.
+        for (let i = last.index + 1; i < trackpoints.length; i++) {
+          const tp = trackpoints[i];
+          if (tp.timeDate instanceof Date && !isNaN(tp.timeDate)) {
+            const shifted = new Date(tp.timeDate.getTime() + offsetMs);
+            tp.timeDate = shifted;
+            tp.time = shifted.toISOString().replace(".000Z", "Z");
+          }
+        }
+      }
+    }
+
+    function applySpeedByChangingDistance(selected, speedMs) {
+      const firstDistance = selected[0].distance !== null && isFinite(selected[0].distance)
+        ? selected[0].distance
+        : 0;
+      const firstTime = selected[0].timeDate;
+
+      if (!(firstTime instanceof Date) || isNaN(firstTime)) {
+        setStatus(speedStatus, "Pierwszy punkt zakresu nie ma poprawnego czasu.", "error");
+        return;
+      }
+
+      for (const tp of selected) {
+        if (!(tp.timeDate instanceof Date) || isNaN(tp.timeDate)) continue;
+        const dt = (tp.timeDate.getTime() - firstTime.getTime()) / 1000;
+        tp.distance = firstDistance + speedMs * dt;
+      }
+
+      writeDistanceOffsetAfterSelection(selected);
+    }
+
+    function writeDistanceOffsetAfterSelection(selected) {
+      const lastSelected = selected[selected.length - 1];
+      const lastIndex = lastSelected.index;
+      if (lastIndex >= trackpoints.length - 1) return;
+
+      const next = trackpoints[lastIndex + 1];
+      if (next.distance === null || !isFinite(next.distance) || lastSelected.distance === null || !isFinite(lastSelected.distance)) return;
+
+      const oldNextDistance = next.distance;
+      const offset = lastSelected.distance - oldNextDistance;
+
+      // Zachowuje dalszy kształt dystansu po edytowanym fragmencie, ale przesuwa go tak,
+      // aby nie było nagłego uskoku między ostatnim punktem zakresu a resztą aktywności.
+      for (let i = lastIndex + 1; i < trackpoints.length; i++) {
+        if (trackpoints[i].distance !== null && isFinite(trackpoints[i].distance)) {
+          trackpoints[i].distance = trackpoints[i].distance + offset;
+        }
+      }
+    }
+
+    function convertSpeedToMetersPerSecond(value, unit) {
+      if (unit === "ms") return value;
+      if (unit === "kmh") return value / 3.6;
+      if (unit === "pace") return 1000 / (value * 60);
+      return NaN;
+    }
+
+    function formatSpeedUnit(unit) {
+      if (unit === "ms") return "m/s";
+      if (unit === "kmh") return "km/h";
+      if (unit === "pace") return "min/km";
+      return "";
     }
 
     function getSelectedTrackpointsByRange(rangeMode, fromValue, toValue) {
