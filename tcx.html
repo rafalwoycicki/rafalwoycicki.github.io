@@ -77,8 +77,10 @@
         <div><label>Liczba punktów</label><input id="pointCount" type="text" value="0" readonly /></div>
         <div><label>Czas aktywności</label><input id="activityDuration" type="text" value="-" readonly /></div>
         <div class="two-buttons"><button id="exportBtn" disabled>Eksportuj TCX</button><button id="resetBtn" class="secondary" disabled>Reset</button></div>
+        <div><button id="testFileBtn" class="secondary">Test pliku</button></div>
       </div>
       <div id="loadStatus" class="status">Nie wczytano pliku.</div>
+      <div id="debugStatus" class="status">Diagnostyka: skrypt jeszcze nie zgłosił gotowości.</div>
       <div class="small-note">Prędkość i tempo są wyliczane z różnicy DistanceMeters i Time. Zwykle nie są osobnym polem w TCX.</div>
     </section>
 
@@ -199,7 +201,7 @@
   const $ = id => document.getElementById(id);
   const els = {
     fileInput: $("fileInput"), pointCount: $("pointCount"), activityDuration: $("activityDuration"),
-    loadStatus: $("loadStatus"), exportBtn: $("exportBtn"), resetBtn: $("resetBtn"),
+    loadStatus: $("loadStatus"), debugStatus: $("debugStatus"), testFileBtn: $("testFileBtn"), exportBtn: $("exportBtn"), resetBtn: $("resetBtn"),
     checkConsistencyBtn: $("checkConsistencyBtn"), autoFixBtn: $("autoFixBtn"), checkAndFixBtn: $("checkAndFixBtn"), consistencyStatus: $("consistencyStatus"),
     rangeModeSelect: $("rangeModeSelect"), fromRangeLabel: $("fromRangeLabel"), toRangeLabel: $("toRangeLabel"),
     fromValue: $("fromValue"), toValue: $("toValue"), fieldSelect: $("fieldSelect"), operationSelect: $("operationSelect"), operationValue: $("operationValue"), applyRangeBtn: $("applyRangeBtn"), rangeStatus: $("rangeStatus"),
@@ -209,7 +211,16 @@
   };
 
   function init() {
+    debug("Skrypt uruchomiony. Jeśli to widzisz, JavaScript działa.");
     els.fileInput.addEventListener("change", handleFileLoad);
+    els.testFileBtn.addEventListener("click", function () {
+      if (!els.fileInput.files || !els.fileInput.files[0]) {
+        debug("Nie wybrano pliku. Najpierw wybierz plik TCX.");
+        return;
+      }
+      debug("Test pliku uruchomiony ręcznie.");
+      handleFileLoad({ target: els.fileInput });
+    });
     els.exportBtn.addEventListener("click", exportTCX);
     els.resetBtn.addEventListener("click", resetEditor);
     els.checkConsistencyBtn.addEventListener("click", () => runConsistencyCheck(true));
@@ -228,24 +239,63 @@
   }
 
   function handleFileLoad(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    fileName = file.name.replace(/\.tcx$/i, "") + "_edited.tcx";
-    const reader = new FileReader();
-    reader.onload = () => { originalText = reader.result; parseTCX(originalText); };
-    reader.onerror = () => setStatus(els.loadStatus, "Nie udało się odczytać pliku.", "error");
-    reader.readAsText(file);
+    try {
+      debug("handleFileLoad: rozpoczęto.");
+      const file = event.target.files[0];
+      if (!file) {
+        debug("handleFileLoad: brak pliku.");
+        return;
+      }
+      debug("Wybrano plik: " + file.name + ", rozmiar: " + file.size + " bajtów.");
+      fileName = file.name.replace(/\.tcx$/i, "") + "_edited.tcx";
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          originalText = String(reader.result || "");
+          debug("FileReader: odczytano " + originalText.length + " znaków. Pierwsze znaki: " + originalText.slice(0, 40));
+          parseTCX(originalText);
+        } catch (e) {
+          debug("Błąd po odczycie pliku: " + e.message);
+          setStatus(els.loadStatus, "Błąd po odczycie pliku: " + e.message, "error");
+        }
+      };
+      reader.onerror = function () {
+        debug("FileReader error.");
+        setStatus(els.loadStatus, "Nie udało się odczytać pliku.", "error");
+      };
+      reader.readAsText(file);
+    } catch (e) {
+      debug("handleFileLoad error: " + e.message);
+      setStatus(els.loadStatus, "Błąd wczytywania: " + e.message, "error");
+    }
   }
 
   function parseTCX(text) {
     try {
+      debug("parseTCX: start.");
       const parser = new DOMParser();
       xmlDoc = parser.parseFromString(text, "application/xml");
-      if (xmlDoc.querySelector("parsererror")) throw new Error("Błąd parsowania XML/TCX.");
-      const nodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Trackpoint"));
-      if (nodes.length === 0) throw new Error("Nie znaleziono elementów Trackpoint.");
+      if (xmlDoc.querySelector("parsererror")) {
+        debug("parseTCX: parsererror.");
+        throw new Error("Błąd parsowania XML/TCX.");
+      }
+      let nodes = Array.from(xmlDoc.getElementsByTagNameNS("*", "Trackpoint"));
+      debug("Trackpoint przez namespace: " + nodes.length);
+      if (nodes.length === 0) {
+        nodes = Array.from(xmlDoc.getElementsByTagName("Trackpoint"));
+        debug("Trackpoint bez namespace: " + nodes.length);
+      }
+      if (nodes.length === 0) {
+        const allElements = Array.from(xmlDoc.getElementsByTagName("*")).slice(0, 20).map(function (x) { return x.localName || x.nodeName; }).join(", ");
+        throw new Error("Nie znaleziono elementów Trackpoint. Pierwsze elementy XML: " + allElements);
+      }
       trackpoints = nodes.map((node, index) => readTrackpoint(node, index));
-      updateDerivedValues(); renderTable(); updateSummary(); enableButtons(true);
+      debug("Zbudowano tablicę trackpoints: " + trackpoints.length);
+      updateDerivedValues();
+      renderTable();
+      updateSummary();
+      enableButtons(true);
+      debug("Przyciski aktywowane.");
       setStatus(els.loadStatus, `Wczytano plik: ${fileName.replace("_edited.tcx", ".tcx")}`, "ok");
       runConsistencyCheck(true);
     } catch (e) {
@@ -548,7 +598,18 @@
   function convertSpeedToMetersPerSecond(v, unit) { if (unit === "ms") return v; if (unit === "kmh") return v / 3.6; if (unit === "pace") return 1000 / (v * 60); return NaN; }
   function formatSpeedUnit(unit) { return unit === "ms" ? "m/s" : unit === "kmh" ? "km/h" : "min/km"; }
   function formatRangeDescription(mode, from, to) { return mode === "time" ? `${from}–${to} min` : mode === "distance" ? `${from}–${to} km` : `${from}–${to} m`; }
-  function setStatus(el, text, type) { el.textContent = text; el.className = `status ${type || ""}`; }
+  function setStatus(el, text, type) {
+    if (!el) return;
+    el.textContent = text;
+    el.className = "status " + (type || "");
+  }
+
+  function debug(text) {
+    if (!els || !els.debugStatus) return;
+    const old = els.debugStatus.textContent || "";
+    els.debugStatus.textContent = old + "\n" + text;
+    console.log(text);
+  }
 
   window.addEventListener("error", e => {
     console.error(e.error || e.message);
