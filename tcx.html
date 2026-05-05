@@ -236,11 +236,19 @@
       <h2 style="margin-top:0;font-size:18px;">Modyfikacja zakresu</h2>
       <div class="grid">
         <div>
-          <label for="fromMin">Od minuty</label>
+          <label for="rangeModeSelect">Typ zakresu</label>
+          <select id="rangeModeSelect">
+            <option value="time">Czas treningu / minuty</option>
+            <option value="distance">Dystans / kilometry</option>
+            <option value="altitude">Wysokość / metry</option>
+          </select>
+        </div>
+        <div>
+          <label id="fromRangeLabel" for="fromMin">Od minuty</label>
           <input id="fromMin" type="number" step="0.01" value="0" />
         </div>
         <div>
-          <label for="toMin">Do minuty</label>
+          <label id="toRangeLabel" for="toMin">Do minuty</label>
           <input id="toMin" type="number" step="0.01" value="10" />
         </div>
         <div>
@@ -271,9 +279,41 @@
         </div>
       </div>
       <div class="small-note">
-        Przykład: zakres 5–10 minut, pole „Tętno”, operacja „Ustaw”, wartość 145. Dla wygładzania wartość oznacza rozmiar okna, np. 5 punktów.
+        Przykład: zakres 5–10 minut albo 2–4 km, pole „Tętno”, operacja „Ustaw”, wartość 145. Dla wygładzania wartość oznacza rozmiar okna, np. 5 punktów.
       </div>
       <div id="rangeStatus" class="status"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0;font-size:18px;">Odwracanie kolejności pola</h2>
+      <div class="grid">
+        <div>
+          <label for="reverseFieldSelect">Pole do odwrócenia</label>
+          <select id="reverseFieldSelect">
+            <option value="heartRate">Tętno</option>
+            <option value="altitude">Wysokość</option>
+            <option value="distance">Dystans</option>
+            <option value="lat">Szerokość geogr.</option>
+            <option value="lon">Długość geogr.</option>
+            <option value="position">Pozycja GPS: lat + lon razem</option>
+            <option value="time">Czas</option>
+          </select>
+        </div>
+        <div>
+          <label for="reverseScopeSelect">Zakres</label>
+          <select id="reverseScopeSelect">
+            <option value="all">Cały trening</option>
+            <option value="range">Tylko zakres z sekcji powyżej</option>
+          </select>
+        </div>
+        <div>
+          <button id="reverseFieldBtn" disabled>Odwróć kolejność pola</button>
+        </div>
+      </div>
+      <div class="small-note">
+        Funkcja bierze wartości wybranego pola od końca i podstawia je od początku. Na przykład wysokość z ostatniego punktu trafia do pierwszego, z przedostatniego do drugiego itd. Pozostałe pola zostają bez zmian.
+      </div>
+      <div id="reverseStatus" class="status"></div>
     </section>
 
     <section class="card">
@@ -328,12 +368,19 @@
     const exportBtn = document.getElementById("exportBtn");
     const resetBtn = document.getElementById("resetBtn");
     const applyRangeBtn = document.getElementById("applyRangeBtn");
+    const reverseFieldBtn = document.getElementById("reverseFieldBtn");
+    const reverseStatus = document.getElementById("reverseStatus");
+    const rangeModeSelect = document.getElementById("rangeModeSelect");
+    const fromRangeLabel = document.getElementById("fromRangeLabel");
+    const toRangeLabel = document.getElementById("toRangeLabel");
     const tableBody = document.querySelector("#pointsTable tbody");
 
     fileInput.addEventListener("change", handleFileLoad);
     exportBtn.addEventListener("click", exportTCX);
     resetBtn.addEventListener("click", resetEditor);
     applyRangeBtn.addEventListener("click", applyRangeEdit);
+    reverseFieldBtn.addEventListener("click", reverseSelectedField);
+    rangeModeSelect.addEventListener("change", updateRangeLabels);
 
     function handleFileLoad(event) {
       const file = event.target.files[0];
@@ -378,6 +425,7 @@
       exportBtn.disabled = false;
       resetBtn.disabled = false;
       applyRangeBtn.disabled = false;
+      reverseFieldBtn.disabled = false;
       setStatus(loadStatus, `Wczytano plik: ${fileName.replace("_edited.tcx", ".tcx")}`, "ok");
     }
 
@@ -478,6 +526,7 @@
     }
 
     function applyRangeEdit() {
+      const rangeMode = document.getElementById("rangeModeSelect").value;
       const fromMin = Number(document.getElementById("fromMin").value);
       const toMin = Number(document.getElementById("toMin").value);
       const field = document.getElementById("fieldSelect").value;
@@ -489,7 +538,7 @@
         return;
       }
 
-      const selected = trackpoints.filter(tp => tp.elapsedMin >= fromMin && tp.elapsedMin <= toMin);
+      const selected = getSelectedTrackpointsByRange(rangeMode, fromMin, toMin);
       if (selected.length === 0) {
         setStatus(rangeStatus, "Brak punktów w wybranym zakresie.", "error");
         return;
@@ -529,7 +578,7 @@
       for (const tp of selected) writeTrackpointToXml(tp);
       renderTable();
       updateSummary();
-      setStatus(rangeStatus, `Zmieniono ${selected.length} punktów w zakresie ${fromMin}–${toMin} min.`, "ok");
+      setStatus(rangeStatus, `Zmieniono ${selected.length} punktów w zakresie: ${formatRangeDescription(rangeMode, fromMin, toMin)}.`, "ok");
     }
 
     function smoothField(points, field, windowSize) {
@@ -563,6 +612,100 @@
       setChildText(tp.node, "AltitudeMeters", tp.altitude);
       setChildText(tp.node, "DistanceMeters", tp.distance);
       setNestedText(tp.node, ["HeartRateBpm", "Value"], tp.heartRate);
+    }
+
+    function reverseSelectedField() {
+      const field = document.getElementById("reverseFieldSelect").value;
+      const scope = document.getElementById("reverseScopeSelect").value;
+
+      let selected = trackpoints;
+      if (scope === "range") {
+        const rangeMode = document.getElementById("rangeModeSelect").value;
+        const fromMin = Number(document.getElementById("fromMin").value);
+        const toMin = Number(document.getElementById("toMin").value);
+        if (!isFinite(fromMin) || !isFinite(toMin) || fromMin > toMin) {
+          setStatus(reverseStatus, "Nieprawidłowy zakres.", "error");
+          return;
+        }
+        selected = getSelectedTrackpointsByRange(rangeMode, fromMin, toMin);
+      }
+
+      if (selected.length < 2) {
+        setStatus(reverseStatus, "Do odwrócenia potrzeba co najmniej dwóch punktów.", "error");
+        return;
+      }
+
+      if (field === "position") {
+        const positions = selected.map(tp => ({ lat: tp.lat, lon: tp.lon })).reverse();
+        selected.forEach((tp, i) => {
+          tp.lat = positions[i].lat;
+          tp.lon = positions[i].lon;
+        });
+      } else if (field === "time") {
+        const times = selected.map(tp => ({ time: tp.time, timeDate: tp.timeDate })).reverse();
+        selected.forEach((tp, i) => {
+          tp.time = times[i].time;
+          tp.timeDate = times[i].timeDate;
+        });
+      } else {
+        const values = selected.map(tp => tp[field]).reverse();
+        selected.forEach((tp, i) => {
+          tp[field] = values[i];
+        });
+      }
+
+      updateDerivedValues();
+      for (const tp of selected) writeTrackpointToXml(tp);
+      renderTable();
+      updateSummary();
+
+      const label = document.getElementById("reverseFieldSelect").selectedOptions[0].textContent;
+      const scopeLabel = scope === "all" ? "całym treningu" : "wybranym zakresie";
+      setStatus(reverseStatus, `Odwrócono kolejność pola: ${label} w ${scopeLabel}.`, "ok");
+    }
+
+    function getSelectedTrackpointsByRange(rangeMode, fromValue, toValue) {
+      if (rangeMode === "time") {
+        return trackpoints.filter(tp => tp.elapsedMin >= fromValue && tp.elapsedMin <= toValue);
+      }
+
+      if (rangeMode === "distance") {
+        return trackpoints.filter(tp => {
+          if (tp.distance === null || !isFinite(tp.distance)) return false;
+          const km = tp.distance / 1000;
+          return km >= fromValue && km <= toValue;
+        });
+      }
+
+      if (rangeMode === "altitude") {
+        return trackpoints.filter(tp => {
+          if (tp.altitude === null || !isFinite(tp.altitude)) return false;
+          return tp.altitude >= fromValue && tp.altitude <= toValue;
+        });
+      }
+
+      return [];
+    }
+
+    function updateRangeLabels() {
+      const mode = rangeModeSelect.value;
+      if (mode === "time") {
+        fromRangeLabel.textContent = "Od minuty";
+        toRangeLabel.textContent = "Do minuty";
+      } else if (mode === "distance") {
+        fromRangeLabel.textContent = "Od kilometra";
+        toRangeLabel.textContent = "Do kilometra";
+      } else if (mode === "altitude") {
+        fromRangeLabel.textContent = "Od wysokości m";
+        toRangeLabel.textContent = "Do wysokości m";
+      }
+    }
+
+    function formatRangeDescription(rangeMode, fromValue, toValue) {
+      if (rangeMode === "time") return `${fromValue}–${toValue} min`;
+      if (rangeMode === "distance") return `${fromValue}–${toValue} km`;
+      if (rangeMode === "altitude") return `${fromValue}–${toValue} m n.p.m.`;
+      return `${fromValue}–${toValue}`;
     }
 
     function exportTCX() {
